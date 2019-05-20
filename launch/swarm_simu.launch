@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="swarmsim" pkg="swarmsim" type="swarmsim" output="screen">
+        <!-- <rosparam command="load" file="$(find cf_simulator)/config/mavsim_config.yaml"/> -->
+    </node>
+</launch>
