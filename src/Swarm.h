@@ -13,13 +13,13 @@ public:
   void run(float frequency);
 
 private:
+  int state; 
   ros::NodeHandle nh;
   float frequency;
-  bool to_requested;
   int n_drones;
-  Drone* drone;
-
-
-  void poseCallback(int drone_id);
-  
+  vector<Drone*> dronesList;
+  void checkSwarmReady();
+  void checkSwarmForStates(int state);
+  void setState(int state);
+  void armDrones();
 };

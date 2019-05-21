@@ -1,6 +1,5 @@
 #include "mavros_msgs/CommandBool.h"
 #include "mavros_msgs/CommandTOL.h"
-
 #include "ros/console.h"
 #include "Drone.h"
 
@@ -63,8 +62,7 @@ void Drone::arm(bool arm) {
   } else {
     ROS_ERROR_STREAM("Arm request failed for drone: "<<id);
   }
-  arm == true ? state = States::Armed : States::Idle;
-
+  arm == true ? state = States::Armed : States::Ready;
 }
 
 void Drone::takeoff() {
