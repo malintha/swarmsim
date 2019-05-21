@@ -1,37 +1,21 @@
 #include "ros/ros.h"
 #include "tf/tf.h"
 #include <iostream>
+#include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/CommandTOL.h>
+#include <mavros_msgs/SetMode.h>
+#include <ros/console.h>
+#include "Swarm.h"
+
+#define n_robots 1
 
 using namespace std;
-
-class swarmSim {
-public:
-  swarmSim(const ros::NodeHandle &n, double frequency): frequency(frequency) {
-      node = n;
-  }
-
-  void iteration(const ros::TimerEvent &e) {
-      std::cout << "swarmsim running" <<std::endl;
-  }
-
-  void run(float frequency) {
-    this->frequency = frequency;
-    ros::Timer timer = node.createTimer(ros::Duration(1 / frequency),
-                                        &swarmSim::iteration, this);
-    ros::spin();
-  }
-
-private:
-  ros::NodeHandle node;
-  float frequency;
-    
-};
 
 int main(int argc, char **argv) {
   float frequency = 10;
   ros::init(argc, argv, "swarmsim");
   static ros::NodeHandle n("~");
-  swarmSim simulator(n, frequency);
+  Swarm simulator(n, frequency, n_robots);
   simulator.run(frequency);
   return 0;
 }
