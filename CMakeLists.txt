@@ -138,6 +138,9 @@ add_executable(${PROJECT_NAME}
   src/swarmsim.cpp
   src/Swarm.cpp
   src/Swarm.h
+  src/Drone.cpp
+  src/Drone.h
+  src/state.h
   )
 
 ## Rename C++ executable without prefix

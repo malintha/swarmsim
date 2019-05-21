@@ -1,0 +1,1 @@
+enum States { Idle = 0, Ready, Armed, Autonomous };

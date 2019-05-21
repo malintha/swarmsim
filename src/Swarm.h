@@ -4,6 +4,7 @@
 #include <mavros_msgs/CommandTOL.h>
 #include <mavros_msgs/SetMode.h>
 #include <geometry_msgs/PoseStamped.h>
+#include "Drone.h"
 
 class Swarm {
 public:
@@ -12,13 +13,13 @@ public:
   void run(float frequency);
 
 private:
-  ros::NodeHandle node;
+  ros::NodeHandle nh;
   float frequency;
   bool to_requested;
   int n_drones;
+  Drone* drone;
 
-  void takeoff(int drone_id);
-  void arm(int drone_id, bool arm);
+
   void poseCallback(int drone_id);
   
 };
