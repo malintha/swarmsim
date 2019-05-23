@@ -27,4 +27,5 @@ private:
   void setState(int state);
   void armDrones(bool arm);
   void takeOff();
+  void sendPositionSetPoints();
 };

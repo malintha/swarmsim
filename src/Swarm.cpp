@@ -23,7 +23,7 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Ready:
-    ROS_DEBUG("SWARM READY");
+    ROS_DEBUG("Swarm Ready");
     armDrones(true);
     checkSwarmForStates(States::Armed);
     break;
@@ -34,7 +34,7 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Autonomous:
-  
+    sendPositionSetPoints();
     break;
 
   default:
@@ -76,5 +76,16 @@ void Swarm::armDrones(bool arm) {
 void Swarm::takeOff() {
     for(int i=0;i<n_drones;i++) {
     this->dronesList[i]->takeoff();
+  }
+}
+
+void Swarm::sendPositionSetPoints() {
+  geometry_msgs::PoseStamped setpoint;
+  setpoint.pose.position.x = 3;
+  setpoint.pose.position.y = 3;
+  setpoint.pose.position.z = 3;
+
+  for(int i=0;i<n_drones;i++) {
+    this->dronesList[i]->sendPositionSetPoint(setpoint);
   }
 }

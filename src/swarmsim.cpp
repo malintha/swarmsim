@@ -7,7 +7,7 @@
 #include <ros/console.h>
 #include "Swarm.h"
 
-#define n_robots 2
+#define n_robots 1
 
 using namespace std;
 

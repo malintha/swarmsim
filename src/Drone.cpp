@@ -1,21 +1,22 @@
 #include "mavros_msgs/CommandBool.h"
 #include "mavros_msgs/CommandTOL.h"
+#include "mavros_msgs/SetMode.h"
 #include "ros/console.h"
 #include "Drone.h"
-
 
 using namespace std;
 
 Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
   ROS_DEBUG_STREAM("Initializing drone "<<id);
   setState(States::Idle);
+  takeoffHeight = 2.5;
   std::string globalPositionTopic = getPositionTopic("global");
   std::string localPositionTopic = getPositionTopic("local");
   std::string poseTopic = getPoseTopic();
-
   localPositionSub = nh.subscribe(localPositionTopic, 10, &Drone::positionLocalCB, this);
   globalPositionSub = nh.subscribe(globalPositionTopic, 10, &Drone::positionGlobalCB, this);
-
+  std::string positionSetPointTopic = getLocalSetpointTopic("position");
+  posSetPointPub = nh.advertise<geometry_msgs::PoseStamped>(positionSetPointTopic, 10);
 }
 
 int Drone::getState() {
@@ -66,32 +67,73 @@ void Drone::arm(bool arm) {
 }
 
 void Drone::takeoff() {
-  stringstream ss_to;
-  ss_to << "/" << id << "/mavros/cmd/takeoff";
-  string to_service = ss_to.str();
-  ros::ServiceClient to_cl =
-      nh.serviceClient<mavros_msgs::CommandTOL>(to_service);
+  if(state == States::Armed) {
+    stringstream ss_to;
+    ss_to << "/" << id << "/mavros/cmd/takeoff";
+    string to_service = ss_to.str();
+    ros::ServiceClient to_cl =
+        nh.serviceClient<mavros_msgs::CommandTOL>(to_service);
 
-  mavros_msgs::CommandTOL srv_takeoff;
-  srv_takeoff.request.latitude = init_pos_global[0];
-  srv_takeoff.request.longitude = init_pos_global[1];
-  srv_takeoff.request.altitude = init_pos_global[2] + 2.6;
-  srv_takeoff.request.min_pitch = 0;
-  srv_takeoff.request.yaw = M_PI/2;
-
-  ROS_DEBUG_STREAM("Drone: "<<id<<" taking off at "<< init_pos_global[0]<<" "<<init_pos_global[1]<<" "<<init_pos_global[2]);
-
-  ROS_DEBUG_STREAM("Waiting for takeoff service " << to_service);
-  to_cl.waitForExistence();
-  if (to_cl.call(srv_takeoff)) {
-    ROS_DEBUG_STREAM("Takeoff request sent" << to_service);
+    mavros_msgs::CommandTOL srv_takeoff;
+    srv_takeoff.request.latitude = init_pos_global[0];
+    srv_takeoff.request.longitude = init_pos_global[1];
+    srv_takeoff.request.altitude = init_pos_global[2] + takeoffHeight;
+    srv_takeoff.request.min_pitch = 0;
+    srv_takeoff.request.yaw = M_PI/2;
+    ROS_DEBUG_STREAM("Drone: "<<id<<" taking off at "<< init_pos_global[0]<<" "<<init_pos_global[1]<<" "<<init_pos_global[2]);
+    ROS_DEBUG_STREAM("Waiting for takeoff service " << to_service);
+    to_cl.waitForExistence();
+    if (to_cl.call(srv_takeoff)) {
+      ROS_DEBUG_STREAM("Takeoff request sent" << to_service);
+    }
+    else {
+      ROS_ERROR_STREAM("Takeoff request failed "<< to_service);  
+    }
+    setState(States::Takingoff);
   }
-  else {
-    ROS_ERROR_STREAM("Takeoff request failed for drone "<<id);  
+  else if(state == States::Takingoff) {
+    if(curr_pos_local[2] >= takeoffHeight-0.2) {
+      setState(States::Autonomous);
+      setMode("OFFBOARD");
+    }
   }
-  state = States::Autonomous;
 }
 
+void Drone::setMode(std::string mode) {
+  stringstream ss;
+  ss << "/" << id << "/mavros/set_mode";
+  string smService = ss.str();
+  ros::ServiceClient smClient =
+      nh.serviceClient<mavros_msgs::SetMode>(smService);
+  mavros_msgs::SetMode setMode;
+  setMode.request.custom_mode = mode;
+  smClient.waitForExistence();
+
+  //need to have some setpoints already in the queue to change to OFFBOARD mode
+  if(mode.compare("OFFBOARD") == 0) {
+    ROS_DEBUG_STREAM("OFFBOARD called. Publishing current position to the queue");    
+    geometry_msgs::PoseStamped setpoint;
+    setpoint.pose.position.x = curr_pos_local[0];
+    setpoint.pose.position.y = curr_pos_local[1];
+    setpoint.pose.position.z = curr_pos_local[2];
+    for(int i=0;i<10;i++) {
+      sendPositionSetPoint(setpoint);
+    }
+  }
+
+  if (smClient.call(setMode)) {
+    ROS_DEBUG_STREAM("Set mode request sent "<<mode <<" "<<smService);
+  }
+  else {
+    ROS_DEBUG_STREAM("Set mode failed "<<smService);
+  }
+}
+
+void Drone::sendPositionSetPoint(geometry_msgs::PoseStamped setPoint) {
+  if(state == States::Autonomous) {
+    posSetPointPub.publish(setPoint);
+  }
+}
 
 std::string Drone::getPositionTopic(std::string locale) {
   std::stringstream ss;
@@ -99,13 +141,11 @@ std::string Drone::getPositionTopic(std::string locale) {
   return ss.str();
 }
 
-
 std::string Drone::getPoseTopic() {
   std::stringstream ss;
   ss << "/" << this->id << "/mavros/local_position/pose";
   return ss.str();
 }
-
 
 Vector3d Drone::getRPY(geometry_msgs::Quaternion orientation) {
   tfScalar roll, pitch, yaw;
@@ -126,4 +166,38 @@ void Drone::ready(bool setInitPosGlobal, bool setInitPosLocal) {
   if(setInitPosGlobal && setInitPosLocal) {
     setState(States::Ready);
   }
+}
+
+/**
+ * Return true if the distance is within 10cm
+*/
+bool Drone::reachedGoal(geometry_msgs::PoseStamped setPoint) {
+  Eigen::Vector3d setP;
+  setP << setPoint.pose.position.x, setPoint.pose.position.y, setPoint.pose.position.z;
+  if(getEucDistance(curr_pos_local, setP) < 0.1) {
+    setState(States::Reached);
+    return true;
+  }
+  return false;
+}
+
+
+std::string Drone::getLocalSetpointTopic(std::string order) {
+  std::stringstream ss;
+  std::string postfix;
+  if(order.compare("position") == 0) {
+    postfix = "local";
+  }
+  else if(order.compare("velocity") == 0) {
+    postfix = "cmd_vel";
+  }
+  else if(order.compare("accel") == 0) {
+    postfix = "accel";
+  }
+  ss << "/" << this->id << "/mavros/setpoint_" << order<<"/"<<postfix;
+  return ss.str();
+}
+
+float Drone::getEucDistance(Eigen::Vector3d p1, Eigen::Vector3d p2) {
+  return (p1 - p2).norm();
 }

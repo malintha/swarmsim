@@ -25,6 +25,7 @@ public:
      */
     void takeoff();
     int getState();
+    void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
 
 private:
     int id;
@@ -36,17 +37,21 @@ private:
     bool setInitPosLocal;
     float yaw;
     int state;
+    float takeoffHeight;
 
     ros::NodeHandle nh;
     ros::Subscriber localPositionSub;
     ros::Subscriber globalPositionSub;
     ros::Subscriber poseSub;
+    ros::Publisher posSetPointPub;
 
+    void setMode(std::string mode);
     void positionGlobalCB(const sensor_msgs::NavSatFixConstPtr& msg);
     void positionLocalCB(const nav_msgs::OdometryConstPtr& msg);
     void poseCB(const geometry_msgs::PoseStampedConstPtr& msg);
     void setState(int state);
     void ready(bool setInitPosGlobal, bool setInitPosLocal);
+    bool reachedGoal(geometry_msgs::PoseStamped setPoint);
 
 // todo: move to a util class
     /**
@@ -67,4 +72,8 @@ private:
      * /<id>/mavros/local_position/pose
      */
     std::string getPoseTopic();
+
+    std::string getLocalSetpointTopic(std::string order);
+
+    float getEucDistance(Eigen::Vector3d p1, Eigen::Vector3d p2);
 };
