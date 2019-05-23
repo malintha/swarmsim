@@ -1,3 +1,4 @@
+#include <iostream>
 #include "ros/ros.h"
 #include "tf/tf.h"
 #include <mavros_msgs/CommandBool.h>
@@ -17,9 +18,13 @@ private:
   ros::NodeHandle nh;
   float frequency;
   int n_drones;
-  vector<Drone*> dronesList;
-  void checkSwarmReady();
+  std::vector<Drone*> dronesList;
+  /**
+   * check the swarm for a given state.
+   * The swarm is in a state if all the drones are in the same state
+  */
   void checkSwarmForStates(int state);
   void setState(int state);
-  void armDrones();
+  void armDrones(bool arm);
+  void takeOff();
 };

@@ -19,19 +19,22 @@ void Swarm::iteration(const ros::TimerEvent &e) {
   switch (state)
   {
   case States::Idle:
-    checkSwarmForStates(States::Ready);    
+    checkSwarmForStates(States::Ready);
     break;
 
-  //the swarm is ready when all the drones are ready
   case States::Ready:
-    armDrones();
+    ROS_DEBUG("SWARM READY");
+    armDrones(true);
     checkSwarmForStates(States::Armed);
     break;
 
   case States::Armed:
+    takeOff();
+    checkSwarmForStates(States::Autonomous);
     break;
 
   case States::Autonomous:
+  
     break;
 
   default:
@@ -49,36 +52,29 @@ void Swarm::run(float frequency) {
 
 void Swarm::setState(int state) {
   this->state = state;
+  ROS_DEBUG_STREAM("Set swarm state: "<<state);
 }
 
 void Swarm::checkSwarmForStates(int state) {
   bool swarmInState;
   for(int i = 0; i < n_drones; i++) {
   bool swarmInStateTemp;
-  dronesList[i]->getState() == state ? swarmInStateTemp = true : swarmInStateTemp = false;
+  this->dronesList[i]->getState() == state ? swarmInStateTemp = true : swarmInStateTemp = false;
   swarmInState = swarmInState && swarmInStateTemp;
 }
-if(swarmInState) {
-  setState(state);
-}
-}
-
-void Swarm::armDrones() {
-  for(int i=0;i<n_drones;i++) {
-    dronesList[i]->arm(true);
+  if(swarmInState) {
+    setState(state);
   }
 }
 
-// void Swarm::checkSwarmReady() {
-//   bool swarmReady;
-//   for(int i = 0; i < n_drones; i++) {
-//     bool swarmReadyTemp;
-//     dronesList[i]->getState() == States::Ready ? swarmReadyTemp = true : swarmReadyTemp = false;
-//     swarmReady = swarmReady && swarmReadyTemp;
-//   }
-//   if(swarmReady) {
-//     setState(States::Ready);
-//   }
-// }
+void Swarm::armDrones(bool arm) {
+  for(int i=0;i<n_drones;i++) {
+    this->dronesList[i]->arm(arm);
+  }
+}
 
-
+void Swarm::takeOff() {
+    for(int i=0;i<n_drones;i++) {
+    this->dronesList[i]->takeoff();
+  }
+}
