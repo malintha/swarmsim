@@ -6,6 +6,7 @@
 #include "nav_msgs/Odometry.h"
 #include "sensor_msgs/NavSatFix.h"
 #include "state.h"
+#include "Trajectory.h"
 
 using namespace Eigen;
 
@@ -23,9 +24,10 @@ public:
      * function for taking off a drone. Uses the service:
      * /<drone_id>/mavros/cmd/takeoff
      */
-    void takeoff();
+    void takeoff(bool takeoff);
     int getState();
-    void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
+    void setTrajectory(Trajectory trajectory);
+    void executeTrajectory();
 
 private:
     int id;
@@ -38,6 +40,8 @@ private:
     float yaw;
     int state;
     float takeoffHeight;
+    Trajectory trajectory;
+    int execPointer;
 
     ros::NodeHandle nh;
     ros::Subscriber localPositionSub;
@@ -52,7 +56,8 @@ private:
     void setState(int state);
     void ready(bool setInitPosGlobal, bool setInitPosLocal);
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
-
+    void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
+    void callTOLService(bool takeoff);
 // todo: move to a util class
     /**
      * get rpy from geometry_msgs::Quaternion

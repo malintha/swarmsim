@@ -1,7 +1,10 @@
 #include <iostream>
+#include <fstream>
 #include <ros/console.h>
 #include "Swarm.h"
 #include "state.h"
+
+#define fileLoad true
 
 using namespace std;
 
@@ -12,10 +15,12 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones)
     Drone* drone = new Drone(i, nh);
     dronesList.push_back(drone); 
   }
+  if(fileLoad) {
+    trajectories = loadTrajectoriesFromFile();
+  }
 }
 
 void Swarm::iteration(const ros::TimerEvent &e) {
-
   switch (state)
   {
   case States::Idle:
@@ -29,12 +34,16 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Armed:
-    takeOff();
+    takeOff(true);
     checkSwarmForStates(States::Autonomous);
     break;
 
   case States::Autonomous:
     sendPositionSetPoints();
+    checkSwarmForStates(States::Reached);
+    break;
+  case States::Reached:
+    takeOff(false);
     break;
 
   default:
@@ -73,19 +82,38 @@ void Swarm::armDrones(bool arm) {
   }
 }
 
-void Swarm::takeOff() {
+void Swarm::takeOff(bool takeoff) {
     for(int i=0;i<n_drones;i++) {
-    this->dronesList[i]->takeoff();
+    this->dronesList[i]->takeoff(takeoff);
   }
 }
 
 void Swarm::sendPositionSetPoints() {
-  geometry_msgs::PoseStamped setpoint;
-  setpoint.pose.position.x = 3;
-  setpoint.pose.position.y = 3;
-  setpoint.pose.position.z = 3;
-
   for(int i=0;i<n_drones;i++) {
-    this->dronesList[i]->sendPositionSetPoint(setpoint);
+    this->dronesList[i]->executeTrajectory();
   }
+}
+
+std::vector<Trajectory> Swarm::loadTrajectoriesFromFile(){
+  std::vector<Trajectory> trajList;
+  std::string filePath;
+  if(nh.getParam("/swarmsim/trajDir",filePath)) {
+    for(int i=0;i<n_drones;i++) {
+      std::stringstream ss;
+      ss << filePath <<"pos_"<<i<<".txt";
+      ROS_DEBUG_STREAM("Loading trajectories from file "<<ss.str());
+      std::ifstream posStream(ss.str());
+      std::string posLine;
+      double x, y, z;
+      Trajectory traj;
+      while(posStream >> x >> y >> z) {
+        Eigen::Vector3d pos;
+        pos << x, y, z;
+        traj.position.push_back(pos);
+      }
+      trajList.push_back(traj);
+      dronesList[i]->setTrajectory(traj);
+    }
+  }
+ROS_DEBUG_STREAM("Trajectories loaded from file");
 }

@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <launch>
+    <arg name="nDrones" default="1" />
     <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find swarmsim)/launch/custom_rosconsole.conf"/>
     <node name="swarmsim" pkg="swarmsim" type="swarmsim" output="screen">
+    <param name="trajDir" value="$(find swarmsim)/launch/traj_data/"/>
+    <param name="nDrones" value="$(arg nDrones)"/>
         <!-- <rosparam command="load" file="$(find cf_simulator)/config/mavsim_config.yaml"/> -->
     </node>
 </launch>

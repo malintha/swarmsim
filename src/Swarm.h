@@ -6,6 +6,7 @@
 #include <mavros_msgs/SetMode.h>
 #include <geometry_msgs/PoseStamped.h>
 #include "Drone.h"
+#include "Trajectory.h"
 
 class Swarm {
 public:
@@ -19,6 +20,9 @@ private:
   float frequency;
   int n_drones;
   std::vector<Drone*> dronesList;
+  //stores the trajectories of drones
+  std::vector<Trajectory> trajectories;
+
   /**
    * check the swarm for a given state.
    * The swarm is in a state if all the drones are in the same state
@@ -26,6 +30,7 @@ private:
   void checkSwarmForStates(int state);
   void setState(int state);
   void armDrones(bool arm);
-  void takeOff();
+  void takeOff(bool takeoff);
   void sendPositionSetPoints();
+  std::vector<Trajectory> loadTrajectoriesFromFile();
 };

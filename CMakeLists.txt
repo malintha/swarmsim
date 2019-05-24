@@ -141,6 +141,7 @@ add_executable(${PROJECT_NAME}
   src/Drone.cpp
   src/Drone.h
   src/state.h
+  src/Trajectory.h
   )
 
 ## Rename C++ executable without prefix
