@@ -24,7 +24,7 @@ public:
      * function for taking off a drone. Uses the service:
      * /<drone_id>/mavros/cmd/takeoff
      */
-    void takeoff(bool takeoff);
+    void TOLService(bool takeoff);
     int getState();
     void setTrajectory(Trajectory trajectory);
     void executeTrajectory();

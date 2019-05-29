@@ -72,12 +72,12 @@ void Drone::arm(bool arm) {
   arm == true ? state = States::Armed : States::Ready;
 }
 
-void Drone::takeoff(bool takeoff) {
+void Drone::TOLService(bool takeoff) {
   if (state == States::Armed && takeoff) {
     callTOLService(true);
     setState(States::Takingoff);
   } else if (state == States::Takingoff) {
-    if (curr_pos_local[2] >= takeoffHeight - 0.2) {
+    if (curr_pos_local[2] >= takeoffHeight - 0.05) {
       setState(States::Autonomous);
       setMode("OFFBOARD");
     }

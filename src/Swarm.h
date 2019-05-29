@@ -10,7 +10,7 @@
 
 class Swarm {
 public:
-  Swarm(const ros::NodeHandle &n, double frequency, int n_drones);
+  Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool fileLoad);
   void iteration(const ros::TimerEvent &e);
   void run(float frequency);
 
@@ -30,7 +30,7 @@ private:
   void checkSwarmForStates(int state);
   void setState(int state);
   void armDrones(bool arm);
-  void takeOff(bool takeoff);
+  void TOLService(bool takeoff);
   void sendPositionSetPoints();
   std::vector<Trajectory> loadTrajectoriesFromFile();
 };

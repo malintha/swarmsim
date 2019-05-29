@@ -14,10 +14,12 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "swarmsim");
   static ros::NodeHandle n("~");
   int nDrones;
-  if (n.param("/swarmsim/nDrones", nDrones, 1)) {
-    ROS_DEBUG_STREAM("Number of drones "<<nDrones);
-    Swarm simulator(n, frequency, nDrones);
-    simulator.run(frequency);
-    return 0;
-  }
+  bool fileLoad;
+  n.param("/swarmsim/nDrones", nDrones, 1);
+  n.param("/swarmsim/fileLoad", fileLoad, true);
+
+  ROS_DEBUG_STREAM("Number of drones "<<nDrones);
+  Swarm simulator(n, frequency, nDrones, fileLoad);
+  simulator.run(frequency);
+  return 0;
 }

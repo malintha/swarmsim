@@ -4,11 +4,9 @@
 #include "Swarm.h"
 #include "state.h"
 
-#define fileLoad true
-
 using namespace std;
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones)
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool fileLoad)
     : frequency(frequency), n_drones(n_drones), nh(n) {
   state = States::Idle;   
   for (int i=0;i<n_drones;i++) {
@@ -34,7 +32,7 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Armed:
-    takeOff(true);
+    TOLService(true);
     checkSwarmForStates(States::Autonomous);
     break;
 
@@ -42,14 +40,14 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     sendPositionSetPoints();
     checkSwarmForStates(States::Reached);
     break;
+
   case States::Reached:
-    takeOff(false);
+    TOLService(false);
     break;
 
   default:
     break;
   }
-
 }
 
 void Swarm::run(float frequency) {
@@ -82,9 +80,9 @@ void Swarm::armDrones(bool arm) {
   }
 }
 
-void Swarm::takeOff(bool takeoff) {
+void Swarm::TOLService(bool takeoff) {
     for(int i=0;i<n_drones;i++) {
-    this->dronesList[i]->takeoff(takeoff);
+    this->dronesList[i]->TOLService(takeoff);
   }
 }
 
