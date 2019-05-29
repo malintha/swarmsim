@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(swarmsim)
-
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -142,6 +141,7 @@ add_executable(${PROJECT_NAME}
   src/Drone.h
   src/state.h
   src/Trajectory.h
+  src/optimization/example.cpp
   )
 
 ## Rename C++ executable without prefix
@@ -157,6 +157,7 @@ add_executable(${PROJECT_NAME}
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  qpOASES
 )
 
 #############
@@ -188,11 +189,11 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(FILES
+  test/lin_traj_nav_test.test
+  test/lin_traj_nav_test.py
+  DESTINATION share/${PROJECT_NAME}/test
+)
 install(DIRECTORY
   "launch"
   DESTINATION share/${PROJECT_NAME}
@@ -209,3 +210,7 @@ install(DIRECTORY
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest(test/lin_traj_nav_test.test)
+endif()
