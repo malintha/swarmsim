@@ -5,7 +5,8 @@
 #include <eigen3/Eigen/Dense>
 
 struct Trajectory {
-  std::vector<Eigen::Vector3d> position; 
+  std::vector<Eigen::Vector3d> pos; 
 };
+
 
 #endif

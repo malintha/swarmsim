@@ -107,7 +107,7 @@ std::vector<Trajectory> Swarm::loadTrajectoriesFromFile(){
       while(posStream >> x >> y >> z) {
         Eigen::Vector3d pos;
         pos << x, y, z;
-        traj.position.push_back(pos);
+        traj.pos.push_back(pos);
       }
       trajList.push_back(traj);
       dronesList[i]->setTrajectory(traj);

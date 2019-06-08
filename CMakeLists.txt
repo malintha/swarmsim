@@ -141,7 +141,11 @@ add_executable(${PROJECT_NAME}
   src/Drone.h
   src/state.h
   src/Trajectory.h
-  src/optimization/example.cpp
+  src/utils.h
+  src/utils.cpp
+  src/optimization/solver.h
+  src/optimization/solver.cpp
+
   )
 
 ## Rename C++ executable without prefix
@@ -188,14 +192,16 @@ install(DIRECTORY include/${PROJECT_NAME}/
   PATTERN ".svn" EXCLUDE
 )
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-install(FILES
-  test/lin_traj_nav_test.test
-  test/lin_traj_nav_test.py
-  DESTINATION share/${PROJECT_NAME}/test
-)
+# Mark other files for installation (e.g. launch and bag files, etc.)
+# install(DIRECTORY
+#   test/lin_traj_nav_test.test
+#   test/lin_traj_nav_test.py
+#   DESTINATION share/${PROJECT_NAME}/test
+# )
+
 install(DIRECTORY
   "launch"
+  "test"
   DESTINATION share/${PROJECT_NAME}
 )
 #############

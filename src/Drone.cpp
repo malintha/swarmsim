@@ -167,12 +167,12 @@ void Drone::setTrajectory(Trajectory trajectory) {
 void Drone::executeTrajectory() {
   if (state == States::Autonomous) {
     Vector3d waypoint;
-    if (execPointer < trajectory.position.size() - 1) {
-      waypoint = trajectory.position[execPointer++];
+    if (execPointer < trajectory.pos.size() - 1) {
+      waypoint = trajectory.pos[execPointer++];
     } else {
       setMode("AUTO.LOITER");
       setState(States::Reached);
-      waypoint = trajectory.position[execPointer - 1];
+      waypoint = trajectory.pos[execPointer - 1];
     }
     geometry_msgs::PoseStamped setpoint;
     setpoint.pose.position.x = waypoint[0];
