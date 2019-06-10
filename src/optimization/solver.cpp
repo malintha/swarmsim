@@ -29,15 +29,16 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, vector<double> tL
     MatrixXf A(nc, nx);
     vector<double> lba;
     vector<double> uba;
-    ROS_DEBUG_STREAM("nx: "<<nx<<" nc: "<<nc);
+    ROS_DEBUG_STREAM("nx: "<<nx<<" nc: "<<nc<<" ts: "<<tList.size());
+    double t0 = tList[0];
+    double t1 = tList[tList.size()-1];
 
     // construct Hessian
     MatrixXf H(K*M*D*n, K*M*D*n);
     for(int k=0;k<K;k++) {
         MatrixXf mstacked(M*D*n, M*D*n);
         for(int m=0;m<M;m++) {
-            double t0 = tList[0];
-            double t1 = tList[tList.size()-1];
+
             MatrixXf dstacked(D*n,D*n);
             dstacked.fill(0);
             for(int d=0;d<D;d++) {
@@ -49,9 +50,12 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, vector<double> tL
         H.block(n*D*M*k,n*D*M*k,M*D*7,M*D*7) = mstacked;
     }
 
+    ROS_DEBUG_STREAM("Constructed Hessian");
+
     //construct A and constraint matrices
     for(int k=0;k<K;k++) {
         vector<Vector3d> posList = droneWpts[k].pos;
+        // cout<<"posList z val: "<<posList[0][2]<<endl;
         MatrixXf dstacked(nc/(K), n*D);
         dstacked.fill(0);
         for(int d=0;d<D;d++) {
@@ -134,6 +138,9 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, vector<double> tL
     real_t* H_r = matrix2realt(H);
 
     ROS_DEBUG_STREAM("lba: "<<lba.size()<<endl<<"uba: "<<uba.size());
+    // for(int i=0;i<lba.size();i++) {
+    //     cout<<"lba: "<<lba[i]<<endl;
+    // }
     real_t g[nx];
     fill(g, g+nx, 0);
     QProblem qp(nx, nc);
@@ -144,6 +151,20 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, vector<double> tL
 	qp.init(H_r,g,A_r,nullptr,nullptr,lb_r,ub_r, nWSR);
 	real_t* xOpt = new real_t[nx];
 	qp.getPrimalSolution(xOpt);
+    ROS_DEBUG_STREAM("Optimization problem solved");
+
+    vector<Trajectory> trajList;
+    for(int i=0;i<K;i++) {
+        vector<double> coeff(21);
+        copy(xOpt+i*n*D, xOpt+((i+1)*n*D),coeff.begin());
+        Trajectory traj = calculateTrajectory(coeff,t0,t1);
+        trajList.push_back(traj);
+    }
+    ROS_DEBUG_STREAM("Calculated trajectories. Trajectories: "<<trajList.size()<<" Each: "<<trajList[0].pos.size());
+    // for(int i =0;i<trajList[0].pos.size();i++) {
+    //     cout<<trajList[1].pos[i][0]<<" "<<trajList[1].pos[i][1]<<" "<<trajList[1].pos[i][2]<<endl;
+    // }
+    return trajList;
 }
 
 real_t* Solver::matrix2realt(MatrixXf mat) {
@@ -156,21 +177,26 @@ real_t* Solver::matrix2realt(MatrixXf mat) {
     return mat_r;
 }
 
-Trajectory Solver::calculateTrajectory(vector<double> coefficients, double t0, double t1) {
+Trajectory Solver::calculateTrajectory(vector<double> coef, double t0, double t1) {
     Trajectory traj;
-        vector<double> xCoeffs[n];
-        vector<double> yCoeffs[n];
-        vector<double> zCoeffs[n];
 
-        copy(coefficients.begin(), coefficients.begin()+(n-1), xCoeffs);
-        copy(coefficients.begin()+n, coefficients.begin()+2*n-1, yCoeffs);
-        copy(coefficients.begin()+2*n, coefficients.begin()+3*n-1, zCoeffs);
+    MatrixXf xc(n,1);
+    MatrixXf yc(n,1);
+    MatrixXf zc(n,1);
 
-        for(double t=t0; t<=t1; t+=dt) {
-            Vector3d pos;
-            // pos[0] = 
+    xc << coef[0],coef[1],coef[2],coef[3],coef[4],coef[5],coef[6];
+    yc << coef[7],coef[8],coef[9],coef[10],coef[11],coef[12],coef[13];
+    zc << coef[14],coef[15],coef[16],coef[17],coef[18],coef[19],coef[20];
+    // cout<<"z_coeff: "<<zc<<endl;
+    for(double t=t0; t<=t1; t+=dt) {
+        Vector3d pos;
+        MatrixXf posT = getPosTimeVec(t);
+        pos[0] = posT.row(0)*xc.col(0);
+        pos[1] = posT.row(0)*yc.col(0);
+        pos[2] = posT.row(0)*zc.col(0);
+        traj.pos.push_back(pos);
     }
-
+    return traj;
 }
 
 int Solver::getnConstraints() {
@@ -179,4 +205,22 @@ int Solver::getnConstraints() {
 
 int Solver::getnVariables() {
     return n*K*D;
+}
+
+MatrixXf Solver::getPosTimeVec(double t) {
+    MatrixXf posTimes(1,n);
+    posTimes << pow(t, 6), pow(t, 5), pow(t, 4), pow(t, 3), pow(t, 2), pow(t, 1), 1;
+    return posTimes;
+}
+
+MatrixXf Solver::getVelTimeVec(double t) {
+    MatrixXf velTimes(1,n);
+    velTimes << 6*pow(t, 5), 5*pow(t, 4), 4*pow(t, 3), 3*pow(t, 2), 2*t, 1, 0;
+    return velTimes; 
+}
+
+MatrixXf Solver::getAccTimeVec(double t) {
+    MatrixXf accTimes(1,n);
+    accTimes << 30*pow(t, 4), 20*pow(t, 3), 12*pow(t, 2), 6*t, 2, 0, 0;
+    return accTimes;
 }

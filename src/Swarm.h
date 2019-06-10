@@ -7,6 +7,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include "Drone.h"
 #include "Trajectory.h"
+#include "optimization/solver.h"
 
 class Swarm {
 public:
@@ -22,6 +23,7 @@ private:
   std::vector<Drone*> dronesList;
   //stores the trajectories of drones
   std::vector<Trajectory> trajectories;
+  Solver* droneTrajSolver;
 
   /**
    * check the swarm for a given state.
@@ -32,5 +34,6 @@ private:
   void armDrones(bool arm);
   void TOLService(bool takeoff);
   void sendPositionSetPoints();
-  std::vector<Trajectory> loadTrajectoriesFromFile();
+  std::vector<Trajectory> loadTrajectoriesFromFile(bool subGoalsOnly);
+  std::vector<double> loadTimesFromFile();
 };
