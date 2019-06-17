@@ -16,6 +16,7 @@ public:
   void run(float frequency);
 
 private:
+  char* yaml_fpath;
   int state; 
   ros::NodeHandle nh;
   float frequency;

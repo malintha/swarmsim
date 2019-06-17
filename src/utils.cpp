@@ -3,7 +3,7 @@
 #include <regex>
 #include <ros/console.h>
 #include <fstream>
-
+#include <tuple>
 
 using namespace Eigen;
 
@@ -41,7 +41,6 @@ void blockDiag(vector<int> *H, real_t *Hn, int HnRows) {
   int nblocks = currDim / HnRows;
   int newDim = HnRows * (nblocks + 1);
   reSizeMat(H, currDim, newDim);
-
   for (int i = 0; i < (newDim * newDim); i++) {
     int c = i % newDim;
     int r = i / newDim;
@@ -59,7 +58,7 @@ void blockDiag(vector<int> *H, real_t *Hn, int HnRows) {
   }
 }
 
-vector<Trajectory> getTrajectoryList(char* fPath, int horizon_id) {
+tuple<vector<Trajectory>, vector<double> > getTrajectoryList(char* fPath, int horizon_id) {
     FILE *fh = fopen(fPath, "r");
     yaml_parser_t parser;
     yaml_token_t token;
@@ -167,7 +166,7 @@ vector<Trajectory> getTrajectoryList(char* fPath, int horizon_id) {
 
                 if(timeset_node && times_node) {
                     if(timeset_id == horizon_id) {
-                        cout<<"time: "<<s<<endl;
+                        t_list.push_back(std::stod(s));
                     }
                 }
 
@@ -206,7 +205,7 @@ vector<Trajectory> getTrajectoryList(char* fPath, int horizon_id) {
     } 
     while (event.type != YAML_STREAM_END_EVENT);
     yaml_event_delete(&event);
-    return tr_list;
+    return make_tuple(tr_list, t_list);
     }
 
     std::vector<double> loadTimesFromFile(ros::NodeHandle &nh) {

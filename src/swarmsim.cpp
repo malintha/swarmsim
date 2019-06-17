@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   int nDrones;
   bool fileLoad;
   n.param("/swarmsim/nDrones", nDrones, 1);
-  n.param("/swarmsim/fileLoad", fileLoad, true);
+  n.param("/swarmsim/fileLoad", fileLoad, false);
 
   ROS_DEBUG_STREAM("Number of drones "<<nDrones);
   Swarm simulator(n, frequency, nDrones, fileLoad);

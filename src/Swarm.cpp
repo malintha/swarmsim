@@ -12,6 +12,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
   double maxVel = 4;
   double maxAcc = 5;
   droneTrajSolver = new Solver(n_drones, maxVel, maxAcc, 2, frequency);
+  yaml_fpath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
   for (int i=0;i<n_drones;i++) {
     Drone* drone = new Drone(i, nh);
     dronesList.push_back(drone); 
@@ -28,8 +29,9 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
 
   //loading just sub goal positions from files
   else {
-    vector<double> tList = simutils::loadTimesFromFile(nh);
-    vector<Trajectory> droneWpts = simutils::loadTrajectoriesFromFile(n_drones, nh, false);
+    vector<double> tList;
+    vector<Trajectory> droneWpts;
+    tie(droneWpts, tList) = simutils::getTrajectoryList(yaml_fpath, 1);
     ROS_DEBUG_STREAM("wpts: "<<droneWpts[0].pos.size());
 
     trajectories = droneTrajSolver->solve(droneWpts, tList);
