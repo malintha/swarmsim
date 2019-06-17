@@ -1,8 +1,11 @@
 #include "utils.h"
 #include <yaml.h>
 #include <regex>
+#include <ros/console.h>
+#include <fstream>
 
-using namespace std;
+
+using namespace Eigen;
 
 namespace simutils {
 
@@ -205,4 +208,49 @@ vector<Trajectory> getTrajectoryList(char* fPath, int horizon_id) {
     yaml_event_delete(&event);
     return tr_list;
     }
+
+    std::vector<double> loadTimesFromFile(ros::NodeHandle &nh) {
+        std::vector<double> tList;
+        std::string filePath;
+        if(nh.getParam("/swarmsim/trajDir",filePath)) {
+            std::stringstream ss;
+            ss << filePath <<"tList"<<".txt";
+            ROS_DEBUG_STREAM("Loading times from file "<<ss.str());
+            std::ifstream tstream(ss.str());
+            double t;
+            Trajectory traj;
+            while(tstream >> t) {
+                tList.push_back(t);
+            }   
+        }
+        ROS_DEBUG_STREAM("Times loaded from file");
+        return tList;
+    }
+
+    std::vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, bool fullTrajecory){
+        std::vector<Trajectory> trajList;
+        std::string filePath;
+        std::string prefix;
+        fullTrajecory ? prefix = "pos_" : prefix = "goals_";
+
+        if(nh.getParam("/swarmsim/trajDir",filePath)) {
+            for(int i=0;i<n_drones;i++) {
+            std::stringstream ss;
+            ss << filePath <<prefix<<i<<".txt";
+            ROS_DEBUG_STREAM("Loading trajectories from file "<<ss.str());
+            std::ifstream posStream(ss.str());
+            std::string posLine;
+            double x, y, z;
+            Trajectory traj;
+            while(posStream >> x >> y >> z) {
+                Eigen::Vector3d pos;
+                pos << x, y, z;
+                traj.pos.push_back(pos);
+            }
+            trajList.push_back(traj);
+            }
+        }
+        ROS_DEBUG_STREAM("Trajectories loaded from file");
+        return trajList;
+        }
 }

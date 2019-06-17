@@ -38,7 +38,6 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, vector<double> tL
     for(int k=0;k<K;k++) {
         MatrixXf mstacked(M*D*n, M*D*n);
         for(int m=0;m<M;m++) {
-
             MatrixXf dstacked(D*n,D*n);
             dstacked.fill(0);
             for(int d=0;d<D;d++) {

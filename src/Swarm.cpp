@@ -1,8 +1,8 @@
 #include <iostream>
-#include <fstream>
 #include <ros/console.h>
 #include "Swarm.h"
 #include "state.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -19,12 +19,17 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
 
   //loading the full trajectoryies from files 
   if(fileLoad) {
-    trajectories = loadTrajectoriesFromFile(true);
+    trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, true);
+    for(int i=0;i<n_drones;i++) {
+      Trajectory traj = trajectories[i];
+      dronesList[i]->setTrajectory(traj);
+    }
   }
+
   //loading just sub goal positions from files
   else {
-    vector<double> tList = loadTimesFromFile();
-    vector<Trajectory> droneWpts = loadTrajectoriesFromFile(false);
+    vector<double> tList = simutils::loadTimesFromFile(nh);
+    vector<Trajectory> droneWpts = simutils::loadTrajectoriesFromFile(n_drones, nh, false);
     ROS_DEBUG_STREAM("wpts: "<<droneWpts[0].pos.size());
 
     trajectories = droneTrajSolver->solve(droneWpts, tList);
@@ -108,50 +113,3 @@ void Swarm::sendPositionSetPoints() {
   }
 }
 
-std::vector<Trajectory> Swarm::loadTrajectoriesFromFile(bool fullTrajecory){
-  std::vector<Trajectory> trajList;
-  std::string filePath;
-  std::string prefix;
-  fullTrajecory ? prefix = "pos_" : prefix = "goals_";
-
-  if(nh.getParam("/swarmsim/trajDir",filePath)) {
-    for(int i=0;i<n_drones;i++) {
-      std::stringstream ss;
-      ss << filePath <<prefix<<i<<".txt";
-      ROS_DEBUG_STREAM("Loading trajectories from file "<<ss.str());
-      std::ifstream posStream(ss.str());
-      std::string posLine;
-      double x, y, z;
-      Trajectory traj;
-      while(posStream >> x >> y >> z) {
-        Eigen::Vector3d pos;
-        pos << x, y, z;
-        traj.pos.push_back(pos);
-      }
-      trajList.push_back(traj);
-      if(fullTrajecory) {
-        dronesList[i]->setTrajectory(traj);
-      }
-    }
-  }
-ROS_DEBUG_STREAM("Trajectories loaded from file");
-return trajList;
-}
-
-std::vector<double> Swarm::loadTimesFromFile() {
-  std::vector<double> tList;
-  std::string filePath;
-  if(nh.getParam("/swarmsim/trajDir",filePath)) {
-      std::stringstream ss;
-      ss << filePath <<"tList"<<".txt";
-      ROS_DEBUG_STREAM("Loading times from file "<<ss.str());
-      std::ifstream tstream(ss.str());
-      double t;
-      Trajectory traj;
-      while(tstream >> t) {
-        tList.push_back(t);
-      }   
-  }
-  ROS_DEBUG_STREAM("Times loaded from file");
-  return tList;
-}
