@@ -54,7 +54,12 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, vector<double> tL
     //construct A and constraint matrices
     for(int k=0;k<K;k++) {
         vector<Vector3d> posList = droneWpts[k].pos;
-        // cout<<"posList z val: "<<posList[0][2]<<endl;
+        for(int i=0;i<posList.size();i++) {
+            cout<<"posList vals: "<<posList[i][0]<<" "<<posList[i][1]<<" "<<posList[i][2]<<endl;
+        }
+        for(int i=0;i<tList.size();i++) {
+            cout<<"tList vals: "<<tList[i]<<endl;
+        }
         MatrixXf dstacked(nc/(K), n*D);
         dstacked.fill(0);
         for(int d=0;d<D;d++) {
@@ -178,7 +183,6 @@ real_t* Solver::matrix2realt(MatrixXf mat) {
 
 Trajectory Solver::calculateTrajectory(vector<double> coef, double t0, double t1) {
     Trajectory traj;
-
     MatrixXf xc(n,1);
     MatrixXf yc(n,1);
     MatrixXf zc(n,1);
@@ -186,7 +190,11 @@ Trajectory Solver::calculateTrajectory(vector<double> coef, double t0, double t1
     xc << coef[0],coef[1],coef[2],coef[3],coef[4],coef[5],coef[6];
     yc << coef[7],coef[8],coef[9],coef[10],coef[11],coef[12],coef[13];
     zc << coef[14],coef[15],coef[16],coef[17],coef[18],coef[19],coef[20];
-    // cout<<"z_coeff: "<<zc<<endl;
+    
+    cout<<"x_coeff: "<<xc<<endl;
+    cout<<"y_coeff: "<<yc<<endl;    
+    cout<<"z_coeff: "<<zc<<endl;
+
     for(double t=t0; t<=t1; t+=dt) {
         Vector3d pos;
         MatrixXf posT = getPosTimeVec(t);

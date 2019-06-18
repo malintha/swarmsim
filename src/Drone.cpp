@@ -222,6 +222,7 @@ bool Drone::reachedGoal(geometry_msgs::PoseStamped setPoint) {
   Eigen::Vector3d setP;
   setP << setPoint.pose.position.x, setPoint.pose.position.y,
       setPoint.pose.position.z;
+  cout<<"eucledian dis: "<<getEucDistance(curr_pos_local, setP)<<endl;
   if (getEucDistance(curr_pos_local, setP) < 0.1) {
     setState(States::Reached);
     return true;

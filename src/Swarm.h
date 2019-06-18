@@ -37,4 +37,5 @@ private:
   void sendPositionSetPoints();
   std::vector<Trajectory> loadTrajectoriesFromFile(bool subGoalsOnly);
   std::vector<double> loadTimesFromFile();
+  std::vector<Trajectory> transformTraj(std::vector<Trajectory> trajs);
 };

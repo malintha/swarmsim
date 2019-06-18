@@ -29,11 +29,9 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
 
   //loading just sub goal positions from files
   else {
-    vector<double> tList;
-    vector<Trajectory> droneWpts;
-    tie(droneWpts, tList) = simutils::getTrajectoryList(yaml_fpath, 1);
-    ROS_DEBUG_STREAM("wpts: "<<droneWpts[0].pos.size());
-
+    vector<double> tList = simutils::loadTimesFromFile(nh);
+    vector<Trajectory> droneWpts = simutils::loadTrajectoriesFromFile(n_drones, nh, false);
+    // tie(droneWpts, tList) = simutils::getTrajectoryList(yaml_fpath, 1);
     trajectories = droneTrajSolver->solve(droneWpts, tList);
     for(int i=0;i<n_drones;i++) {
       dronesList[i]->setTrajectory(trajectories[i]);
@@ -115,3 +113,16 @@ void Swarm::sendPositionSetPoints() {
   }
 }
 
+// std::vector<Trajectory> Swarm::transformTraj(std::vector<Trajectory> trajs) {
+//   vector<Trajectory> newTrs;
+//   for(int i=0;i<4;i++) {
+//     Trajectory tr = trajs[i];
+//     Trajectory newtr;
+//     for(int j=0;j<tr.pos.size();j++) {
+//       if(i==0) {
+        
+//       }
+//     }
+
+//   }
+// }
