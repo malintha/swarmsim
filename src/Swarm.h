@@ -15,17 +15,29 @@ public:
   void iteration(const ros::TimerEvent &e);
   void run(float frequency);
 
+/**
+ * This function sets wpts and tlist for the next horizon. The idea is to
+ * let external parties to set waypoints for the swarm as long as the swarm is
+ * in the planning phase.
+ */
+  void setWaypoints(vector<Trajectory> droneWpts, vector<double> tList); 
+
 private:
+  int phase; 
   char* yaml_fpath;
   int state; 
   ros::NodeHandle nh;
   float frequency;
   int n_drones;
   std::vector<Drone*> dronesList;
-  //stores the trajectories of drones
-  std::vector<Trajectory> trajectories;
+
+  //stores the incoming wpts
+  std::vector<Trajectory> wpts;
+  std::vector<double> tList;
+
   Solver* droneTrajSolver;
 
+  int horizonLen;
   /**
    * check the swarm for a given state.
    * The swarm is in a state if all the drones are in the same state
@@ -35,7 +47,15 @@ private:
   void armDrones(bool arm);
   void TOLService(bool takeoff);
   void sendPositionSetPoints();
-  std::vector<Trajectory> loadTrajectoriesFromFile(bool subGoalsOnly);
-  std::vector<double> loadTimesFromFile();
-  std::vector<Trajectory> transformTraj(std::vector<Trajectory> trajs);
+  //calculates the RHP phase for the swarm based on the Horizon length and current time
+  void setSwarmPhase(int execPointer);
+
+  //set the waypoints and tList by reading the yaml file
+  void setYamlWaypoints(int trajectoryId);
+  bool planningInitialized;
+  bool optimizingInitialized;
+  bool executionInitialized;
+  void performPhaseTasks();
+
+  std::vector<Trajectory> getTrajectories(int trajecoryId);
 };

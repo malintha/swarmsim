@@ -9,33 +9,34 @@ using namespace std;
 Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool fileLoad)
     : frequency(frequency), n_drones(n_drones), nh(n) {
   state = States::Idle;
+  phase = Phases::Planning;
   double maxVel = 4;
   double maxAcc = 5;
   droneTrajSolver = new Solver(n_drones, maxVel, maxAcc, 2, frequency);
   yaml_fpath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
+  planningInitialized = false;
+  optimizingInitialized = false;
   for (int i=0;i<n_drones;i++) {
     Drone* drone = new Drone(i, nh);
     dronesList.push_back(drone); 
   }
 
-  //loading the full trajectoryies from files 
+  //loading the full trajectories from files 
   if(fileLoad) {
-    trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, true);
+    vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, true);
     for(int i=0;i<n_drones;i++) {
       Trajectory traj = trajectories[i];
       dronesList[i]->setTrajectory(traj);
     }
   }
 
-  //loading just sub goal positions from files
+  //performing online trajectory optimization
   else {
-    vector<double> tList = simutils::loadTimesFromFile(nh);
-    vector<Trajectory> droneWpts = simutils::loadTrajectoriesFromFile(n_drones, nh, false);
-    // tie(droneWpts, tList) = simutils::getTrajectoryList(yaml_fpath, 1);
-    trajectories = droneTrajSolver->solve(droneWpts, tList);
+    vector<Trajectory> trajectories = getTrajectories(1);
     for(int i=0;i<n_drones;i++) {
-      dronesList[i]->setTrajectory(trajectories[i]);
+      dronesList[i]->pushTrajectory(trajectories[i]);
     }
+    horizonLen = trajectories[0].pos.size();
   }
 }
 
@@ -47,7 +48,6 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Ready:
-    ROS_DEBUG("Swarm Ready");
     armDrones(true);
     checkSwarmForStates(States::Armed);
     break;
@@ -58,6 +58,7 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Autonomous:
+    doRHP();
     sendPositionSetPoints();
     checkSwarmForStates(States::Reached);
     break;
@@ -108,21 +109,65 @@ void Swarm::TOLService(bool takeoff) {
 }
 
 void Swarm::sendPositionSetPoints() {
+  int execPointer;
   for(int i=0;i<n_drones;i++) {
-    this->dronesList[i]->executeTrajectory();
+    execPointer = this->dronesList[i]->executeTrajectory();
+  }
+  setSwarmPhase(execPointer);
+}
+
+/**
+ * todo: change these ratios if want to use receding horizon planning.
+ * eg: plan again when progress is 0.5
+*/
+void Swarm::setSwarmPhase(int execPointer) {
+  double progress = execPointer/horizonLen;
+  if(progress < 0.6) {
+    if(progress == 0) {
+      planningInitialized = false;
+      optimizingInitialized = false;
+      executionInitialized = false;
+    }
+    phase = Phases::Planning;
+  }
+  else if(progress < 0.8) {
+    phase = Phases::Optimization;
+  }
+  else {
+    phase = Phases::Execution;
   }
 }
 
-// std::vector<Trajectory> Swarm::transformTraj(std::vector<Trajectory> trajs) {
-//   vector<Trajectory> newTrs;
-//   for(int i=0;i<4;i++) {
-//     Trajectory tr = trajs[i];
-//     Trajectory newtr;
-//     for(int j=0;j<tr.pos.size();j++) {
-//       if(i==0) {
-        
-//       }
-//     }
 
-//   }
-// }
+void Swarm::performPhaseTasks() {
+  if(phase == Phases::Planning && !planningInitialized) {
+    //initialize the external opertaions such as slam or shape convergence
+    planningInitialized = true;
+  }
+  else if(phase == Phases::Optimization && !optimizingInitialized) {
+    //get next wpts from the planning future and attach them to the swarm
+    //initialize the trajectory optimization
+
+    optimizingInitialized = true;
+  }
+  else if(phase == Phases::Execution && !executionInitialized) {
+    //get the optimized trajectories from optimization future and push them to the drones
+    
+    executionInitialized = true;
+  }
+}
+
+std::vector<Trajectory> Swarm::getTrajectories(int trajecoryId) {
+    tie(wpts, tList) = simutils::getTrajectoryList(yaml_fpath, trajecoryId);
+    return droneTrajSolver->solve(wpts, tList);
+}
+
+void Swarm::setWaypoints(vector<Trajectory> wpts, vector<double> tList) {
+  if (phase == Phases::Planning) {
+    this->wpts = wpts;
+    this->tList = tList;
+  }
+  else {
+    ROS_DEBUG_STREAM("Swarm is not in the planning phase. Waypoints rejected");
+  }
+}

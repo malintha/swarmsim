@@ -11,6 +11,7 @@ Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
   setState(States::Idle);
   takeoffHeight = 2.5;
   execPointer = 0;
+  trajectoryId = 0;
   std::string globalPositionTopic = getPositionTopic("global");
   std::string localPositionTopic = getPositionTopic("local");
   std::string poseTopic = getPoseTopic();
@@ -164,12 +165,20 @@ void Drone::setTrajectory(Trajectory trajectory) {
   this->trajectory = trajectory;
 }
 
-void Drone::executeTrajectory() {
+int Drone::executeTrajectory() {
   if (state == States::Autonomous) {
     Vector3d waypoint;
+    //notReachedEnd
     if (execPointer < trajectory.pos.size() - 1) {
       waypoint = trajectory.pos[execPointer++];
-    } else {
+    }
+    //reachedEnd and moreTrajectoriesAvailable
+    else if((trajectoryId < TrajectoryList.size() - 1) && (execPointer == trajectory.pos.size() - 1)) {
+      Trajectory nextTraj = TrajectoryList[++trajectoryId];
+      setTrajectory(nextTraj);
+    } 
+    //reachedEnd and noMoreTrajectories
+    else {
       setMode("AUTO.LOITER");
       setState(States::Reached);
       waypoint = trajectory.pos[execPointer - 1];
@@ -179,6 +188,15 @@ void Drone::executeTrajectory() {
     setpoint.pose.position.y = waypoint[1];
     setpoint.pose.position.z = waypoint[2];
     sendPositionSetPoint(setpoint);
+  }
+  return execPointer;
+}
+
+void Drone::pushTrajectory(Trajectory trajectory) {
+  TrajectoryList.push_back(trajectory);
+  //setting the initial trajectory
+  if(TrajectoryList.size() == 1) {
+    setTrajectory(TrajectoryList[trajectoryId]);
   }
 }
 

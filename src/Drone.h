@@ -27,7 +27,8 @@ public:
     void TOLService(bool takeoff);
     int getState();
     void setTrajectory(Trajectory trajectory);
-    void executeTrajectory();
+    int executeTrajectory();
+    void pushTrajectory(Trajectory trajectory);
 
 private:
     int id;
@@ -42,6 +43,9 @@ private:
     float takeoffHeight;
     Trajectory trajectory;
     int execPointer;
+
+    std::vector<Trajectory> TrajectoryList;
+    int trajectoryId;
 
     ros::NodeHandle nh;
     ros::Subscriber localPositionSub;
@@ -58,6 +62,7 @@ private:
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
     void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
     void callTOLService(bool takeoff);
+
 // todo: move to a util class
     /**
      * get rpy from geometry_msgs::Quaternion
