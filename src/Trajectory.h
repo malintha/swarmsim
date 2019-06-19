@@ -6,6 +6,7 @@
 
 struct Trajectory {
   std::vector<Eigen::Vector3d> pos; 
+  std::vector<double> tList;
 };
 
 

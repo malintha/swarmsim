@@ -22,7 +22,8 @@ MatrixXf Solver::getHblock(double t0, double t1) {
     return hblock;
 }
 
-vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, vector<double> tList) {
+vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts) {
+    vector<double> tList = droneWpts[0].tList;
     nwpts = droneWpts[0].pos.size();
     int nc = getnConstraints();
     int nx = getnVariables();

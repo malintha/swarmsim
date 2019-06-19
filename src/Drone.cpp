@@ -60,7 +60,6 @@ void Drone::arm(bool arm) {
   string arm_service = ss_arm.str();
   ros::ServiceClient arming_cl =
       nh.serviceClient<mavros_msgs::CommandBool>(arm_service);
-
   mavros_msgs::CommandBool srv;
   srv.request.value = arm;
   ROS_DEBUG_STREAM("Waiting for arm service " << arm_service);
@@ -176,7 +175,7 @@ int Drone::executeTrajectory() {
     else if((trajectoryId < TrajectoryList.size() - 1) && (execPointer == trajectory.pos.size() - 1)) {
       Trajectory nextTraj = TrajectoryList[++trajectoryId];
       setTrajectory(nextTraj);
-    } 
+    }
     //reachedEnd and noMoreTrajectories
     else {
       setMode("AUTO.LOITER");

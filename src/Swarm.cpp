@@ -3,6 +3,8 @@
 #include "Swarm.h"
 #include "state.h"
 #include "utils.h"
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
@@ -26,7 +28,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
     vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, true);
     for(int i=0;i<n_drones;i++) {
       Trajectory traj = trajectories[i];
-      dronesList[i]->setTrajectory(traj);
+      dronesList[i]->pushTrajectory(traj);
     }
   }
 
@@ -58,7 +60,7 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Autonomous:
-    doRHP();
+    // performPhaseTasks();
     sendPositionSetPoints();
     checkSwarmForStates(States::Reached);
     break;
@@ -88,6 +90,8 @@ void Swarm::checkSwarmForStates(int state) {
   bool swarmInState;
   for(int i = 0; i < n_drones; i++) {
   bool swarmInStateTemp;
+  //fixme: states don't change without the thread_sleep
+  std::this_thread::sleep_for (std::chrono::nanoseconds(1));
   this->dronesList[i]->getState() == state ? swarmInStateTemp = true : swarmInStateTemp = false;
   swarmInState = swarmInState && swarmInStateTemp;
 }
@@ -138,10 +142,11 @@ void Swarm::setSwarmPhase(int execPointer) {
   }
 }
 
-
 void Swarm::performPhaseTasks() {
   if(phase == Phases::Planning && !planningInitialized) {
     //initialize the external opertaions such as slam or shape convergence
+    //in this case we only load the waypoints from the yaml file
+    
     planningInitialized = true;
   }
   else if(phase == Phases::Optimization && !optimizingInitialized) {
@@ -158,8 +163,8 @@ void Swarm::performPhaseTasks() {
 }
 
 std::vector<Trajectory> Swarm::getTrajectories(int trajecoryId) {
-    tie(wpts, tList) = simutils::getTrajectoryList(yaml_fpath, trajecoryId);
-    return droneTrajSolver->solve(wpts, tList);
+    wpts = simutils::getTrajectoryList(yaml_fpath, trajecoryId);
+    return droneTrajSolver->solve(wpts);
 }
 
 void Swarm::setWaypoints(vector<Trajectory> wpts, vector<double> tList) {

@@ -58,7 +58,7 @@ void blockDiag(vector<int> *H, real_t *Hn, int HnRows) {
   }
 }
 
-tuple<vector<Trajectory>, vector<double> > getTrajectoryList(char* fPath, int horizon_id) {
+vector<Trajectory> getTrajectoryList(char* fPath, int horizon_id) {
     FILE *fh = fopen(fPath, "r");
     yaml_parser_t parser;
     yaml_token_t token;
@@ -189,6 +189,7 @@ tuple<vector<Trajectory>, vector<double> > getTrajectoryList(char* fPath, int ho
                                     tr.pos.push_back(p);
                                 }
                             }
+                            tr.tList = t_list;
                             tr_list.push_back(tr);
                             cout<<"pushed: "<<pos_sequence.size()<<endl;
                             pos_sequence.clear();
@@ -205,7 +206,7 @@ tuple<vector<Trajectory>, vector<double> > getTrajectoryList(char* fPath, int ho
     } 
     while (event.type != YAML_STREAM_END_EVENT);
     yaml_event_delete(&event);
-    return make_tuple(tr_list, t_list);
+    return tr_list;
     }
 
     std::vector<double> loadTimesFromFile(ros::NodeHandle &nh) {
