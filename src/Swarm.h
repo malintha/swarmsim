@@ -36,8 +36,8 @@ private:
   std::vector<double> tList;
   Solver* droneTrajSolver;
   int horizonLen;
-  std::promise<vector<Trajectory> > planingProm;
-
+  std::promise<vector<Trajectory> > planningProm;
+  std::thread* planningTh;
   /**
    * check the swarm for a given state.
    * The swarm is in a state if all the drones are in the same state

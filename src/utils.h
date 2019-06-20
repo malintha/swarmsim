@@ -15,8 +15,8 @@ namespace simutils {
     void printmat(vector<int> *H);
     void reSizeMat(vector<int> *A, int prevDim, int newDim);
 
-    future<vector<Trajectory> > getTrajectoryList(char* fPath, int horizon_id);
-    void processYamlFile(promise<vector<Trajectory> >&& p);
+    // future<vector<Trajectory> > getTrajectoryList(char* fPath, int horizon_id);
+    void processYamlFile(promise<vector<Trajectory> > &p, char* fPath, int horizon_id);
 
 
     vector<double> loadTimesFromFile(ros::NodeHandle &nh);

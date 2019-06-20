@@ -58,9 +58,9 @@ void blockDiag(vector<int> *H, real_t *Hn, int HnRows) {
   }
 }
 
-void processYamlFile(promise<vector<Trajectory> >&& p) {
-    char* fPath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
-    int horizon_id = 1;
+void processYamlFile(promise<vector<Trajectory> > &p, char* fPath, int horizon_id) {
+    // char* fPath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
+    // int horizon_id = 1;
     FILE *fh = fopen(fPath, "r");
     yaml_parser_t parser;
     yaml_token_t token;
@@ -200,7 +200,6 @@ void processYamlFile(promise<vector<Trajectory> >&& p) {
                 }
         break;
         }
-
         if (event.type != YAML_STREAM_END_EVENT) {
             yaml_event_delete(&event);
         }
@@ -210,12 +209,12 @@ void processYamlFile(promise<vector<Trajectory> >&& p) {
     p.set_value(tr_list);
     }
 
-    future<vector<Trajectory> > getTrajectoryList(char* fPath, int horizon_id) {
-        promise<vector<Trajectory> > prom;
-        future<vector<Trajectory> > fut = prom.get_future();
-        thread t(processYamlFile, move(prom));
-        return fut;
-    }
+    // future<vector<Trajectory> > getTrajectoryList() {
+    //     promise<vector<Trajectory> > prom;
+    //     future<vector<Trajectory> > fut = prom.get_future();
+    //     // thread t(processYamlFile, move(prom));
+    //     return fut;
+    // }
 
     std::vector<double> loadTimesFromFile(ros::NodeHandle &nh) {
         std::vector<double> tList;
