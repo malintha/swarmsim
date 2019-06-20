@@ -34,13 +34,12 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
 
   //performing online trajectory optimization
   else {
-    // vector<Trajectory> trajectories = getTrajectories(1);
     thread planning_th(simutils::processYamlFile, ref(planningProm), yaml_fpath, 1);
     planning_th.join();
     future<vector<Trajectory> > f = planningProm.get_future();
     vector<Trajectory> trl = f.get();
     cout<<"Retrieved the future: size: "<<trl[0].pos.size()<<endl;
-    droneTrajSolver->solve(trl);
+    trl = droneTrajSolver->solve(trl);
     for(int i=0;i<n_drones;i++) {
       dronesList[i]->pushTrajectory(trl[i]);
     }
@@ -56,7 +55,6 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Ready:
-    cout<<"in ready"<<endl;
     armDrones(true);
     checkSwarmForStates(States::Armed);
     break;
@@ -94,14 +92,13 @@ void Swarm::setState(int state) {
 }
 
 void Swarm::checkSwarmForStates(int state) {
-  bool swarmInState;
+  bool swarmInState = true;
   for(int i = 0; i < n_drones; i++) {
-    //fixme: states don't change without the thread_sleep
-    std::this_thread::sleep_for (std::chrono::nanoseconds(10));
     bool swarmInStateTemp;
-    this->dronesList[i]->getState() == state ? swarmInStateTemp = true : swarmInStateTemp = false;
+    dronesList[i]->getState() == state ? swarmInStateTemp = true : swarmInStateTemp = false;
     swarmInState = swarmInState && swarmInStateTemp;
 }
+
   if(swarmInState) {
     setState(state);
   }

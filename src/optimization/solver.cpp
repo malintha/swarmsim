@@ -166,9 +166,6 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts) {
         trajList.push_back(traj);
     }
     ROS_DEBUG_STREAM("Calculated trajectories. Trajectories: "<<trajList.size()<<" Each: "<<trajList[0].pos.size());
-    // for(int i =0;i<trajList[0].pos.size();i++) {
-    //     cout<<trajList[1].pos[i][0]<<" "<<trajList[1].pos[i][1]<<" "<<trajList[1].pos[i][2]<<endl;
-    // }
     return trajList;
 }
 
@@ -191,10 +188,6 @@ Trajectory Solver::calculateTrajectory(vector<double> coef, double t0, double t1
     xc << coef[0],coef[1],coef[2],coef[3],coef[4],coef[5],coef[6];
     yc << coef[7],coef[8],coef[9],coef[10],coef[11],coef[12],coef[13];
     zc << coef[14],coef[15],coef[16],coef[17],coef[18],coef[19],coef[20];
-    
-    cout<<"x_coeff: "<<xc<<endl;
-    cout<<"y_coeff: "<<yc<<endl;    
-    cout<<"z_coeff: "<<zc<<endl;
 
     for(double t=t0; t<=t1; t+=dt) {
         Vector3d pos;
@@ -204,6 +197,7 @@ Trajectory Solver::calculateTrajectory(vector<double> coef, double t0, double t1
         pos[2] = posT.row(0)*zc.col(0);
         traj.pos.push_back(pos);
     }
+    ROS_DEBUG_STREAM("Calculated XYZ trajectories");
     return traj;
 }
 
