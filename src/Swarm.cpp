@@ -34,11 +34,14 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
 
   //performing online trajectory optimization
   else {
-    vector<Trajectory> trajectories = getTrajectories(1);
+    // vector<Trajectory> trajectories = getTrajectories(1);
+    future<vector<Trajectory> > fut = simutils::getTrajectoryList(yaml_fpath, 1);
+    vector<Trajectory> trl = fut.get();
+    cout<<"Retrieved the future: size: "<<trl[0].pos.size();
     for(int i=0;i<n_drones;i++) {
-      dronesList[i]->pushTrajectory(trajectories[i]);
+      dronesList[i]->pushTrajectory(trl[i]);
     }
-    horizonLen = trajectories[0].pos.size();
+    horizonLen = trl[0].tList.size();
   }
 }
 
@@ -117,7 +120,7 @@ void Swarm::sendPositionSetPoints() {
   for(int i=0;i<n_drones;i++) {
     execPointer = this->dronesList[i]->executeTrajectory();
   }
-  setSwarmPhase(execPointer);
+  // setSwarmPhase(execPointer);
 }
 
 /**
@@ -144,12 +147,15 @@ void Swarm::setSwarmPhase(int execPointer) {
 
 void Swarm::performPhaseTasks() {
   if(phase == Phases::Planning && !planningInitialized) {
-    //initialize the external opertaions such as slam or shape convergence
+    //initialize the external opertaions such as slam or task assignment
     //in this case we only load the waypoints from the yaml file
-    
+    // thread planing_th(simutils::getTrajectoryList, yaml_fpath, 1, ref(planingProm));
     planningInitialized = true;
   }
   else if(phase == Phases::Optimization && !optimizingInitialized) {
+    // future<vector<Trajectory> > fut = planingProm.get_future();
+    // vector<Trajectory> trl = fut.get();
+    // cout<<"Retrieved the future: size: "<<trl[0].pos.size();
     //get next wpts from the planning future and attach them to the swarm
     //initialize the trajectory optimization
 
@@ -162,10 +168,10 @@ void Swarm::performPhaseTasks() {
   }
 }
 
-std::vector<Trajectory> Swarm::getTrajectories(int trajecoryId) {
-    wpts = simutils::getTrajectoryList(yaml_fpath, trajecoryId);
-    return droneTrajSolver->solve(wpts);
-}
+// std::vector<Trajectory> Swarm::getTrajectories(int trajecoryId) {
+//     wpts = simutils::getTrajectoryList(yaml_fpath, trajecoryId);
+//     return droneTrajSolver->solve(wpts);
+// }
 
 void Swarm::setWaypoints(vector<Trajectory> wpts, vector<double> tList) {
   if (phase == Phases::Planning) {

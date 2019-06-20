@@ -8,6 +8,7 @@
 #include "Drone.h"
 #include "Trajectory.h"
 #include "optimization/solver.h"
+#include <future>
 
 class Swarm {
 public:
@@ -30,14 +31,13 @@ private:
   float frequency;
   int n_drones;
   std::vector<Drone*> dronesList;
-
   //stores the incoming wpts
   std::vector<Trajectory> wpts;
   std::vector<double> tList;
-
   Solver* droneTrajSolver;
-
   int horizonLen;
+  std::promise<vector<Trajectory> > planingProm;
+
   /**
    * check the swarm for a given state.
    * The swarm is in a state if all the drones are in the same state
@@ -56,6 +56,8 @@ private:
   bool optimizingInitialized;
   bool executionInitialized;
   void performPhaseTasks();
+
+
 
   std::vector<Trajectory> getTrajectories(int trajecoryId);
 };
