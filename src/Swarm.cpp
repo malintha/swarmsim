@@ -12,9 +12,10 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
     : frequency(frequency), n_drones(n_drones), nh(n) {
   state = States::Idle;
   phase = Phases::Planning;
-  double maxVel = 4;
-  double maxAcc = 5;
-  droneTrajSolver = new Solver(n_drones, maxVel, maxAcc, 2, frequency);
+  // double maxVel = 4;
+  // double maxAcc = 5;
+  // droneTrajSolver = new Solver(n_drones, maxVel, maxAcc, 2, frequency);
+  
   yaml_fpath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
   planningInitialized = false;
   optimizingInitialized = false;
@@ -40,10 +41,10 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
     vector<Trajectory> trl = f.get();
     cout<<"Retrieved the future: size: "<<trl[0].pos.size()<<endl;
     trl = droneTrajSolver->solve(trl);
+    horizonLen = trl[0].pos.size();
     for(int i=0;i<n_drones;i++) {
       dronesList[i]->pushTrajectory(trl[i]);
     }
-    horizonLen = trl[0].tList.size();
   }
 }
 
@@ -65,7 +66,7 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Autonomous:
-    // performPhaseTasks();
+    performPhaseTasks();
     sendPositionSetPoints();
     checkSwarmForStates(States::Reached);
     break;
@@ -121,25 +122,22 @@ void Swarm::sendPositionSetPoints() {
   for(int i=0;i<n_drones;i++) {
     execPointer = this->dronesList[i]->executeTrajectory();
   }
-  // setSwarmPhase(execPointer);
+  setSwarmPhase(execPointer);
 }
 
 /**
- * todo: change these ratios if want to use receding horizon planning.
- * eg: plan again when progress is 0.5
+ * todo: change these ratios if one wants to use receding horizon planning.
+ * eg: plan again when progress is 0.5 if the execution horizon = 0.5*planning horizon
 */
 void Swarm::setSwarmPhase(int execPointer) {
   double progress = execPointer/horizonLen;
-  if(progress < 0.6) {
+  if(progress < 0.8) {
     if(progress == 0) {
       planningInitialized = false;
-      optimizingInitialized = false;
+      // optimizingInitialized = false;
       executionInitialized = false;
     }
     phase = Phases::Planning;
-  }
-  else if(progress < 0.8) {
-    phase = Phases::Optimization;
   }
   else {
     phase = Phases::Execution;
@@ -153,19 +151,14 @@ void Swarm::performPhaseTasks() {
     planningTh = new thread(simutils::processYamlFile, ref(planningProm), yaml_fpath, 1);
     planningInitialized = true;
   }
-  else if(phase == Phases::Optimization && !optimizingInitialized) {
+  else if(phase == Phases::Execution && !executionInitialized) {
+    //get the optimized trajectories from planning future and push them to the drones
     planningTh->join();
     future<vector<Trajectory> > f = planningProm.get_future();
     vector<Trajectory> tr_l = f.get();
     cout<<"Retrieved the future: size: "<<tr_l[0].pos.size();
     //get next wpts from the planning future and attach them to the swarm
     //initialize the trajectory optimization
-
-    optimizingInitialized = true;
-  }
-  else if(phase == Phases::Execution && !executionInitialized) {
-    //get the optimized trajectories from optimization future and push them to the drones
-    
     executionInitialized = true;
   }
 }

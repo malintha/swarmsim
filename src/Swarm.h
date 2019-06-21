@@ -9,6 +9,7 @@
 #include "Trajectory.h"
 #include "optimization/solver.h"
 #include <future>
+#include "SimplePlanningPhase.h"
 
 class Swarm {
 public:
@@ -38,6 +39,8 @@ private:
   int horizonLen;
   std::promise<vector<Trajectory> > planningProm;
   std::thread* planningTh;
+  PlanningPhase* planningPhase;
+  
   /**
    * check the swarm for a given state.
    * The swarm is in a state if all the drones are in the same state

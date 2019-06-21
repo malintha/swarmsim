@@ -58,9 +58,7 @@ void blockDiag(vector<int> *H, real_t *Hn, int HnRows) {
   }
 }
 
-void processYamlFile(promise<vector<Trajectory> > &p, char* fPath, int horizon_id) {
-    // char* fPath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
-    // int horizon_id = 1;
+vector<Trajectory> processYamlFile(char* fPath, int horizon_id) {
     FILE *fh = fopen(fPath, "r");
     yaml_parser_t parser;
     yaml_token_t token;
@@ -206,7 +204,7 @@ void processYamlFile(promise<vector<Trajectory> > &p, char* fPath, int horizon_i
     } 
     while (event.type != YAML_STREAM_END_EVENT);
     yaml_event_delete(&event);
-    p.set_value(tr_list);
+    return tr_list;
     }
 
     // future<vector<Trajectory> > getTrajectoryList() {

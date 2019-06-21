@@ -145,7 +145,11 @@ add_executable(${PROJECT_NAME}
   src/utils.cpp
   src/optimization/solver.h
   src/optimization/solver.cpp
-
+  src/PlanningPhase.h
+  src/SimplePlanningPhase.cpp
+  src/DiscretePlanner.h
+  src/PlanningPhase.cpp
+  src/SimplePlanningPhase.h
   )
 
 ## Rename C++ executable without prefix
