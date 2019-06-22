@@ -20,6 +20,6 @@ int main(int argc, char **argv) {
 
   ROS_DEBUG_STREAM("Number of drones "<<nDrones);
   Swarm simulator(n, frequency, nDrones, fileLoad);
-  simulator.run(frequency);
+  // simulator.run(frequency);
   return 0;
 }

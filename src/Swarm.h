@@ -7,7 +7,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include "Drone.h"
 #include "Trajectory.h"
-#include "optimization/solver.h"
+// #include "optimization/solver.h"
 #include <future>
 #include "SimplePlanningPhase.h"
 
@@ -35,9 +35,9 @@ private:
   //stores the incoming wpts
   std::vector<Trajectory> wpts;
   std::vector<double> tList;
-  Solver* droneTrajSolver;
+  // Solver* droneTrajSolver;
   int horizonLen;
-  std::promise<vector<Trajectory> > planningProm;
+  std::future<vector<Trajectory> > planning_fut;
   std::thread* planningTh;
   PlanningPhase* planningPhase;
   
