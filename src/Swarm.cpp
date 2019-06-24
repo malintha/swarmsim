@@ -135,8 +135,8 @@ void Swarm::setSwarmPhase(int execPointer) {
   double progress = execPointer/horizonLen;
   if(progress < 0.8) {
     if(progress == 0) {
+      ROS_DEBUG_STREAM("Resetting planning and execution flags. exec: "<<execPointer<<" horzLength: "<<horizonLen);
       planningInitialized = false;
-      // optimizingInitialized = false;
       executionInitialized = false;
     }
     phase = Phases::Planning;
@@ -149,16 +149,34 @@ void Swarm::setSwarmPhase(int execPointer) {
 void Swarm::performPhaseTasks() {
   if(phase == Phases::Planning && !planningInitialized) {
     //initialize the external opertaions such as slam or task assignment
-    //in this case we only load the waypoints from the yaml file
+    if(horizonId < 2) {
+      try {
+        // planningPhase->doPlanning(horizonId);
+        spp->testf();
+      }
+      catch(exception& e) {
+        cout<<"exception: "<<e.what()<<endl;
+      }
+      // cout<<"here0.5"<<endl;
+
+    }
 
     planningInitialized = true;
   }
   else if(phase == Phases::Execution && !executionInitialized) {
-    //get the optimized trajectories from planning future and push them to the drones
-    //get next wpts from the planning future and attach them to the swarm
-    //initialize the trajectory optimization
+    cout<<"Execution"<<endl;
+
+    //get the optimized trajectories from planningphase and push them to the drones
+    if(horizonId < 2) {
+      vector<Trajectory> results = planningPhase->getPlanningResults();
+      for(int i=0;i<n_drones;i++) {
+        dronesList[i]->pushTrajectory(results[i]);
+      }
+    }
     executionInitialized = true;
   }
+  cout<<"here1"<<endl;
+
 }
 
 void Swarm::setWaypoints(vector<Trajectory> wpts, vector<double> tList) {

@@ -1,22 +1,25 @@
 #include <algorithm>
 #include "SimplePlanningPhase.h"
 #include "utils.h"
-#include <exception>
+
+SimplePlanningPhase::SimplePlanningPhase() {};
 
 SimplePlanningPhase:: SimplePlanningPhase(int nDrones, double frequency, string yamlFpath) : PlanningPhase(nDrones, frequency) {
     this->yamlFpath = yamlFpath; 
 };
 
 void SimplePlanningPhase:: doPlanning(int horizonId) {
+    cout<<"in doPlanning";
     auto sharedP = make_shared<promise<vector<Trajectory> > >();
     fut = sharedP->get_future();
+
     auto doPlanningExpr = [horizonId, this, sharedP]() {
         discreteWpts = this->getDiscretePlan(horizonId);
         vector<Trajectory> smoothTrajs = computeSmoothTrajectories();
         try {
             sharedP->set_value_at_thread_exit(smoothTrajs);
         }
-        catch(exception& e) {
+        catch(std::future_error& e) {
             ROS_ERROR_STREAM("Caught a future_error \"" << e.what());
         }
         doneInitPlanning = true;
@@ -32,11 +35,6 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
     return simutils::processYamlFile(cstr, horizonId);
 }
 
-// vector<Trajectory> SimplePlanningPhase::getPlanningResults() {
-//     //wait for the initial planning to finish
-//     do {}
-//     while(!doneInitPlanning);
-//     planning_t->join();
-//     vector<Trajectory> results = fut.get();
-//     return results;
-// }
+void SimplePlanningPhase::testf() {
+    cout<<"child class"<<endl;
+}

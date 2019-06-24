@@ -175,7 +175,6 @@ vector<Trajectory> processYamlFile(char* fPath, int horizon_id) {
 
                         if(pos_sequence.size() < 3*subgoals) {
                             pos_sequence.push_back(std::stod(s));
-                            // cout<<"s: "<<s<<" inserted: "<<pos_sequence.size()<<endl;
                         }
                         if(pos_sequence.size() == 3*subgoals) {
                             Eigen::Vector3d p;
@@ -191,7 +190,6 @@ vector<Trajectory> processYamlFile(char* fPath, int horizon_id) {
                             }
                             tr.tList = t_list;
                             tr_list.push_back(tr);
-                            cout<<"pushed: "<<pos_sequence.size()<<endl;
                             pos_sequence.clear();
                         }
                     }
@@ -206,13 +204,6 @@ vector<Trajectory> processYamlFile(char* fPath, int horizon_id) {
     yaml_event_delete(&event);
     return tr_list;
     }
-
-    // future<vector<Trajectory> > getTrajectoryList() {
-    //     promise<vector<Trajectory> > prom;
-    //     future<vector<Trajectory> > fut = prom.get_future();
-    //     // thread t(processYamlFile, move(prom));
-    //     return fut;
-    // }
 
     std::vector<double> loadTimesFromFile(ros::NodeHandle &nh) {
         std::vector<double> tList;

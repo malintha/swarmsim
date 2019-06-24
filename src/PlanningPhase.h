@@ -11,6 +11,7 @@ using namespace std;
 class PlanningPhase {
     public:
         //set ndrones, map etc in corresponding derived classes.
+        PlanningPhase();
         PlanningPhase(int nDrones, double frequency);
         bool doneInitPlanning;
         Solver* solver;
@@ -31,5 +32,5 @@ class PlanningPhase {
         // virtual void computeFormations();
         // virtual void assignGoals();
         virtual vector<Trajectory> getPlanningResults();
-
+        virtual void testf();
 };
