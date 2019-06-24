@@ -178,6 +178,7 @@ int Drone::executeTrajectory() {
     }
     //reachedEnd and noMoreTrajectories
     else {
+      ROS_DEBUG_STREAM("No more trajectories. Setting state as Reached");
       setMode("AUTO.LOITER");
       setState(States::Reached);
       waypoint = trajectory.pos[execPointer - 1];

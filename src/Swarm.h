@@ -35,12 +35,13 @@ private:
   //stores the incoming wpts
   std::vector<Trajectory> wpts;
   std::vector<double> tList;
-  // Solver* droneTrajSolver;
   int horizonLen;
-  std::future<vector<Trajectory> > planning_fut;
-  std::thread* planningTh;
   PlanningPhase* planningPhase;
-  
+  bool planningInitialized;
+  bool optimizingInitialized;
+  bool executionInitialized;
+  int horizonId;
+
   /**
    * check the swarm for a given state.
    * The swarm is in a state if all the drones are in the same state
@@ -50,17 +51,7 @@ private:
   void armDrones(bool arm);
   void TOLService(bool takeoff);
   void sendPositionSetPoints();
-  //calculates the RHP phase for the swarm based on the Horizon length and current time
+  //calculates the swarm phase for the swarm based on the horizon length and current time
   void setSwarmPhase(int execPointer);
-
-  //set the waypoints and tList by reading the yaml file
-  void setYamlWaypoints(int trajectoryId);
-  bool planningInitialized;
-  bool optimizingInitialized;
-  bool executionInitialized;
   void performPhaseTasks();
-
-
-
-  std::vector<Trajectory> getTrajectories(int trajecoryId);
 };

@@ -30,6 +30,6 @@ class PlanningPhase {
         virtual vector<Trajectory> getDiscretePlan(int horizonId);
         // virtual void computeFormations();
         // virtual void assignGoals();
-        vector<Trajectory> getPlanningResults();
+        virtual vector<Trajectory> getPlanningResults();
 
 };

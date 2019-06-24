@@ -5,6 +5,7 @@
 #include "utils.h"
 #include <thread>
 #include <chrono>
+#include <stdexcept>
 
 using namespace std;
 
@@ -12,7 +13,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
     : frequency(frequency), n_drones(n_drones), nh(n) {
   state = States::Idle;
   phase = Phases::Planning;
-
+  horizonId = 0;
   yaml_fpath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
   SimplePlanningPhase spp(n_drones, frequency, yaml_fpath); 
   planningPhase = &spp;
@@ -34,11 +35,15 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
 
   //performing online trajectory optimization
   else {
-    planningPhase->doPlanning(1);
-    this_thread::sleep_for(chrono::seconds(1));
+    planningPhase->doPlanning(horizonId++);
     vector<Trajectory> trl = planningPhase->getPlanningResults();
-    ROS_DEBUG_STREAM("Retrieved the future: size: "<<trl[0].pos.size());
-    horizonLen = trl[0].pos.size();
+    ROS_DEBUG_STREAM("Retrieved the initial planning results. Size: "<<trl[0].pos.size());
+    try {
+      horizonLen = trl[0].pos.size();
+    }
+    catch(const length_error& le) {
+      ROS_ERROR_STREAM("Error in retrieving the results from the future");
+    }
     for(int i=0;i<n_drones;i++) {
       dronesList[i]->pushTrajectory(trl[i]);
     }
@@ -145,25 +150,16 @@ void Swarm::performPhaseTasks() {
   if(phase == Phases::Planning && !planningInitialized) {
     //initialize the external opertaions such as slam or task assignment
     //in this case we only load the waypoints from the yaml file
-    // planningTh = new thread(simutils::processYamlFile, ref(planningProm), yaml_fpath, 1);
+
     planningInitialized = true;
   }
   else if(phase == Phases::Execution && !executionInitialized) {
     //get the optimized trajectories from planning future and push them to the drones
-    planningTh->join();
-    // future<vector<Trajectory> > f = planningProm.get_future();
-    // vector<Trajectory> tr_l = f.get();
-    // cout<<"Retrieved the future: size: "<<tr_l[0].pos.size();
     //get next wpts from the planning future and attach them to the swarm
     //initialize the trajectory optimization
     executionInitialized = true;
   }
 }
-
-// std::vector<Trajectory> Swarm::getTrajectories(int trajecoryId) {
-//     wpts = simutils::getTrajectoryList(yaml_fpath, trajecoryId);
-//     return droneTrajSolver->solve(wpts);
-// }
 
 void Swarm::setWaypoints(vector<Trajectory> wpts, vector<double> tList) {
   if (phase == Phases::Planning) {

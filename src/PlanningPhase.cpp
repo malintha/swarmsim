@@ -1,4 +1,5 @@
 #include "PlanningPhase.h"
+#include<ros/console.h>
 
 PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), dt(1/frequency) {
     maxVelocity = 4;
@@ -9,17 +10,20 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
 }
 
 vector<Trajectory> PlanningPhase::computeSmoothTrajectories() {
-    solver->solve(discreteWpts);
+    vector<Trajectory> results = solver->solve(discreteWpts);
+return results;
 }
 
 vector<Trajectory> PlanningPhase::getPlanningResults() {
-    //handle the exception when t isn't finished.
-    // planning_t->join();
+    //wait for the initial planning to finish
+    do {
+        ROS_DEBUG_ONCE("Waiting for initial planning to finish");
+    }
+    while(!doneInitPlanning);
+    planning_t->join();
     vector<Trajectory> results = fut.get();
-    cout<<"retrieved planning data"<<results[0].pos.size()<<endl;
     return results;
 }
 
 void PlanningPhase::doPlanning(int horizonId) {}
-
 vector<Trajectory> PlanningPhase::getDiscretePlan(int horizonId) {}
