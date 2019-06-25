@@ -12,7 +12,7 @@ USING_NAMESPACE_QPOASES
 class Solver {
     public:
         Solver(int nDrones, double maxVel, double maxAcc, int nChecks, double frequency);
-        vector<Trajectory> solve(vector<Trajectory> droneWpts);
+        vector<Trajectory> solve(vector<Trajectory> droneWpts, bool initial);
         
     private:
         int n = 7;
@@ -22,8 +22,9 @@ class Solver {
         double maxVel;
         double maxAcc;
         int nChecks;
-	    int_t nWSR = 100;
+	    int_t nWSR = 200;
         double dt = 0.1;
+        // SQProblem* sqp;
 
         int getnVariables();
         int getnConstraints();

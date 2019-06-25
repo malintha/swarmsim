@@ -9,18 +9,19 @@ SimplePlanningPhase:: SimplePlanningPhase(int nDrones, double frequency, string 
 };
 
 void SimplePlanningPhase:: doPlanning(int horizonId) {
-    cout<<"in doPlanning";
     auto sharedP = make_shared<promise<vector<Trajectory> > >();
     fut = sharedP->get_future();
 
     auto doPlanningExpr = [horizonId, this, sharedP]() {
         discreteWpts = this->getDiscretePlan(horizonId);
-        vector<Trajectory> smoothTrajs = computeSmoothTrajectories();
+        bool initialQP;
+        horizonId == 0 ? initialQP = true : initialQP = false;
+        vector<Trajectory> smoothTrajs = computeSmoothTrajectories(initialQP);
         try {
             sharedP->set_value_at_thread_exit(smoothTrajs);
         }
         catch(std::future_error& e) {
-            ROS_ERROR_STREAM("Caught a future_error \"" << e.what());
+            ROS_ERROR_STREAM("Caught a future_error while fulfilling the promise\"" << e.what());
         }
         doneInitPlanning = true;
     };

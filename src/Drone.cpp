@@ -173,8 +173,13 @@ int Drone::executeTrajectory() {
     }
     //reachedEnd and moreTrajectoriesAvailable
     else if((trajectoryId < TrajectoryList.size() - 1) && (execPointer == trajectory.pos.size() - 1)) {
+      ROS_DEBUG_STREAM("Setting next trajectory for drone: "<<this->id);
       Trajectory nextTraj = TrajectoryList[++trajectoryId];
       setTrajectory(nextTraj);
+      ROS_DEBUG_STREAM("set next trajectory: "<<execPointer);
+      waypoint = trajectory.pos[execPointer++];
+      ROS_DEBUG_STREAM("set next wpt: "<<waypoint);
+
     }
     //reachedEnd and noMoreTrajectories
     else {

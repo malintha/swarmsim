@@ -37,7 +37,7 @@ private:
   std::vector<double> tList;
   int horizonLen;
   PlanningPhase* planningPhase;
-  SimplePlanningPhase* spp;
+  SimplePlanningPhase spp;
   bool planningInitialized;
   bool optimizingInitialized;
   bool executionInitialized;

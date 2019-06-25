@@ -22,7 +22,7 @@ MatrixXf Solver::getHblock(double t0, double t1) {
     return hblock;
 }
 
-vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts) {
+vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool initial) {
     vector<double> tList = droneWpts[0].tList;
     nwpts = droneWpts[0].pos.size();
     int nc = getnConstraints();
@@ -143,19 +143,24 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts) {
     real_t* H_r = matrix2realt(H);
 
     ROS_DEBUG_STREAM("lba: "<<lba.size()<<endl<<"uba: "<<uba.size());
-    // for(int i=0;i<lba.size();i++) {
-    //     cout<<"lba: "<<lba[i]<<endl;
-    // }
     real_t g[nx];
     fill(g, g+nx, 0);
-    QProblem qp(nx, nc);
-    Options options;
-    options.setToMPC();
-    options.printLevel = PrintLevel::PL_NONE;
-	qp.setOptions( options );
-	qp.init(H_r,g,A_r,nullptr,nullptr,lb_r,ub_r, nWSR);
-	real_t* xOpt = new real_t[nx];
-	qp.getPrimalSolution(xOpt);
+    real_t* xOpt = new real_t[nx];
+
+    if(initial) {
+        SQProblem sqp(nx, nc);
+        // QProblem qp(nx, nc);
+        Options options;
+        options.setToMPC();
+        options.printLevel = PrintLevel::PL_NONE;
+        sqp.setOptions( options );
+        sqp.init(H_r,g,A_r,nullptr,nullptr,lb_r,ub_r, nWSR, 0);
+    }
+    else {
+        cout<<"else"<<endl;
+        sqp->hotstart(H_r,g,A_r,nullptr,nullptr,lb_r,ub_r, nWSR, 0);
+    }
+    sqp.getPrimalSolution(xOpt);
     ROS_DEBUG_STREAM("Optimization problem solved");
 
     vector<Trajectory> trajList;
@@ -188,6 +193,10 @@ Trajectory Solver::calculateTrajectory(vector<double> coef, double t0, double t1
     xc << coef[0],coef[1],coef[2],coef[3],coef[4],coef[5],coef[6];
     yc << coef[7],coef[8],coef[9],coef[10],coef[11],coef[12],coef[13];
     zc << coef[14],coef[15],coef[16],coef[17],coef[18],coef[19],coef[20];
+
+    cout<<"x_coeff: "<<xc<<endl;
+    cout<<"y_coeff: "<<yc<<endl;    
+    cout<<"z_coeff: "<<zc<<endl;
 
     for(double t=t0; t<=t1; t+=dt) {
         Vector3d pos;

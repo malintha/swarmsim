@@ -15,8 +15,10 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
   phase = Phases::Planning;
   horizonId = 0;
   yaml_fpath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
-  SimplePlanningPhase spp(n_drones, frequency, yaml_fpath); 
-  planningPhase = &spp;
+  // SimplePlanningPhase spp(n_drones, frequency, yaml_fpath); 
+  // planningPhase = &spp;
+  planningPhase = new SimplePlanningPhase(n_drones, frequency, yaml_fpath);
+
   planningInitialized = false;
   optimizingInitialized = false;
   for (int i=0;i<n_drones;i++) {
@@ -132,10 +134,10 @@ void Swarm::sendPositionSetPoints() {
  * eg: plan again when progress is 0.5 if the execution horizon = 0.5*planning horizon
 */
 void Swarm::setSwarmPhase(int execPointer) {
-  double progress = execPointer/horizonLen;
+  double progress = (double)execPointer/horizonLen;
   if(progress < 0.8) {
     if(progress == 0) {
-      ROS_DEBUG_STREAM("Resetting planning and execution flags. exec: "<<execPointer<<" horzLength: "<<horizonLen);
+      ROS_DEBUG_STREAM("Resetting planning and execution flags. exec: "<<execPointer<<" progress: "<<progress);
       planningInitialized = false;
       executionInitialized = false;
     }
@@ -151,31 +153,28 @@ void Swarm::performPhaseTasks() {
     //initialize the external opertaions such as slam or task assignment
     if(horizonId < 2) {
       try {
-        // planningPhase->doPlanning(horizonId);
-        spp->testf();
+        planningPhase->doPlanning(horizonId++); //throw an exception if the required horizon is not available
       }
       catch(exception& e) {
         cout<<"exception: "<<e.what()<<endl;
       }
-      // cout<<"here0.5"<<endl;
-
     }
 
     planningInitialized = true;
   }
   else if(phase == Phases::Execution && !executionInitialized) {
-    cout<<"Execution"<<endl;
-
     //get the optimized trajectories from planningphase and push them to the drones
-    if(horizonId < 2) {
+    if(horizonId <= 2) {
+    cout<<"Execution"<<endl;
       vector<Trajectory> results = planningPhase->getPlanningResults();
       for(int i=0;i<n_drones;i++) {
         dronesList[i]->pushTrajectory(results[i]);
       }
+    horizonId++; //temp
+
     }
     executionInitialized = true;
   }
-  cout<<"here1"<<endl;
 
 }
 

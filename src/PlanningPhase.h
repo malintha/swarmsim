@@ -14,16 +14,15 @@ class PlanningPhase {
         PlanningPhase();
         PlanningPhase(int nDrones, double frequency);
         bool doneInitPlanning;
-        Solver* solver;
         DiscretePlanner* discretePlanner;
         int nDrones;
         double maxVelocity;
         double maxAcceleration;
-        double dt;
+        double frequency;
         int nChecks;
         vector<Trajectory> discreteWpts;
         thread* planning_t;
-        vector<Trajectory> computeSmoothTrajectories();
+        vector<Trajectory> computeSmoothTrajectories(bool initialQP);
         future<vector<Trajectory> > fut;
 
         // override in derived classes

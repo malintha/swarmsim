@@ -1,7 +1,7 @@
 subgoals: 4
 times:
   timeset0: [0, 5, 8, 12]
-  timeset1: [0, 15]
+  timeset1: [0, 3, 8, 12]
 
 drone0:
   subgoalset0:
@@ -12,9 +12,9 @@ drone0:
 
   subgoalset1:
     subgoal: [8, 8, 2.5]
-    subgoal: [0, 0, 2.5]
+    subgoal: [16, 0, 2.5]
     subgoal: [8, -8, 2.5]
-    subgoal: [0, -16, 2.5]
+    subgoal: [0, 0, 2.5]
 
 drone1:
   subgoalset0:
