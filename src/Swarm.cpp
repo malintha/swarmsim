@@ -45,6 +45,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool file
     }
     catch(const length_error& le) {
       ROS_ERROR_STREAM("Error in retrieving the results from the future");
+      return;
     }
     for(int i=0;i<n_drones;i++) {
       dronesList[i]->pushTrajectory(trl[i]);
@@ -153,11 +154,9 @@ void Swarm::performPhaseTasks() {
     //initialize the external opertaions such as slam or task assignment
       try {
         cout<<"horizon: "<<horizonId<<endl;
-        planningPhase->doPlanning(horizonId++); //throw an exception if the required horizon is not available
-        
-        if(planningPhase->threadExcetionPtr) {
-          cout<<"here"<<endl;
-          throw runtime_error("Exception occurred while planning");
+        planningPhase->doPlanning(horizonId); //throw an exception if the required horizon is not available
+        if(++horizonId > planningPhase->nHorizons) {
+          executionInitialized = true;
         }
       }
       catch(runtime_error& e) {
@@ -165,7 +164,7 @@ void Swarm::performPhaseTasks() {
         planningPhase->planning_t->join();
         //set executionInitialized to true. So then it won't expect a value for the future.  
         executionInitialized = true;
-    }
+      }
     planningInitialized = true;
   }
   else if(phase == Phases::Execution && !executionInitialized) {
@@ -177,7 +176,6 @@ void Swarm::performPhaseTasks() {
     }
     executionInitialized = true;
   }
-
 }
 
 void Swarm::setWaypoints(vector<Trajectory> wpts, vector<double> tList) {

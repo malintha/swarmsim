@@ -6,8 +6,6 @@
 */
 class SimplePlanningPhase : public PlanningPhase {
     public:
-        // PlanningPhase* planningPhase;
-        
         string yamlFpath;
         promise<vector<Trajectory> > p;
         SimplePlanningPhase();
@@ -18,5 +16,4 @@ class SimplePlanningPhase : public PlanningPhase {
         */
         vector<Trajectory> getDiscretePlan(int horizonId) override;
         // vector<Trajectory> getPlanningResults() override;
-        void testf() override;
 };

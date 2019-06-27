@@ -8,8 +8,7 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
     maxAcceleration = 5;
     nChecks = 2;
     doneInitPlanning = false;
-    threadExcetionPtr = nullptr;
-    // solver = new Solver(nDrones, maxVelocity, maxAcceleration, nChecks, frequency);
+    nHorizons = 3;
 }
 
 vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP) {
@@ -36,9 +35,5 @@ vector<Trajectory> PlanningPhase::getPlanningResults() {
     return results;
 }
 
-void PlanningPhase::doPlanning(int horizonId) {
-    cout<<"in doPlanning base";
-}
+void PlanningPhase::doPlanning(int horizonId) {}
 vector<Trajectory> PlanningPhase::getDiscretePlan(int horizonId) {}
-
-void PlanningPhase::testf() {}

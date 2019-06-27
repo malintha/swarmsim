@@ -25,6 +25,7 @@ public:
   void setWaypoints(vector<Trajectory> droneWpts, vector<double> tList); 
 
 private:
+  int nHorizons; 
   int phase; 
   char* yaml_fpath;
   int state; 

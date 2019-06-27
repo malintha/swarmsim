@@ -19,9 +19,13 @@ drone0:
 
 drone1:
   subgoalset0:
-    subgoal: [-4.5, 0, 2.5]
+    subgoal: [0, 0, 2.5]
     subgoal: [0, -4.5, 2.5]
 
   subgoalset1:
     subgoal: [0, -4.5, 2.5]
     subgoal: [9, 9, 2.5]
+
+  subgoalset2:
+    subgoal: [9, 9, 2.5]
+    subgoal: [4.5, 4.5, 2.5]

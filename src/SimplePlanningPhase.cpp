@@ -17,11 +17,9 @@ void SimplePlanningPhase:: doPlanning(int horizonId) {
             discreteWpts = this->getDiscretePlan(horizonId);
         }
         catch(range_error& e) {
-            ROS_ERROR_STREAM("Error!");
-            PlanningPhase::threadExcetionPtr = current_exception();
+            ROS_ERROR_STREAM("Error occurred while planning!");
             return;
         }
-        cout<<"still here"<<endl;
         bool initialQP;
         horizonId == 0 ? initialQP = true : initialQP = false;
         vector<Trajectory> smoothTrajs = computeSmoothTrajectories(initialQP);
@@ -51,8 +49,4 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
         throw range_error(e.what());
     }
     return planningResults; 
-}
-
-void SimplePlanningPhase::testf() {
-    cout<<"child class"<<endl;
 }
