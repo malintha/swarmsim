@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="nDrones" default="1" />
-    <arg name="fileLoad" default="false" />
+    <arg name="nDrones" default="2" />
+    <arg name="fileLoad" default="true" />
 
     <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find swarmsim)/launch/custom_rosconsole.conf"/>

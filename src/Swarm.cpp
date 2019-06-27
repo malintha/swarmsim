@@ -10,13 +10,11 @@
 using namespace std;
 
 Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool fileLoad)
-    : frequency(frequency), n_drones(n_drones), nh(n) {
+    : frequency(frequency), n_drones(n_drones), nh(n), fileLoad(fileLoad) {
   state = States::Idle;
   phase = Phases::Planning;
   horizonId = 0;
   yaml_fpath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
-  // SimplePlanningPhase spp(n_drones, frequency, yaml_fpath); 
-  // planningPhase = &spp;
   planningPhase = new SimplePlanningPhase(n_drones, frequency, yaml_fpath);
 
   planningInitialized = false;
@@ -71,7 +69,9 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     break;
 
   case States::Autonomous:
+  if(!fileLoad) {
     performPhaseTasks();
+  }
     sendPositionSetPoints();
     checkSwarmForStates(States::Reached);
     break;
@@ -127,7 +127,9 @@ void Swarm::sendPositionSetPoints() {
   for(int i=0;i<n_drones;i++) {
     execPointer = this->dronesList[i]->executeTrajectory();
   }
-  setSwarmPhase(execPointer);
+  if(!fileLoad) {
+    setSwarmPhase(execPointer);
+  }
 }
 
 /**
