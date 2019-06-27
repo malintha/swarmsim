@@ -77,7 +77,7 @@ void Drone::TOLService(bool takeoff) {
     callTOLService(true);
     setState(States::Takingoff);
   } else if (state == States::Takingoff) {
-    if (curr_pos_local[2] >= takeoffHeight - 0.05) {
+    if (curr_pos_local[2] >= takeoffHeight - 0.2) {
       setState(States::Autonomous);
       setMode("OFFBOARD");
     }
@@ -176,10 +176,9 @@ int Drone::executeTrajectory() {
       ROS_DEBUG_STREAM("Setting next trajectory for drone: "<<this->id);
       Trajectory nextTraj = TrajectoryList[++trajectoryId];
       setTrajectory(nextTraj);
-      ROS_DEBUG_STREAM("set next trajectory: "<<execPointer);
-      waypoint = trajectory.pos[execPointer++];
-      ROS_DEBUG_STREAM("set next wpt: "<<waypoint);
-
+      waypoint = trajectory.pos[execPointer];
+      ROS_DEBUG_STREAM("set next wpts for drone: "<<id<<" "<<waypoint[0]<<" "<<waypoint[1]<<" "<<waypoint[2]);
+      cout<<"execpointer: "<<execPointer<<endl;
     }
     //reachedEnd and noMoreTrajectories
     else {
@@ -245,7 +244,7 @@ bool Drone::reachedGoal(geometry_msgs::PoseStamped setPoint) {
   Eigen::Vector3d setP;
   setP << setPoint.pose.position.x, setPoint.pose.position.y,
       setPoint.pose.position.z;
-  cout<<"eucledian dis: "<<getEucDistance(curr_pos_local, setP)<<endl;
+  // cout<<"eucledian dis: "<<getEucDistance(curr_pos_local, setP)<<endl;
   if (getEucDistance(curr_pos_local, setP) < 0.1) {
     setState(States::Reached);
     return true;

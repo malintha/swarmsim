@@ -5,15 +5,23 @@
 SimplePlanningPhase::SimplePlanningPhase() {};
 
 SimplePlanningPhase:: SimplePlanningPhase(int nDrones, double frequency, string yamlFpath) : PlanningPhase(nDrones, frequency) {
-    this->yamlFpath = yamlFpath; 
+    this->yamlFpath = yamlFpath;
 };
 
 void SimplePlanningPhase:: doPlanning(int horizonId) {
     auto sharedP = make_shared<promise<vector<Trajectory> > >();
     fut = sharedP->get_future();
-
+    // auto threadExcetionPtr = make_shared<exception_ptr>();
     auto doPlanningExpr = [horizonId, this, sharedP]() {
-        discreteWpts = this->getDiscretePlan(horizonId);
+        try {
+            discreteWpts = this->getDiscretePlan(horizonId);
+        }
+        catch(range_error& e) {
+            ROS_ERROR_STREAM("Error!");
+            PlanningPhase::threadExcetionPtr = current_exception();
+            return;
+        }
+        cout<<"still here"<<endl;
         bool initialQP;
         horizonId == 0 ? initialQP = true : initialQP = false;
         vector<Trajectory> smoothTrajs = computeSmoothTrajectories(initialQP);
@@ -26,6 +34,7 @@ void SimplePlanningPhase:: doPlanning(int horizonId) {
         doneInitPlanning = true;
     };
     planning_t = new thread(doPlanningExpr);
+    return;
 };
 
 vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
@@ -33,7 +42,15 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
     char cstr[yamlFpath.size()+1];
     copy(yamlFpath.begin(), yamlFpath.end(), cstr);
     cstr[yamlFpath.size()] = '\0';
-    return simutils::processYamlFile(cstr, horizonId);
+    vector<Trajectory> planningResults;
+    try {
+        planningResults = simutils::processYamlFile(cstr, horizonId);
+    }
+    catch (range_error& e) {
+        ROS_ERROR_STREAM(e.what()<<" "<<horizonId);
+        throw range_error(e.what());
+    }
+    return planningResults; 
 }
 
 void SimplePlanningPhase::testf() {

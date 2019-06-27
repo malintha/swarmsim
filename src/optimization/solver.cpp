@@ -147,21 +147,17 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool initial) {
     fill(g, g+nx, 0);
     real_t* xOpt = new real_t[nx];
 
-    if(initial) {
-        SQProblem sqp(nx, nc);
-        // QProblem qp(nx, nc);
-        Options options;
-        options.setToMPC();
-        options.printLevel = PrintLevel::PL_NONE;
-        sqp.setOptions( options );
-        sqp.init(H_r,g,A_r,nullptr,nullptr,lb_r,ub_r, nWSR, 0);
-    }
-    else {
-        cout<<"else"<<endl;
-        sqp->hotstart(H_r,g,A_r,nullptr,nullptr,lb_r,ub_r, nWSR, 0);
-    }
-    sqp.getPrimalSolution(xOpt);
-    ROS_DEBUG_STREAM("Optimization problem solved");
+    qp = new QProblem(nx, nc);
+    Options options;
+    options.setToMPC();
+    options.printLevel = PrintLevel::PL_NONE;
+    qp->setOptions(options);
+    int_t nwsr = 200;
+    returnValue rv = qp->init(H_r,g,A_r,nullptr,nullptr,lb_r,ub_r, nwsr, 0);
+
+    qp->getPrimalSolution(xOpt);
+    delete qp;
+    ROS_DEBUG_STREAM("Optimization problem solved. Return value: "<<rv);
 
     vector<Trajectory> trajList;
     for(int i=0;i<K;i++) {
@@ -194,9 +190,11 @@ Trajectory Solver::calculateTrajectory(vector<double> coef, double t0, double t1
     yc << coef[7],coef[8],coef[9],coef[10],coef[11],coef[12],coef[13];
     zc << coef[14],coef[15],coef[16],coef[17],coef[18],coef[19],coef[20];
 
-    cout<<"x_coeff: "<<xc<<endl;
-    cout<<"y_coeff: "<<yc<<endl;    
-    cout<<"z_coeff: "<<zc<<endl;
+    for(int i=1;i<=coef.size();i++) {
+        cout<<coef[i-1]<<" ";
+        if(i%7 == 0)
+            cout<<endl;
+    }
 
     for(double t=t0; t<=t1; t+=dt) {
         Vector3d pos;

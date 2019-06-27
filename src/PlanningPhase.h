@@ -11,6 +11,7 @@ using namespace std;
 class PlanningPhase {
     public:
         //set ndrones, map etc in corresponding derived classes.
+        exception_ptr threadExcetionPtr;
         PlanningPhase();
         PlanningPhase(int nDrones, double frequency);
         bool doneInitPlanning;
@@ -24,6 +25,7 @@ class PlanningPhase {
         thread* planning_t;
         vector<Trajectory> computeSmoothTrajectories(bool initialQP);
         future<vector<Trajectory> > fut;
+        // Solver* solver;
 
         // override in derived classes
         virtual void doPlanning(int horizonId);

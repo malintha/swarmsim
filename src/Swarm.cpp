@@ -151,27 +151,29 @@ void Swarm::setSwarmPhase(int execPointer) {
 void Swarm::performPhaseTasks() {
   if(phase == Phases::Planning && !planningInitialized) {
     //initialize the external opertaions such as slam or task assignment
-    if(horizonId < 2) {
       try {
+        cout<<"horizon: "<<horizonId<<endl;
         planningPhase->doPlanning(horizonId++); //throw an exception if the required horizon is not available
+        
+        if(planningPhase->threadExcetionPtr) {
+          cout<<"here"<<endl;
+          throw runtime_error("Exception occurred while planning");
+        }
       }
-      catch(exception& e) {
-        cout<<"exception: "<<e.what()<<endl;
-      }
+      catch(runtime_error& e) {
+        ROS_ERROR_STREAM(e.what());
+        planningPhase->planning_t->join();
+        //set executionInitialized to true. So then it won't expect a value for the future.  
+        executionInitialized = true;
     }
-
     planningInitialized = true;
   }
   else if(phase == Phases::Execution && !executionInitialized) {
     //get the optimized trajectories from planningphase and push them to the drones
-    if(horizonId <= 2) {
     cout<<"Execution"<<endl;
-      vector<Trajectory> results = planningPhase->getPlanningResults();
-      for(int i=0;i<n_drones;i++) {
-        dronesList[i]->pushTrajectory(results[i]);
-      }
-    horizonId++; //temp
-
+    vector<Trajectory> results = planningPhase->getPlanningResults();
+    for(int i=0;i<n_drones;i++) {
+      dronesList[i]->pushTrajectory(results[i]);
     }
     executionInitialized = true;
   }

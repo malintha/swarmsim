@@ -6,6 +6,7 @@
 #include "Trajectory.h"
 #include "ros/ros.h"
 #include <future>
+#include <stdexcept>
 
 using namespace std;
 USING_NAMESPACE_QPOASES
@@ -17,7 +18,7 @@ namespace simutils {
 
     // future<vector<Trajectory> > getTrajectoryList(char* fPath, int horizon_id);
     vector<Trajectory> processYamlFile(char* fPath, int horizon_id);
-
+    void horizonExists(int horizonId);
 
     vector<double> loadTimesFromFile(ros::NodeHandle &nh);
     vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, bool fullTrajecory);

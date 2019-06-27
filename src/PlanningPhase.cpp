@@ -8,11 +8,14 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
     maxAcceleration = 5;
     nChecks = 2;
     doneInitPlanning = false;
+    threadExcetionPtr = nullptr;
+    // solver = new Solver(nDrones, maxVelocity, maxAcceleration, nChecks, frequency);
 }
 
 vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP) {
-    Solver solver(nDrones, maxVelocity, maxAcceleration, nChecks, frequency);
-    vector<Trajectory> results = solver.solve(discreteWpts, true);
+    Solver* solver = new Solver(nDrones, maxVelocity, maxAcceleration, nChecks, frequency);
+    vector<Trajectory> results = solver->solve(discreteWpts, true);
+    delete solver;
     return results;
 }
 

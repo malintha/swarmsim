@@ -22,10 +22,9 @@ class Solver {
         double maxVel;
         double maxAcc;
         int nChecks;
-	    int_t nWSR = 200;
         double dt = 0.1;
-        // SQProblem* sqp;
-
+        SQProblem* sqp;
+        QProblem* qp;
         int getnVariables();
         int getnConstraints();
         MatrixXf getHblock(double t0, double t1);
