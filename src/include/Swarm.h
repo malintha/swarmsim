@@ -7,7 +7,6 @@
 #include <geometry_msgs/PoseStamped.h>
 #include "Drone.h"
 #include "Trajectory.h"
-// #include "optimization/solver.h"
 #include <future>
 #include "SimplePlanningPhase.h"
 

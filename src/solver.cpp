@@ -1,4 +1,4 @@
-#include "solver.h"
+#include "include/solver.h"
 #include "ros/console.h"
 
 Solver::Solver(int nDrones, double maxVel, double maxAcc, int nChecks, double frequency)

@@ -3,7 +3,11 @@
 #include <vector>
 #include <algorithm>
 #include <qpOASES.hpp>
-#include "../Trajectory.h"
+#include "Trajectory.h"
+#include <eigen_conversions/eigen_msg.h>
+#include <mav_trajectory_generation/polynomial_optimization_nonlinear.h>
+#include <mav_trajectory_generation_ros/ros_visualization.h>
+#include <mav_trajectory_generation_ros/ros_conversions.h>
 
 using namespace std;
 using namespace Eigen;

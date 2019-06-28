@@ -1,8 +1,8 @@
 #include <iostream>
 #include <ros/console.h>
-#include "Swarm.h"
-#include "state.h"
-#include "utils.h"
+#include "include/Swarm.h"
+#include "include/state.h"
+#include "include/utils.h"
 #include <thread>
 #include <chrono>
 #include <stdexcept>

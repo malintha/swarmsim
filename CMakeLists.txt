@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   mavros_msgs
+  mav_trajectory_generation
+  mav_trajectory_generation_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -134,22 +136,22 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME} 
+  src/include/Swarm.h
+  src/include/Drone.h
+  src/include/state.h
+  src/include/utils.h
+  src/include/solver.h
+  src/include/PlanningPhase.h
+  src/include/DiscretePlanner.h
+  src/include/SimplePlanningPhase.h
+  src/include/Trajectory.h
   src/swarmsim.cpp
   src/Swarm.cpp
-  src/Swarm.h
   src/Drone.cpp
-  src/Drone.h
-  src/state.h
-  src/Trajectory.h
-  src/utils.h
   src/utils.cpp
-  src/optimization/solver.h
-  src/optimization/solver.cpp
-  src/PlanningPhase.h
+  src/solver.cpp
   src/SimplePlanningPhase.cpp
-  src/DiscretePlanner.h
   src/PlanningPhase.cpp
-  src/SimplePlanningPhase.h
   )
 
 ## Rename C++ executable without prefix

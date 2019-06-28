@@ -2,7 +2,7 @@
 #include <future>
 #include <vector>
 #include "Trajectory.h"
-#include "optimization/solver.h"
+#include "solver.h"
 #include "DiscretePlanner.h"
 #include <thread>
 

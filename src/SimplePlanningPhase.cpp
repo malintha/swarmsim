@@ -1,6 +1,6 @@
 #include <algorithm>
-#include "SimplePlanningPhase.h"
-#include "utils.h"
+#include "include/SimplePlanningPhase.h"
+#include "include/utils.h"
 
 SimplePlanningPhase::SimplePlanningPhase() {};
 
