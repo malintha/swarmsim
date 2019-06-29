@@ -16,7 +16,7 @@ USING_NAMESPACE_QPOASES
 class Solver {
     public:
         Solver(int nDrones, double maxVel, double maxAcc, int nChecks, double frequency);
-        vector<Trajectory> solve(vector<Trajectory> droneWpts, bool initial);
+        vector<Trajectory> solve(vector<Trajectory> droneWpts, bool initial, bool end);
         
     private:
         int n = 7;

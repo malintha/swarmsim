@@ -13,7 +13,7 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
 
 vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP) {
     Solver* solver = new Solver(nDrones, maxVelocity, maxAcceleration, nChecks, frequency);
-    vector<Trajectory> results = solver->solve(discreteWpts, true);
+    vector<Trajectory> results = solver->solve(discreteWpts, false, false);
     delete solver;
     return results;
 }
