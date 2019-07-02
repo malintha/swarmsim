@@ -16,5 +16,5 @@ namespace simutils {
 
     vector<double> loadTimesFromFile(ros::NodeHandle &nh);
 
-    vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, bool fullTrajecory);
+    vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, string trajDir);
 }

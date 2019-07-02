@@ -9,45 +9,54 @@
 
 using namespace std;
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, bool fileLoad)
-        : frequency(frequency), n_drones(n_drones), nh(n), fileLoad(fileLoad) {
-    state = States::Idle;
-    phase = Phases::Planning;
-    horizonId = 0;
-    yaml_fpath = "/home/malintha/drone_demo/install/share/swarmsim/launch/traj_data/goals.yaml";
-    planningPhase = new SimplePlanningPhase(n_drones, frequency, yaml_fpath);
-
-    planningInitialized = false;
-    optimizingInitialized = false;
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, const string trajDir)
+        : frequency(frequency), n_drones(n_drones), nh(n) {
+    initVariables();
+    vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, trajDir);
     for (int i = 0; i < n_drones; i++) {
-        Drone *drone = new Drone(i, nh);
-        dronesList.push_back(drone);
+        Trajectory traj = trajectories[i];
+        dronesList[i]->pushTrajectory(traj);
     }
+}
 
-    //loading the full trajectories from files
-    if (fileLoad) {
-        vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, true);
-        for (int i = 0; i < n_drones; i++) {
-            Trajectory traj = trajectories[i];
-            dronesList[i]->pushTrajectory(traj);
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, const string trajDir, const string yamlFileName) :
+        frequency(frequency), n_drones(n_drones), nh(n) {
+        stringstream ss;
+        ss << trajDir<<yamlFileName;
+        string yamlFilePath = ss.str();
+    try {
+        if (yamlFilePath.empty()) {
+            throw runtime_error("YAML file path is not provided. Exiting.");
         }
-    }
-
-        //performing online trajectory optimization
-    else {
+        initVariables();
+        planningPhase = new SimplePlanningPhase(n_drones, frequency, yamlFilePath);
         planningPhase->doPlanning(horizonId++);
         vector<Trajectory> trl = planningPhase->getPlanningResults();
         ROS_DEBUG_STREAM("Retrieved the initial planning results. Size: " << trl[0].pos.size());
-        try {
-            horizonLen = trl[0].pos.size();
-        }
-        catch (const length_error &le) {
-            ROS_ERROR_STREAM("Error in retrieving the results from the future");
-            return;
-        }
+        horizonLen = trl[0].pos.size();
         for (int i = 0; i < n_drones; i++) {
             dronesList[i]->pushTrajectory(trl[i]);
         }
+    }
+    catch (const length_error &le) {
+        ROS_ERROR_STREAM("Error in retrieving the results from the future");
+        return;
+    }
+    catch (const runtime_error &re) {
+        ROS_ERROR_STREAM("Error initializing the swarm. "<<re.what());
+        return;
+    }
+}
+
+void Swarm::initVariables() {
+    planExecutionRatio = 0.6;
+    state = States::Idle;
+    phase = Phases::Planning;
+    horizonId = 0;
+    planningInitialized = false;
+    for (int i = 0; i < n_drones; i++) {
+        Drone *drone = new Drone(i, nh);
+        dronesList.push_back(drone);
     }
 }
 
@@ -137,7 +146,7 @@ void Swarm::sendPositionSetPoints() {
 */
 void Swarm::setSwarmPhase(int execPointer) {
     double progress = (double) execPointer / horizonLen;
-    if (progress < 0.6) {
+    if (progress < planExecutionRatio) {
         if (progress == 0) {
             ROS_DEBUG_STREAM(
                     "Resetting planning and execution flags. exec: " << execPointer << " progress: " << progress);

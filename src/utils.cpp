@@ -180,28 +180,24 @@ namespace simutils {
         return tList;
     }
 
-    std::vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, bool fullTrajecory) {
+    std::vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, const string filePath) {
         std::vector<Trajectory> trajList;
-        std::string filePath;
         std::string prefix;
-        fullTrajecory ? prefix = "pos_" : prefix = "goals_";
 
-        if (nh.getParam("/swarmsim/trajDir", filePath)) {
-            for (int i = 0; i < n_drones; i++) {
-                std::stringstream ss;
-                ss << filePath << prefix << i << ".txt";
-                ROS_DEBUG_STREAM("Loading trajectories from file " << ss.str());
-                std::ifstream posStream(ss.str());
-                std::string posLine;
-                double x, y, z;
-                Trajectory traj;
-                while (posStream >> x >> y >> z) {
-                    Eigen::Vector3d pos;
-                    pos << x, y, z;
-                    traj.pos.push_back(pos);
-                }
-                trajList.push_back(traj);
+        for (int i = 0; i < n_drones; i++) {
+            std::stringstream ss;
+            ss << filePath << prefix << i << ".txt";
+            ROS_DEBUG_STREAM("Loading trajectories from file " << ss.str());
+            std::ifstream posStream(ss.str());
+            std::string posLine;
+            double x, y, z;
+            Trajectory traj;
+            while (posStream >> x >> y >> z) {
+                Eigen::Vector3d pos;
+                pos << x, y, z;
+                traj.pos.push_back(pos);
             }
+            trajList.push_back(traj);
         }
         ROS_DEBUG_STREAM("Trajectories loaded from file");
         return trajList;

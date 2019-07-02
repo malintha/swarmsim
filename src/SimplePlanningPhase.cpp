@@ -2,11 +2,11 @@
 #include "include/SimplePlanningPhase.h"
 #include "include/utils.h"
 
-SimplePlanningPhase::SimplePlanningPhase() {};
+SimplePlanningPhase::SimplePlanningPhase() = default;
 
 SimplePlanningPhase::SimplePlanningPhase(int nDrones, double frequency, string yamlFpath) : PlanningPhase(nDrones,
                                                                                                           frequency) {
-    this->yamlFpath = yamlFpath;
+    this->yamlFpath = move(yamlFpath);
 }
 
 void SimplePlanningPhase::doPlanning(int horizonId) {
@@ -35,7 +35,6 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
         doneInitPlanning = true;
     };
     planning_t = new thread(doPlanningExpr);
-    return;
 }
 
 vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
