@@ -69,7 +69,7 @@ void Drone::arm(bool arm) {
     } else {
         ROS_ERROR_STREAM("Arm request failed for drone: " << id);
     }
-    arm == true ? state = States::Armed : States::Ready;
+    arm ? state = States::Armed : States::Ready;
 }
 
 void Drone::TOLService(bool takeoff) {

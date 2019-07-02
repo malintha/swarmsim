@@ -29,10 +29,8 @@ public:
 
 private:
     double planExecutionRatio;
-    bool fileLoad;
-    int nHorizons;
+    bool predefined;
     int phase;
-    char *yaml_fpath;
     int state;
     ros::NodeHandle nh;
     float frequency;

@@ -21,6 +21,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
 
 Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName) :
         frequency(frequency), n_drones(n_drones), nh(n) {
+        predefined = false;
         stringstream ss;
         ss << trajDir<<yamlFileName;
         string yamlFilePath = ss.str();
@@ -77,7 +78,7 @@ void Swarm::iteration(const ros::TimerEvent &e) {
             break;
 
         case States::Autonomous:
-            if (!fileLoad) {
+            if (!predefined) {
                 performPhaseTasks();
             }
             sendPositionSetPoints();
@@ -109,7 +110,7 @@ void Swarm::checkSwarmForStates(int state_) {
     bool swarmInState = true;
     for (int i = 0; i < n_drones; i++) {
         bool swarmInStateTemp;
-        dronesList[i]->getState() == state ? swarmInStateTemp = true : swarmInStateTemp = false;
+        dronesList[i]->getState() == state_ ? swarmInStateTemp = true : swarmInStateTemp = false;
         swarmInState = swarmInState && swarmInStateTemp;
     }
 
@@ -135,7 +136,7 @@ void Swarm::sendPositionSetPoints() {
     for (int i = 0; i < n_drones; i++) {
         execPointer = this->dronesList[i]->executeTrajectory();
     }
-    if (!fileLoad) {
+    if (!predefined) {
         setSwarmPhase(execPointer);
     }
 }
@@ -188,8 +189,8 @@ void Swarm::performPhaseTasks() {
 
 void Swarm::setWaypoints(vector<Trajectory> wpts_, vector<double> tList_) {
     if (phase == Phases::Planning) {
-        this->wpts = wpts_;
-        this->tList = tList_;
+        this->wpts = move(wpts_);
+        this->tList = move(tList_);
     } else {
         ROS_WARN_STREAM("Swarm is not in the planning phase. Waypoints rejected");
     }
