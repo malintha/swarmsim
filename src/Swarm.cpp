@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, const string trajDir)
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir)
         : frequency(frequency), n_drones(n_drones), nh(n) {
     initVariables();
     vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, trajDir);
@@ -19,7 +19,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, const str
     }
 }
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, const string trajDir, const string yamlFileName) :
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName) :
         frequency(frequency), n_drones(n_drones), nh(n) {
         stringstream ss;
         ss << trajDir<<yamlFileName;
@@ -93,19 +93,19 @@ void Swarm::iteration(const ros::TimerEvent &e) {
     }
 }
 
-void Swarm::run(float frequency) {
-    this->frequency = frequency;
+void Swarm::run(float frequency_) {
+    this->frequency = frequency_;
     ros::Timer timer = nh.createTimer(ros::Duration(1 / frequency),
                                       &Swarm::iteration, this);
     ros::spin();
 }
 
-void Swarm::setState(int state) {
-    this->state = state;
+void Swarm::setState(int state_) {
+    this->state = state_;
     ROS_DEBUG_STREAM("Set swarm state: " << state);
 }
 
-void Swarm::checkSwarmForStates(int state) {
+void Swarm::checkSwarmForStates(int state_) {
     bool swarmInState = true;
     for (int i = 0; i < n_drones; i++) {
         bool swarmInStateTemp;
@@ -114,7 +114,7 @@ void Swarm::checkSwarmForStates(int state) {
     }
 
     if (swarmInState) {
-        setState(state);
+        setState(state_);
     }
 }
 
@@ -131,7 +131,7 @@ void Swarm::TOLService(bool takeoff) {
 }
 
 void Swarm::sendPositionSetPoints() {
-    int execPointer;
+    int execPointer = 0;
     for (int i = 0; i < n_drones; i++) {
         execPointer = this->dronesList[i]->executeTrajectory();
     }
@@ -186,10 +186,10 @@ void Swarm::performPhaseTasks() {
     }
 }
 
-void Swarm::setWaypoints(vector<Trajectory> wpts, vector<double> tList) {
+void Swarm::setWaypoints(vector<Trajectory> wpts_, vector<double> tList_) {
     if (phase == Phases::Planning) {
-        this->wpts = wpts;
-        this->tList = tList;
+        this->wpts = wpts_;
+        this->tList = tList_;
     } else {
         ROS_WARN_STREAM("Swarm is not in the planning phase. Waypoints rejected");
     }
