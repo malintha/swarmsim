@@ -36,7 +36,7 @@ class Solver {
         MatrixXf getVelTimeVec(double t);
         MatrixXf getAccTimeVec(double t);
         real_t* matrix2realt(MatrixXf mat);
-        Trajectory calculateTrajectory(vector<double> coefficients,double t0, double t1);
+        Trajectory calculateTrajectoryWpts(mav_trajectory_generation::Trajectory traj);
 
         int nwpts = 0;
 
