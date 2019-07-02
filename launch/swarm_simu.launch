@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
 <launch>
     <arg name="nDrones" default="2" />
-    <arg name="fileLoad" default="true" />
+    <arg name="predefined" default="false" />
+    <arg name="yamlFileName" default="goals.yaml"/>
 
     <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find swarmsim)/launch/custom_rosconsole.conf"/>
+
     <node name="swarmsim" pkg="swarmsim" type="swarmsim" output="screen">
         <param name="trajDir" value="$(find swarmsim)/launch/traj_data/"/>
         <param name="nDrones" value="$(arg nDrones)"/>
-        <param name="fileLoad" value="$(arg fileLoad)"/>
+        <param name="predefined" value="$(arg predefined)"/>
+        <param name="yamlFileName" value="$(arg yamlFileName)"/>
     </node>
 
     <!-- <test test-name="test_barebones" pkg="swarmsim" type="lin_traj_nav_test11.py" time-limit="10.0"/> -->

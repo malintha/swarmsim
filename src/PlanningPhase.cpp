@@ -1,4 +1,4 @@
-#include "PlanningPhase.h"
+#include "include/PlanningPhase.h"
 #include<ros/console.h>
 
 PlanningPhase::PlanningPhase() {}
@@ -8,12 +8,12 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
     maxAcceleration = 5;
     nChecks = 2;
     doneInitPlanning = false;
-    nHorizons = 3;
+//    nHorizons = 1;
 }
 
-vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP) {
+vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP, bool lastQP) {
     Solver* solver = new Solver(nDrones, maxVelocity, maxAcceleration, nChecks, frequency);
-    vector<Trajectory> results = solver->solve(discreteWpts, true);
+    vector<Trajectory> results = solver->solve(discreteWpts, initialQP, lastQP);
     delete solver;
     return results;
 }

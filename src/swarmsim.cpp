@@ -1,4 +1,4 @@
-#include "Swarm.h"
+#include "include/Swarm.h"
 #include "ros/ros.h"
 #include "tf/tf.h"
 #include <iostream>
@@ -10,16 +10,31 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  float frequency = 10;
-  ros::init(argc, argv, "swarmsim");
-  static ros::NodeHandle n("~");
-  int nDrones;
-  bool fileLoad;
-  n.param("/swarmsim/nDrones", nDrones, 1);
-  n.param("/swarmsim/fileLoad", fileLoad, false);
+    float frequency = 10;
+    ros::init(argc, argv, "swarmsim");
+    static ros::NodeHandle n("~");
+    int nDrones;
+    bool predefinedTrajectories;
+    string yamlFileName;
+    string trajDir;
 
-  ROS_DEBUG_STREAM("Number of drones "<<nDrones);
-  Swarm simulator(n, frequency, nDrones, fileLoad);
-  simulator.run(frequency);
-  return 0;
+    n.param("/swarmsim/nDrones", nDrones, 1);
+    n.param("/swarmsim/predefined", predefinedTrajectories, false);
+    n.getParam("/swarmsim/trajDir", trajDir);
+    n.getParam("/swarmsim/yamlFileName", yamlFileName);
+
+    ROS_DEBUG_STREAM("Number of drones: " << nDrones);
+    ROS_DEBUG_STREAM("Use predefined trajectories: " << predefinedTrajectories);
+    ROS_DEBUG_STREAM("Trajectory dir: " << trajDir);
+
+    Swarm* sim;
+    if(!predefinedTrajectories) {
+        ROS_DEBUG_STREAM("YAML file name: " << yamlFileName);
+        sim = new Swarm(n, frequency, nDrones, trajDir, yamlFileName);
+    }
+    else {
+        sim = new Swarm(n, frequency, nDrones, trajDir);
+    }
+    sim->run(frequency);
+    return 0;
 }
