@@ -1,4 +1,4 @@
-#include "include/solver.h"
+#include "solver.h"
 #include "ros/console.h"
 #include <eigen_conversions/eigen_msg.h>
 #include <mav_trajectory_generation/polynomial_optimization_nonlinear.h>
@@ -48,12 +48,12 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool start, bool 
     return trajList;
 }
 
-Trajectory Solver::calculateTrajectoryWpts(mtg::Trajectory traj) {
+Trajectory Solver::calculateTrajectoryWpts(mtg::Trajectory& traj) {
     mav_msgs::EigenTrajectoryPoint::Vector flat_states;
     mav_trajectory_generation::sampleWholeTrajectory(traj, dt, &flat_states);
     Trajectory tr;
-    for (int i = 0; i < flat_states.size(); i++) {
-        tr.pos.push_back(flat_states[i].position_W);
+    for (auto & flat_state : flat_states) {
+        tr.pos.push_back(flat_state.position_W);
     }
     return tr;
 }
