@@ -1,4 +1,4 @@
-#include "include/Swarm.h"
+#include "swarmsim/Swarm.h"
 #include "ros/ros.h"
 #include "tf/tf.h"
 #include <iostream>

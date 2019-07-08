@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(swarmsim)
+project(swarmsim_example)
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
@@ -7,13 +8,13 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  mavros_msgs
-  mav_trajectory_generation
-  mav_trajectory_generation_ros
-)
+        roscpp
+        std_msgs
+        mavros_msgs
+        swarmsim
+        mav_trajectory_generation
+        mav_trajectory_generation_ros
+        )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -105,10 +106,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES swarmsim
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+        #  INCLUDE_DIRS include
+        #  LIBRARIES swarmsim_example
+          CATKIN_DEPENDS swarmsim
+        #  DEPENDS system_lib
 )
 
 ###########
@@ -118,13 +119,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
+        # include
+        ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/swarmsim.cpp
+#   src/${PROJECT_NAME}/swarmsim_example.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -135,24 +136,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME} 
-  src/include/Swarm.h
-  src/include/Drone.h
-  src/include/state.h
-  src/include/utils.h
-  src/include/solver.h
-  src/include/PlanningPhase.h
-  src/include/DiscretePlanner.h
-  src/include/SimplePlanningPhase.h
-  src/include/Trajectory.h
-  src/swarmsim.cpp
-  src/Swarm.cpp
-  src/Drone.cpp
-  src/utils.cpp
-  src/solver.cpp
-  src/SimplePlanningPhase.cpp
-  src/PlanningPhase.cpp
-  )
+ add_executable(${PROJECT_NAME}
+         src/swarmsim_demo.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -165,12 +150,10 @@ add_executable(${PROJECT_NAME}
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-  qpOASES
-  yaml
-  pthread
-)
+ target_link_libraries(${PROJECT_NAME}
+   ${catkin_LIBRARIES}
+    pthread
+ )
 
 #############
 ## Install ##
@@ -186,45 +169,36 @@ target_link_libraries(${PROJECT_NAME}
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
-# Mark executables and/or libraries for installation
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+## Mark executables and/or libraries for installation
+ install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
-# Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
-)
-
-# Mark other files for installation (e.g. launch and bag files, etc.)
-# install(DIRECTORY
-#   test/lin_traj_nav_test.test
-#   test/lin_traj_nav_test.py
-#   DESTINATION share/${PROJECT_NAME}/test
+## Mark cpp header files for installation
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".svn" EXCLUDE
 # )
 
-install(DIRECTORY
-  "launch"
-  "test"
-  DESTINATION share/${PROJECT_NAME}
-)
+## Mark other files for installation (e.g. launch and bag files, etc.)
+# install(FILES
+#   # myfile1
+#   # myfile2
+#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# )
+
 #############
 ## Testing ##
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_swarmsim.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_swarmsim_example.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
-if(CATKIN_ENABLE_TESTING)
-  find_package(rostest REQUIRED)
-  add_rostest(test/lin_traj_nav_test.test)
-endif()
