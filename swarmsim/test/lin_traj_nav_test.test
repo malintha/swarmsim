@@ -1,4 +1,4 @@
 <launch>
   <node pkg="swarmsim" type="swarmsim" name="swarmsim" />
-  <test test-name="test_barebones" pkg="swarmsim" type="lin_traj_nav_test.py" />
+  <test test-name="swarmsim" pkg="swarmsim" type="test_swarmsim_solver" />
 </launch>

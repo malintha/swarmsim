@@ -24,7 +24,7 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
         bool lastQP;
         horizonId == 0 ? initialQP = true : initialQP = false;
         horizonId == nHorizons ? lastQP = true : lastQP = false;
-
+        
         vector<Trajectory> smoothTrajs = computeSmoothTrajectories(initialQP, lastQP);
         try {
             sharedP->set_value_at_thread_exit(smoothTrajs);

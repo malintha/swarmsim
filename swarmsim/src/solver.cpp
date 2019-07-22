@@ -8,13 +8,13 @@
 
 namespace mtg = mav_trajectory_generation;
 
-Solver::Solver(int nDrones, double maxVel, double maxAcc, int nChecks,
+Solver::Solver(int nDrones, double maxVel, double maxAcc,
                double frequency)
         : K(nDrones), maxVel(maxVel), maxAcc(maxAcc), nChecks(nChecks) {
     dt = (double) 1 / frequency;
 }
 
-vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool start, bool end) {
+vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts) {
     vector<Trajectory> trajList;
     for (int k = 0; k < K; k++) {
         Trajectory t_k = droneWpts[k];

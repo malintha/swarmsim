@@ -207,17 +207,24 @@ install(DIRECTORY
 #############
 
 ## Add gtest based cpp test target and link libraries
-catkin_add_gtest(test_solver
-        test/test_swarmsim_solver.cpp
-        )
-
+# catkin_add_gtest(testsolver
+#         test/test_swarmsim_solver.cpp
+#         )
 # if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+#   target_link_libraries(testsolver ${PROJECT_NAME} ${catkin_LIBRARIES})
 # endif()
+
+catkin_add_gtest(testsolver1
+        test/solvertest.cpp
+        )
+# if(TARGET ${PROJECT_NAME}-test)
+target_link_libraries(testsolver1 ${PROJECT_NAME} ${catkin_LIBRARIES})
+# endif()
+
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
-    add_rostest(test/lin_traj_nav_test.test)
+#     add_rostest(test/lin_traj_nav_test.test)
 endif ()

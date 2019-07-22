@@ -8,12 +8,11 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
     maxAcceleration = 5;
     nChecks = 2;
     doneInitPlanning = false;
-//    nHorizons = 1;
 }
 
 vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP, bool lastQP) {
-    Solver* solver = new Solver(nDrones, maxVelocity, maxAcceleration, nChecks, frequency);
-    vector<Trajectory> results = solver->solve(discreteWpts, initialQP, lastQP);
+    Solver* solver = new Solver(nDrones, maxVelocity, maxAcceleration, frequency);
+    vector<Trajectory> results = solver->solve(discreteWpts);
     delete solver;
     return results;
 }
