@@ -5,10 +5,10 @@
     <arg name="yamlFileName" default="goals.yaml"/>
 
     <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find swarmsim)/launch/custom_rosconsole.conf"/>
+       value="$(find swarmsim_example)/launch/custom_rosconsole.conf"/>
 
-    <node name="swarmsim" pkg="swarmsim" type="swarmsim" output="screen">
-        <param name="trajDir" value="$(find swarmsim)/launch/traj_data/"/>
+    <node name="swarmsim_example" pkg="swarmsim_example" type="swarmsim_example" output="screen">
+        <param name="trajDir" value="$(find swarmsim_example)/launch/traj_data/"/>
         <param name="nDrones" value="$(arg nDrones)"/>
         <param name="predefined" value="$(arg predefined)"/>
         <param name="yamlFileName" value="$(arg yamlFileName)"/>

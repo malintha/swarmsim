@@ -25,6 +25,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         stringstream ss;
         ss << trajDir<<yamlFileName;
         string yamlFilePath = ss.str();
+        // cout<<"#### "<<yamlFilePath<<endl;
     try {
         if (yamlFilePath.empty()) {
             throw runtime_error("YAML file path is not provided. Exiting.");
