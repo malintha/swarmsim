@@ -214,11 +214,11 @@ install(DIRECTORY
 #   target_link_libraries(testsolver ${PROJECT_NAME} ${catkin_LIBRARIES})
 # endif()
 
-catkin_add_gtest(testsolver1
+catkin_add_gtest(testSwarmSim
         test/solvertest.cpp
         )
 # if(TARGET ${PROJECT_NAME}-test)
-target_link_libraries(testsolver1 ${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(testSwarmSim ${PROJECT_NAME} ${catkin_LIBRARIES})
 # endif()
 
 
