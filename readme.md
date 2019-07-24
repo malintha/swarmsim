@@ -32,8 +32,5 @@ Use the follwing commands to build the packages
 catkin build mav_trajectory_generation_ros
 ```
 ```bash
-catkin build sitl_launcher
-```
-```bash
-catkin build swarmsim_example
+catkin build
 ```
