@@ -1,0 +1,8 @@
+<launch>
+  <!-- <include file="$(find swarmsim_example)/launch/swarm_simu.launch"></include> -->
+  <include file="$(find sitl_launcher)/launch/demo.launch">
+    <param name="drone_args" value="--iris 0 1"/>
+  </include>
+
+  <test test-name="test_swarmsim" pkg="swarmsim_testing" type="gazebo_test.py" />
+</launch>

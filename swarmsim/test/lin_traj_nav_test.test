@@ -1,4 +1,0 @@
-<launch>
-  <node pkg="swarmsim" type="swarmsim" name="swarmsim" />
-  <test test-name="swarmsim" pkg="swarmsim" type="test_swarmsim_solver" />
-</launch>

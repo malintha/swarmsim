@@ -198,7 +198,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
 # )
 
 install(DIRECTORY
-        # "launch"
         "test"
         DESTINATION share/${PROJECT_NAME}
         )
@@ -226,5 +225,4 @@ target_link_libraries(testSwarmSim ${PROJECT_NAME} ${catkin_LIBRARIES})
 # catkin_add_nosetests(test)
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
-#     add_rostest(test/lin_traj_nav_test.test)
 endif ()
