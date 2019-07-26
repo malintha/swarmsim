@@ -7,6 +7,7 @@
 #include "sensor_msgs/NavSatFix.h"
 #include "state.h"
 #include "Trajectory.h"
+#include "mavros_msgs/State.h"
 
 using namespace Eigen;
 
@@ -36,13 +37,12 @@ private:
     Vector3d curr_pos_global; 
     Vector3d init_pos_global;
     Vector3d init_pos_local;
-    bool setInitPosGlobal;
-    bool setInitPosLocal;
     float yaw;
     int state;
     float takeoffHeight;
     Trajectory trajectory;
     int execPointer;
+    bool setReady;
 
     std::vector<Trajectory> TrajectoryList;
     int trajectoryId;
@@ -52,16 +52,19 @@ private:
     ros::Subscriber globalPositionSub;
     ros::Subscriber poseSub;
     ros::Publisher posSetPointPub;
+    ros::Subscriber mavrosStateSub;
 
+    void mavrosStateCB(const mavros_msgs::StateConstPtr& msg);
     void setMode(std::string mode);
     void positionGlobalCB(const sensor_msgs::NavSatFixConstPtr& msg);
     void positionLocalCB(const nav_msgs::OdometryConstPtr& msg);
     void poseCB(const geometry_msgs::PoseStampedConstPtr& msg);
     void setState(int state);
-    void ready(bool setInitPosGlobal, bool setInitPosLocal);
+    void ready(bool ready);
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
     void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
     void callTOLService(bool takeoff);
+
 
 // todo: move to a util class
     /**

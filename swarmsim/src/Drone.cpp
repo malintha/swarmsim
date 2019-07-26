@@ -9,12 +9,16 @@ using namespace std;
 Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
     ROS_DEBUG_STREAM("Initializing drone " << id);
     setState(States::Idle);
+    setReady = false;
     takeoffHeight = 2.5;
     execPointer = 0;
     trajectoryId = 0;
     std::string globalPositionTopic = getPositionTopic("global");
     std::string localPositionTopic = getPositionTopic("local");
     std::string poseTopic = getPoseTopic();
+    std::stringstream ss;
+    ss << "/" << id << "/mavros/state";
+    std::string mavrosStateTopic = ss.str();
     localPositionSub =
             nh.subscribe(localPositionTopic, 10, &Drone::positionLocalCB, this);
     globalPositionSub =
@@ -22,34 +26,36 @@ Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
     std::string positionSetPointTopic = getLocalSetpointTopic("position");
     posSetPointPub =
             nh.advertise<geometry_msgs::PoseStamped>(positionSetPointTopic, 10);
+    mavrosStateSub = nh.subscribe(mavrosStateTopic,10, &Drone::mavrosStateCB, this);
+
 }
 
 int Drone::getState() { return state; }
+
+void Drone::mavrosStateCB(const mavros_msgs::StateConstPtr& msg) {
+    bool guided = msg->guided;
+    ROS_DEBUG_STREAM("Mavros Guided: "<<guided<<" Drone id: "<<this->id);
+    if(!setReady && guided) {
+        ready(true);
+        setReady = true;
+        this->mavrosStateSub.shutdown();
+        ROS_DEBUG_STREAM("Drone: " << id << " Init position local: "
+                            << curr_pos_local[0] << " " << curr_pos_local[1]
+                            << " " << curr_pos_local[2]);
+        ROS_DEBUG_STREAM("Drone: "
+                            << id << " Init position global: " << curr_pos_global[0]
+                            << " " << curr_pos_global[1] << " " << curr_pos_global[2]);
+    }
+}
 
 void Drone::positionLocalCB(const nav_msgs::Odometry::ConstPtr &msg) {
     geometry_msgs::Point pos = msg->pose.pose.position;
     curr_pos_local << pos.x, pos.y, pos.z;
     yaw = getRPY(msg->pose.pose.orientation)[2];
-    if (!setInitPosLocal) {
-        init_pos_local = curr_pos_local;
-        setInitPosLocal = true;
-        ROS_DEBUG_STREAM("Drone: " << id << " Init position local: "
-                                   << init_pos_local[0] << " " << init_pos_local[1]
-                                   << " " << init_pos_local[2]);
-        ready(setInitPosGlobal, setInitPosLocal);
-    }
 }
 
 void Drone::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {
     curr_pos_global << msg->latitude, msg->longitude, msg->altitude;
-    if (!setInitPosGlobal) {
-        init_pos_global = curr_pos_global;
-        setInitPosGlobal = true;
-        ROS_DEBUG_STREAM("Drone: "
-                                 << id << " Init position global: " << init_pos_global[0]
-                                 << " " << init_pos_global[1] << " " << init_pos_global[2]);
-        ready(setInitPosGlobal, setInitPosLocal);
-    }
 }
 
 // void Drone::poseCB(const geometry_msgs::PoseStampedConstPtr &msg) {}
@@ -231,8 +237,8 @@ void Drone::setState(int state) {
     ROS_DEBUG_STREAM("Drone: " << id << " Set drone state " << state);
 }
 
-void Drone::ready(bool setInitPosGlobal, bool setInitPosLocal) {
-    if (setInitPosGlobal && setInitPosLocal) {
+void Drone::ready(bool ready) {
+    if (ready) {
         setState(States::Ready);
     }
 }
