@@ -3,12 +3,13 @@
     <arg name="nDrones" default="2" />
     <arg name="predefined" default="false" />
     <arg name="yamlFileName" default="goals.yaml"/>
+    <arg name="traj_dir" default="$(find swarmsim_example)/launch/traj_data/"/>
 
     <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find swarmsim_example)/launch/custom_rosconsole.conf"/>
 
     <node name="swarmsim_example" pkg="swarmsim_example" type="swarmsim_example" output="screen">
-        <param name="trajDir" value="$(find swarmsim_example)/launch/traj_data/"/>
+        <param name="trajDir" value="$(arg traj_dir)"/>
         <param name="nDrones" value="$(arg nDrones)"/>
         <param name="predefined" value="$(arg predefined)"/>
         <param name="yamlFileName" value="$(arg yamlFileName)"/>

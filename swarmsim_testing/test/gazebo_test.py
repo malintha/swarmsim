@@ -2,17 +2,19 @@
 PKG = 'swarmsim_testing'
 
 import sys
+import rospy
 import unittest
-from sensor_msgs import NavSatFix
+from sensor_msgs.msg import NavSatFix
+from mavros_msgs.msg import WaypointList
 
-## A sample python unit test
-class TestBareBones(unittest.TestCase):
-    ## test 1 == 1
-    def test_one_equals_one(self): # only functions with 'test_'-prefix will be run!
-        image_msg = rospy.wait_for_message("/0/mavros/global_position/global", NavSatFix, 100)
+class TestSwarmSimulation(unittest.TestCase):
+    def test_TwoRobotSimulation(self):
+
+        rospy.wait_for_message("/1/mavros/mission/waypoints", WaypointList, 100)
+        print("######")
         self.assertEquals(1, 1, "1!=1")
         print("## running test ##")
 
 if __name__ == '__main__':
     import rostest
-    rostest.rosrun(PKG, 'test_bare_bones', TestBareBones)
+    rostest.rosrun(PKG, 'test_TwoRobotSimulation', TestSwarmSimulation)
