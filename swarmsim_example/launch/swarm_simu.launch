@@ -15,6 +15,5 @@
         <param name="yamlFileName" value="$(arg yamlFileName)"/>
     </node>
 
-<!--     <test test-name="test_barebones" pkg="swarmsim" type="lin_traj_nav_test11.py" time-limit="10.0"/>-->
 
 </launch>

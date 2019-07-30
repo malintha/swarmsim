@@ -12,7 +12,7 @@ using namespace std;
 
 namespace simutils {
 
-    void processYamlFile(char *fPath, int horizon_id, bool preProcess, int &horizons, vector<Trajectory> &goalPoints);
+    void processYamlFile(char *fPath, int horizon_id, int &horizons, vector<Trajectory> &goalPoints);
 
     vector<double> loadTimesFromFile(ros::NodeHandle &nh);
 

@@ -1,14 +1,17 @@
 <launch>
+    <arg name="yamlFileName_testing" default="individual_horizons_2.yaml"/>
+    <arg name="traj_dir_testing" default="$(find swarmsim_testing)/test/resources/"/>
+
   <include file="$(find swarmsim_example)/launch/swarm_simu.launch">
     <arg name="nDrones" value="2"/>
-    <arg name="yamlFileName" value="individual_horizons_2.yaml"/>
-    <arg name="traj_dir" value="$(find swarmsim_testing)/test/resources/"/>
-
+    <arg name="yamlFileName" value="$(arg yamlFileName_testing)"/>
+    <arg name="traj_dir" value="$(arg traj_dir_testing)"/>
   </include>
+
   <include file="$(find sitl_launcher)/launch/demo.launch">
     <arg name="drone_args" value="--iris 0 1"/>
     <arg name="dry_run" value="false"/>
   </include>
 
-  <test test-name="test_swarmsim" pkg="swarmsim_testing" type="gazebo_test.py" />
+  <test test-name="test_swarmsim" pkg="swarmsim_testing" type="gazebo_test.cpp" />
 </launch>

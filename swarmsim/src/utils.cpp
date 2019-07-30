@@ -10,7 +10,7 @@ using namespace Eigen;
 namespace simutils {
 
     void
-    processYamlFile(char *fPath, int horizon_id, bool preProcess, int &horizons, vector<Trajectory> &goalPoints) {
+    processYamlFile(char *fPath, int horizon_id, int &horizons, vector<Trajectory> &goalPoints) {
         FILE *fh = fopen(fPath, "r");
         yaml_parser_t parser;
         yaml_event_t event;

@@ -45,7 +45,7 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
     vector<Trajectory> planningResults;
     bool initPlan = horizonId == 0;
     try {
-        simutils::processYamlFile(cstr, horizonId, initPlan, nHorizons, planningResults);
+        simutils::processYamlFile(cstr, horizonId, nHorizons, planningResults);
     }
     catch (range_error &e) {
         ROS_WARN_STREAM(e.what() << " " << horizonId);

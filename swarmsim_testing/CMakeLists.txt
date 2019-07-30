@@ -188,7 +188,9 @@ install(DIRECTORY
 #############
 ## Testing ##
 #############
-
+catkin_add_gtest(testSwarmSim
+        test/gazebo_test.cpp
+        )
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_swarmsim_testing.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
