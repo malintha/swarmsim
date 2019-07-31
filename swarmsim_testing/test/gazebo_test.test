@@ -13,5 +13,5 @@
     <arg name="dry_run" value="false"/>
   </include>
 
-  <test test-name="test_swarmsim" pkg="swarmsim_testing" type="gazebo_test.cpp" />
+  <test test-name="test_swarmsim" pkg="swarmsim_testing" type="testGazeboSim" />
 </launch>

@@ -7,8 +7,8 @@ import unittest
 from gazebo_msgs.msg import ModelStates
 
 class TestSwarmSimulation(unittest.TestCase):
-    def modelStatesCB(data):
-        
+    # def modelStatesCB(data):
+    
 
     def test_TwoRobotSimulation(self):
         rospy.wait_for_message("/gazebo/model_states", ModelStates, 100)
