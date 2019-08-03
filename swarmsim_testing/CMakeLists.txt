@@ -182,10 +182,10 @@ include_directories(
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-install(DIRECTORY
-  "test"
-  DESTINATION share/${PROJECT_NAME}
-)
+# install(DIRECTORY
+#   "test"
+#   DESTINATION share/${PROJECT_NAME}
+# )
 
 #############
 ## Testing ##
