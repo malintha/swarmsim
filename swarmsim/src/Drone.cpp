@@ -56,6 +56,9 @@ void Drone::positionLocalCB(const nav_msgs::Odometry::ConstPtr &msg) {
 
 void Drone::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {
     curr_pos_global << msg->latitude, msg->longitude, msg->altitude;
+    if(this->state == States::Armed) {
+        init_pos_global = curr_pos_global;
+    }
 }
 
 // void Drone::poseCB(const geometry_msgs::PoseStampedConstPtr &msg) {}
