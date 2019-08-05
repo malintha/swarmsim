@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <stdexcept>
+#include <std_msgs/Int8.h>
 
 using namespace std;
 
@@ -17,6 +18,8 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         Trajectory traj = trajectories[i];
         dronesList[i]->pushTrajectory(traj);
     }
+    swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
+    
 }
 
 Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName) :
@@ -25,6 +28,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         stringstream ss;
         ss << trajDir<<yamlFileName;
         string yamlFilePath = ss.str();
+        swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
         // cout<<"#### "<<yamlFilePath<<endl;
     try {
         if (yamlFilePath.empty()) {
@@ -118,6 +122,10 @@ void Swarm::checkSwarmForStates(int state_) {
     if (swarmInState) {
         setState(state_);
     }
+    std_msgs::Int8 msg;
+    msg.data = this->state;
+    swarmStatePub.publish(msg);
+
 }
 
 void Swarm::armDrones(bool arm) {

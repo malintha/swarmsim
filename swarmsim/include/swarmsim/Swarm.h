@@ -44,6 +44,7 @@ private:
     bool planningInitialized;
     bool executionInitialized;
     int horizonId;
+    ros::Publisher swarmStatePub;
 
     /**
      * check the swarm for a given state.
