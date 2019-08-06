@@ -28,6 +28,7 @@ Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
             nh.advertise<geometry_msgs::PoseStamped>(positionSetPointTopic, 10);
     mavrosStateSub = nh.subscribe(mavrosStateTopic,10, &Drone::mavrosStateCB, this);
     gazeboStateSub = nh.subscribe("/gazebo/model_states", 10, &Drone::gazeboStateCB, this);
+    ros::topic::waitForMessage<gazebo_msgs::ModelStates>("/gazebo/model_states", ros::Duration(5));
 }
 
 int Drone::getState() { return state; }
@@ -56,14 +57,14 @@ void Drone::gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg) {
         string drone_str = drone_ss.str();
         for(int i=0;i<gazeboElementsArray.size();i++) {
             string key = gazeboElementsArray[i];
-            if(drone_str.compare("key") == 0) {
+            if(drone_str.compare(key) == 0) {
                 this->gazeboElementIdx = i;
+                geometry_msgs::Pose robot_pose = msg->pose[gazeboElementIdx];
+                initGazeboPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
+                ROS_DEBUG_STREAM("Init gazebo pose recorded");
+                gazeboStateSub.shutdown();
             }
         }
-        geometry_msgs::Pose robot_pose = msg->pose[gazeboElementIdx];
-        initGazeboPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
-        ROS_DEBUG_STREAM("Init gazebo pose recorded");
-        gazeboStateSub.shutdown();
     }
 }
 
@@ -188,7 +189,7 @@ void Drone::sendPositionSetPoint(geometry_msgs::PoseStamped setPoint) {
 }
 
 Vector3d Drone::getLocalWaypoint(Vector3d waypoint) {
-    return waypoint - init_pos_global;
+    return waypoint - initGazeboPos;
 }
 
 void Drone::setTrajectory(Trajectory trajectory) {
@@ -198,10 +199,11 @@ void Drone::setTrajectory(Trajectory trajectory) {
 
 int Drone::executeTrajectory() {
     if (state == States::Autonomous) {
-        Vector3d waypoint;
+        Vector3d waypoint_temp, waypoint;
         //notReachedEnd
         if (execPointer < trajectory.pos.size() - 1) {
-            waypoint = trajectory.pos[execPointer++];
+            waypoint_temp = trajectory.pos[execPointer++];
+            waypoint = getLocalWaypoint(waypoint_temp);
         }
             //reachedEnd and moreTrajectoriesAvailable
         else if ((trajectoryId < TrajectoryList.size() - 1) && (execPointer == trajectory.pos.size() - 1)) {

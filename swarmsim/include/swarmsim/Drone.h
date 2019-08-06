@@ -31,6 +31,11 @@ public:
     void setTrajectory(Trajectory trajectory);
     int executeTrajectory();
     void pushTrajectory(Trajectory trajectory);
+    /**
+     * Perform the conversion between the droneLocal frame and the gazebo frame.
+     * MavRos expects the waypoints in the drone local frame, whereas the yaml specifies 
+     * the waypoints in the gazebo frame.
+     */
     Vector3d getLocalWaypoint(Vector3d waypoint);
 
 private:
