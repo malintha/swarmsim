@@ -9,8 +9,7 @@ using namespace Eigen;
 
 namespace simutils {
 
-    void
-    processYamlFile(char *fPath, int horizon_id, int &horizons, vector<Trajectory> &goalPoints) {
+    void processYamlFile(char *fPath, int horizon_id, int &horizons, vector<Trajectory> &goalPoints) {
         FILE *fh = fopen(fPath, "r");
         yaml_parser_t parser;
         yaml_event_t event;
@@ -202,4 +201,15 @@ namespace simutils {
         ROS_DEBUG_STREAM("Trajectories loaded from file");
         return trajList;
     }
+
+    int getGazeboModelId(std::vector<std::string> modelNames, string elementName) {
+        for(int i=0;i<modelNames.size();i++) {
+            std::string key = modelNames[i];
+            if(key.compare(elementName) == 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }

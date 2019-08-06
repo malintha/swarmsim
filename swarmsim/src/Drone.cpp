@@ -27,7 +27,7 @@ Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
     posSetPointPub =
             nh.advertise<geometry_msgs::PoseStamped>(positionSetPointTopic, 10);
     mavrosStateSub = nh.subscribe(mavrosStateTopic,10, &Drone::mavrosStateCB, this);
-
+    gazeboStateSub = nh.subscribe("/gazebo/model_states", 10, &Drone::gazeboStateCB, this);
 }
 
 int Drone::getState() { return state; }
@@ -45,6 +45,25 @@ void Drone::mavrosStateCB(const mavros_msgs::StateConstPtr& msg) {
         ROS_DEBUG_STREAM("Drone: "
                             << id << " Init position global: " << curr_pos_global[0]
                             << " " << curr_pos_global[1] << " " << curr_pos_global[2]);
+    }
+}
+
+void Drone::gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg) {
+    if(this->state == States::Armed) {
+        ros::V_string gazeboElementsArray = msg->name;
+        stringstream drone_ss;
+        drone_ss << "iris_"<<this->id;
+        string drone_str = drone_ss.str();
+        for(int i=0;i<gazeboElementsArray.size();i++) {
+            string key = gazeboElementsArray[i];
+            if(drone_str.compare("key") == 0) {
+                this->gazeboElementIdx = i;
+            }
+        }
+        geometry_msgs::Pose robot_pose = msg->pose[gazeboElementIdx];
+        initGazeboPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
+        ROS_DEBUG_STREAM("Init gazebo pose recorded");
+        gazeboStateSub.shutdown();
     }
 }
 
@@ -166,6 +185,10 @@ void Drone::sendPositionSetPoint(geometry_msgs::PoseStamped setPoint) {
     if (state == States::Autonomous) {
         posSetPointPub.publish(setPoint);
     }
+}
+
+Vector3d Drone::getLocalWaypoint(Vector3d waypoint) {
+    return waypoint - init_pos_global;
 }
 
 void Drone::setTrajectory(Trajectory trajectory) {

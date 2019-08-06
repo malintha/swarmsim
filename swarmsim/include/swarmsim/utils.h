@@ -17,4 +17,6 @@ namespace simutils {
     vector<double> loadTimesFromFile(ros::NodeHandle &nh);
 
     vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, string trajDir);
+
+    int getGazeboModelId(string* modelNames, string elementName);
 }

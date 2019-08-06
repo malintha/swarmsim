@@ -8,6 +8,7 @@
 #include "state.h"
 #include "Trajectory.h"
 #include "mavros_msgs/State.h"
+#include "gazebo_msgs/ModelStates.h"
 
 using namespace Eigen;
 
@@ -30,6 +31,7 @@ public:
     void setTrajectory(Trajectory trajectory);
     int executeTrajectory();
     void pushTrajectory(Trajectory trajectory);
+    Vector3d getLocalWaypoint(Vector3d waypoint);
 
 private:
     int id;
@@ -43,6 +45,8 @@ private:
     Trajectory trajectory;
     int execPointer;
     bool setReady;
+    Vector3d initGazeboPos;
+    int gazeboElementIdx;
 
     std::vector<Trajectory> TrajectoryList;
     int trajectoryId;
@@ -53,6 +57,7 @@ private:
     ros::Subscriber poseSub;
     ros::Publisher posSetPointPub;
     ros::Subscriber mavrosStateSub;
+    ros::Subscriber gazeboStateSub;
 
     void mavrosStateCB(const mavros_msgs::StateConstPtr& msg);
     void setMode(std::string mode);
@@ -64,7 +69,7 @@ private:
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
     void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
     void callTOLService(bool takeoff);
-
+    void gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg);
 
 // todo: move to a util class
     /**
