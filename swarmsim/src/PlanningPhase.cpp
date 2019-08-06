@@ -4,9 +4,8 @@
 PlanningPhase::PlanningPhase() {}
 
 PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), frequency(frequency) {
-    maxVelocity = 4;
-    maxAcceleration = 5;
-    nChecks = 2;
+    maxVelocity = 7;
+    maxAcceleration = 8;
     doneInitPlanning = false;
 }
 

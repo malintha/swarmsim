@@ -16,5 +16,5 @@
     <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find swarmsim_testing)/test/resources/custom_rosconsole.conf"/>
 
-  <test test-name="test_swarmsim" pkg="swarmsim_testing" type="testGazeboSim" time-limit="100.0" />
+  <test test-name="test_swarmsim" pkg="swarmsim_testing" type="testGazeboSim" time-limit="150.0" />
 </launch>

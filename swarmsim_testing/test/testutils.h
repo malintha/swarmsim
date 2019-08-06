@@ -5,9 +5,11 @@
 #include "geometry_msgs/Pose.h"
 #include "swarmsim/utils.h"
 #include "swarmsim/Trajectory.h"
+#include "swarmsim/state.h"
 #include "mavros_msgs/State.h"
 #include "ros/console.h"
 #include <gtest/gtest.h>
+#include <std_msgs/Int8.h>
 
 using namespace std;
 
@@ -19,82 +21,118 @@ class TestUtils : public testing::Test {
         vector<vector<Trajectory> > goalset;
         string trajDir;
         string yamlFileName;
+        string filePath;
         int nDrones;
         ros::Subscriber modelStatesSub;
         vector<geometry_msgs::Pose> pose_vec;
         bool guided;
+        double prevHorzLength;
+        int swarmState;
+        ros::Subscriber swarmStateSub;
+        vector<Eigen::Vector3d> initPositions;
+        vector<vector<bool> > wptPasses;
+        vector<int> gazeboPoseIdList;
 
         TestUtils() {
             guided = false;
+            nh.getParam("/swarmsim_example/trajDir", trajDir);
+            nh.getParam("/swarmsim_example/yamlFileName", yamlFileName);
+            nDrones = 2;
+            stringstream ss;
+            ss << trajDir<<yamlFileName;
+            filePath = ss.str();
+            prevHorzLength = 0;
         }
 
         void gazeboModelStateCB(const gazebo_msgs::ModelStatesConstPtr& msg) {
             pose_vec = msg->pose;
+            if(gazeboPoseIdList.size() == 0) {
+                ros::V_string gazeboPoseNameList = msg->name;
+                for(int i=0; i < nDrones; i++) {
+                    string droneName = getGazeboDroneName(i);
+                    for(int j=0;j<gazeboPoseNameList.size();j++) {
+                        string key = gazeboPoseNameList[j];
+                        if(droneName.compare(key) == 0) {
+                            gazeboPoseIdList.push_back(j);
+                        }
+                    }
+                }
+            }
         }
 
         void mavrosStateCB(const mavros_msgs::StateConstPtr& msg) {
             guided = msg->guided;
-            ROS_ERROR_STREAM("Mavros Guided CB");
             if(guided) {
-                ROS_ERROR_STREAM("shutting down CB");
                 this->mavrosStateSub.shutdown();
             }
         }
 
-        // geometry_msgs::Pose getModelPose(int robotId) {
-        //     return pose_vec[robotId];
-        // }
+        void swarmStateCB(const std_msgs::Int8ConstPtr& msg) {
+            swarmState = msg->data;
+        }
 
-        // bool assertPosition(int posId) {
-        //     // for(int i=0;i<nDrones;i++) {
-        //         int i = 0; //hardcoding the drone num
-        //         vector<Eigen::Vector3d> targetPosList = goalset[i].pos;
-        //         Eigen::Vector3d targetPos = targetPosList[posId];
-        //         geometry_msgs::Pose robot_pose = pose_vec[2+i]; //first 2 elements of the list are asphalt plane and height map
-        //         Eigen::Vector3d currPos;
-        //         currPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
-        //         return withinRadius(currPos, targetPos);
-        //     // }
-        // }
+        geometry_msgs::Pose getModelPose(int robotId) {
+            return pose_vec[robotId];
+        }
 
-        // bool withinRadius(Eigen::Vector3d p1, Eigen::Vector3d p2) {
-        //     return (p1 - p2).norm() < 1;
-        // }
+        void getInitPositions() {
+            for(int i=0;i<nDrones;i++) {
+                geometry_msgs::Pose robot_pose = pose_vec[2+i];
+                Eigen::Vector3d currPos;
+                currPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
+                initPositions.push_back(currPos);
+            }
+        }
 
-        // vector<double> getCumulativeTime(vector<double> tList) {
-        //     double cumulative = 0;
-        //     vector<double> cumulativeList;
-        //     for(int i=0;i<tList.size();i++) {
-        //         cumulative += tList[i];
-        //         cumulativeList.push_back(cumulative);
-        //     }
-        //     return cumulativeList;
-        // }
+        bool assertPosition(int horzid, int posId, int droneId) {
+            vector<Eigen::Vector3d> targetPosList = goalset[horzid][droneId].pos;
+            Eigen::Vector3d targetPos = targetPosList[posId];
+            geometry_msgs::Pose robot_pose = pose_vec[gazeboPoseIdList[droneId]]; //todo
+            Eigen::Vector3d currPos;
+            currPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
+            return withinRadius(currPos, targetPos);
+        }
 
-        vector<Trajectory> getAssertionValuesFromFile(string yamlFilePath) {
-            // ROS_ERROR_STREAM("file path: "<<yamlFilePath);
+        string getGazeboDroneName(int id) {
+            stringstream ss;
+            ss << "iris_" << id;
+            return ss.str();
+        }
 
-            char cstr[yamlFileName.size() + 1];
-            copy(yamlFileName.begin(), yamlFileName.end(), cstr);
-            cstr[yamlFileName.size()] = '\0';
+        bool withinRadius(Eigen::Vector3d p1, Eigen::Vector3d p2) {
+            return (p1 - p2).norm() < 2.5;
+        }
+
+        vector<double> getCumulativeTime(vector<double> tList) {
+            double cumulative = 0;
+            vector<double> cumulativeList;
+            cumulativeList.push_back(cumulative);
+            for(int i=0;i<tList.size();i++) {
+                cumulative += tList[i];
+                cumulativeList.push_back(cumulative);
+            }
+            return cumulativeList;
+        }
+
+        bool doubleEqual(double a, double b) {
+            return abs(a-b) < 0.001;
+        }
+
+        void getAssertionValuesFromFile(string yamlFilePath) {
+            ROS_DEBUG_STREAM("file path: "<<yamlFilePath);
+
+            char cstr[yamlFilePath.size() + 1];
+            copy(yamlFilePath.begin(), yamlFilePath.end(), cstr);
+            cstr[yamlFilePath.size()] = '\0';
             int horizons;
-            vector<Trajectory> goals;
-            simutils::processYamlFile(cstr, 0, horizons, goals);
-            ROS_ERROR_STREAM("N_HORIZONS: "<<goalset.size());
-
+            vector<Trajectory> goals_temp;
+            simutils::processYamlFile(cstr, 0, horizons, goals_temp);
             for(int i=0;i<horizons;i++) {
+                vector<Trajectory> goals;
                 simutils::processYamlFile(cstr, i, horizons, goals);
                 this->goalset.push_back(goals);
             }
-            ROS_ERROR_STREAM("N_HORIZONS: "<<goalset.size());
-            
-            return goals;
+            ROS_DEBUG_STREAM("N_HORIZONS: "<<goalset.size());
         }
-
-        // bool readyDrones() {
-        //     return ready;
-        // }
-
-        // protected:
 
 };
