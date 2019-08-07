@@ -4,6 +4,7 @@
 #include <ros/console.h>
 #include <fstream>
 #include <tuple>
+#include "YamlDescriptor.h"
 
 using namespace Eigen;
 
@@ -30,14 +31,17 @@ namespace simutils {
         bool subgoal_node = false;
         bool subgoals_node = false;
         bool horizons_node = false;
-        int subgoals = 0;
         bool times_node = false;
         bool timeset_node = false;
+        bool drones_node = false;
         int timeset_id = 0;
 
         vector<double> pos_sequence;
         vector<Trajectory> tr_list;
         vector<double> t_list;
+        int nHorizons;
+        int nDrones;
+        int subgoals = 0;
 
         const std::regex drone_regex("drone(\\d)");
         const std::regex horizon_regex("horizon(\\d)");
@@ -106,15 +110,25 @@ namespace simutils {
                         std::string piece = sub_match.str();
                         timeset_id = std::stoi(piece);
                         continue;
+                    } else if(s.compare("drones")) {
+                        drones_node = true;
+                        continue;
                     }
+
                     if (subgoals_node) {
                         subgoals = std::stoi(s);
                         subgoals_node = false;
                     }
 
                     if (horizons_node) {
-                        horizons = std::stoi(s);
+                        nHorizons = std::stoi(s);
+                        horizons = nHorizons;
                         horizons_node = false;
+                    }
+
+                    if(drones_node) {
+                        nDrones = std::stoi(s);
+                        drones_node = false;
                     }
 
                     if (timeset_node && times_node) {
