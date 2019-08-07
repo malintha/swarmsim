@@ -19,7 +19,7 @@ TEST_F(TestUtils, testTwoRobots) {
     for(int i=0;i<nHorizons;i++) {
         vector<double> checkpoints = goalset[i][0].tList;
         vector<double> cumulativeTimes =  getCumulativeTime(checkpoints);
-        double horzLength = cumulativeTimes[cumulativeTimes.size() - 1] + prevHorzLength;
+        double horzLength = cumulativeTimes[cumulativeTimes.size() - 1];
         prevHorzLength = horzLength;
 
         double curr_sec = 0;
@@ -31,12 +31,15 @@ TEST_F(TestUtils, testTwoRobots) {
                 if(doubleEqual(curr_sec, cumulativeTimes[pos_id])) {
                     for(int k=0;k<2;k++) {
                         bool inPlace = assertPosition(i, pos_id, k);
-                        ROS_ERROR_STREAM("Drone: "<<k <<" in: "<<inPlace);
+                        ROS_DEBUG_STREAM("Drone: "<<k <<" in: "<<inPlace);
                         ASSERT_TRUE(inPlace);
                     }
                     pos_id++;
                 }
                 curr_sec += 0.5;
+            }
+            else if(swarmState == States::Reached) {
+                break;
             }
             ros::spinOnce();
         }
