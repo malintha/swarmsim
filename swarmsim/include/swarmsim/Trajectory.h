@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <eigen3/Eigen/Dense>
+#include <vector>
 
 enum TrajContinuity {Continued = 0, Start, End};
 

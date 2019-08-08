@@ -1,4 +1,5 @@
 #include "PlanningPhase.h"
+#include "utils.h"
 
 /**
  * This implementation loads the discrete waypoints from a yaml file instead of doing
@@ -11,6 +12,7 @@ class SimplePlanningPhase : public PlanningPhase {
         SimplePlanningPhase();
         SimplePlanningPhase(int nDrones, double frequency, string yamlFpath);
         void doPlanning(int horizonId) override;
+        YamlDescriptor yamlDescriptor;
         /**
          * Returns the discrete waypoints from the yaml file
         */

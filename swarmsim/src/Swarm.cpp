@@ -2,7 +2,7 @@
 #include <ros/console.h>
 #include "Swarm.h"
 #include "state.h"
-#include "utils.h"
+// #include "utils.h"
 #include <thread>
 #include <chrono>
 #include <stdexcept>

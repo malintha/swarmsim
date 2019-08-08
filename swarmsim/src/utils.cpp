@@ -4,13 +4,12 @@
 #include <ros/console.h>
 #include <fstream>
 #include <tuple>
-#include "YamlDescriptor.h"
 
 using namespace Eigen;
 
 namespace simutils {
 
-    void processYamlFile(char *fPath, int horizon_id, int &horizons, vector<Trajectory> &goalPoints) {
+    void processYamlFile(char *fPath, YamlDescriptor &yamlDescriptor) {
         FILE *fh = fopen(fPath, "r");
         yaml_parser_t parser;
         yaml_event_t event;
@@ -24,30 +23,29 @@ namespace simutils {
 
         yaml_parser_set_input_file(&parser, fh);
 
-        int subgoal_id = 0;
-        int drone_id = 0;
+        parseYamlHeader(fPath, yamlDescriptor);
+
         bool drone_node = false;
         bool horizon_node = false;
         bool subgoal_node = false;
-        bool subgoals_node = false;
         bool horizons_node = false;
         bool times_node = false;
         bool timeset_node = false;
-        bool drones_node = false;
-        int timeset_id = 0;
 
         vector<double> pos_sequence;
-        vector<Trajectory> tr_list;
-        vector<double> t_list;
         int nHorizons;
         int nDrones;
-        int subgoals = 0;
+        int subgoals;
+        vector<DroneTrajectory> dronesTrajList;
+        vector<double> timeSequence;
+        vector<HorizonTimes> horizonsTimes;
+
+        nHorizons = yamlDescriptor.getHorizons();
+        subgoals = yamlDescriptor.getSubGoals();
+        nDrones = yamlDescriptor.getDrones();
 
         const std::regex drone_regex("drone(\\d)");
         const std::regex horizon_regex("horizon(\\d)");
-        const std::regex subgoal_regex("subgoal");
-        const std::regex subgoals_regex("subgoals");
-        const std::regex horizons_regex("horizons");
         const std::regex times_regex("times");
         const std::regex timeset_regex("timeset(\\d)");
         std::smatch pieces_match;
@@ -69,9 +67,6 @@ namespace simutils {
                         timeset_node = false;
                     break;
 
-                case YAML_MAPPING_START_EVENT:
-                    break;
-
                 case YAML_MAPPING_END_EVENT:
                     if (horizon_node && drone_node) {
                         horizon_node = false;
@@ -85,81 +80,24 @@ namespace simutils {
                     string s = std::string(c);
                     if (std::regex_match(s, pieces_match, drone_regex)) {
                         drone_node = true;
-                        ssub_match sub_match = pieces_match[1];
-                        std::string piece = sub_match.str();
-                        drone_id = std::stoi(piece);
                         continue;
                     } else if (std::regex_match(s, pieces_match, horizon_regex)) {
                         horizon_node = true;
-                        ssub_match sub_match = pieces_match[1];
-                        std::string piece = sub_match.str();
-                        subgoal_id = std::stoi(piece);
-                        continue;
-                    } else if (std::regex_match(s, subgoals_regex)) {
-                        subgoals_node = true;
-                        continue;
-                    } else if (std::regex_match(s, horizons_regex)) {
-                        horizons_node = true;
                         continue;
                     } else if (std::regex_match(s, times_regex)) {
                         times_node = true;
                         continue;
                     } else if (std::regex_match(s, pieces_match, timeset_regex)) {
                         timeset_node = true;
-                        ssub_match sub_match = pieces_match[1];
-                        std::string piece = sub_match.str();
-                        timeset_id = std::stoi(piece);
                         continue;
-                    } else if(s.compare("drones")) {
-                        drones_node = true;
-                        continue;
-                    }
-
-                    if (subgoals_node) {
-                        subgoals = std::stoi(s);
-                        subgoals_node = false;
-                    }
-
-                    if (horizons_node) {
-                        nHorizons = std::stoi(s);
-                        horizons = nHorizons;
-                        horizons_node = false;
-                    }
-
-                    if(drones_node) {
-                        nDrones = std::stoi(s);
-                        drones_node = false;
-                    }
+                    } 
 
                     if (timeset_node && times_node) {
-                        if (timeset_id == horizon_id) {
-                            t_list.push_back(std::stod(s));
-                        }
+                        timeSequence.push_back(std::stod(s));
                     }
 
                     if (horizon_node && subgoal_node) {
-                        if (subgoal_id == horizon_id) {
-
-                            if (pos_sequence.size() < 3 * subgoals) {
-                                pos_sequence.push_back(std::stod(s));
-                            }
-                            if (pos_sequence.size() == 3 * subgoals) {
-                                Eigen::Vector3d p;
-                                Trajectory tr;
-                                for (int i = 0; i < pos_sequence.size(); i++) {
-                                    int d = i % 3;
-                                    if (d <= 2) {
-                                        p[d] = pos_sequence[i];
-                                    }
-                                    if (d == 2) {
-                                        tr.pos.push_back(p);
-                                    }
-                                }
-                                tr.tList = t_list;
-                                goalPoints.push_back(tr);
-                                pos_sequence.clear();
-                            }
-                        }
+                        pos_sequence.push_back(std::stod(s));
                     }
                     break;
             }
@@ -168,11 +106,41 @@ namespace simutils {
             }
         } while (event.type != YAML_STREAM_END_EVENT);
         yaml_event_delete(&event);
-
-
-        if (subgoal_id < horizon_id && goalPoints.size() == 0) {
-            throw range_error("Horizon does not exists");
+                
+        for(int h=0;h<nHorizons;h++) {
+            HorizonTimes horzTimes;
+            for(int i=0;i<subgoals-1;i++) {
+                double t = timeSequence[i + h*(subgoals-1)];
+                horzTimes.times.push_back(t);
+            }
+            horizonsTimes.push_back(horzTimes);
         }
+
+        for(int i=0;i<nDrones;i++) {
+            DroneTrajectory droneTr;
+            for(int h=0;h<nHorizons;h++) {
+                Trajectory tr;
+                int startIdx = 3*subgoals*nHorizons*i + 3*subgoals*h;
+                int endIdx = startIdx + 3*subgoals;
+                Vector3d p;
+                for(int idx=startIdx;idx<endIdx;idx++) {
+                    int dim = idx%3;
+                    if(dim <= 2) {
+                        p[dim] = pos_sequence[idx];
+                    }
+                    if(dim == 2) {
+                        tr.pos.push_back(p);
+                    }
+                }
+                droneTr.horzTrajList.push_back(tr);
+            }
+            dronesTrajList.push_back(droneTr);
+        }
+
+        yamlDescriptor.setDronesTrajectories(dronesTrajList);
+        yamlDescriptor.setTimesArray(horizonsTimes);
+        ROS_DEBUG_STREAM("Finished parsing the yaml body information");
+
     }
 
     std::vector<double> loadTimesFromFile(ros::NodeHandle &nh) {
@@ -225,5 +193,92 @@ namespace simutils {
         }
         return -1;
     }
+
+    void parseYamlHeader(char *fPath, YamlDescriptor &yamlDescriptor) {
+        FILE *fh = fopen(fPath, "r");
+        yaml_parser_t parser;
+        yaml_event_t event;
+        if (!yaml_parser_initialize(&parser)) {
+            std::cout << "Failed to initialize parser!\n" << std::endl;
+        }
+        if (fh == NULL) {
+            std::cout << "Failed to open file!\n" << std::endl;
+        }
+        yaml_parser_set_input_file(&parser, fh);
+        bool nDronesNode;
+        bool nHorizonsNode;
+        bool nSubGoalsNode;
+        int nDrones;
+        int nHorizons;
+        int nSubgoals;
+
+        do {
+            if (!yaml_parser_parse(&parser, &event)) {
+                printf("Parser error %d\n", parser.error);
+                exit(EXIT_FAILURE);
+            }
+
+            switch (event.type) {
+                case YAML_SCALAR_EVENT:
+                    char *c = (char *) event.data.scalar.value;
+                    string s = std::string(c);
+
+                    if(s.compare("drones") == 0) {
+                        nDronesNode = true;
+                        continue;
+                    }
+                    else if(s.compare("horizons") == 0) {
+                        nHorizonsNode = true;
+                        continue;
+                    }
+                    else if(s.compare("subgoals") == 0) {
+                        nSubGoalsNode = true;
+                        continue;
+                    }
+                    if (nSubGoalsNode) {
+                        nSubgoals = std::stoi(s);
+                        nSubGoalsNode = false;
+                    }
+                    else if (nHorizonsNode) {
+                        nHorizons = std::stoi(s);
+                        nHorizonsNode = false;
+                    }
+                    else if(nDronesNode) {
+                        nDrones = std::stoi(s);
+                        nDronesNode = false;
+                    }
+                    break;
+            }
+            if (event.type != YAML_STREAM_END_EVENT) {
+                yaml_event_delete(&event);
+            }
+        } while (event.type != YAML_STREAM_END_EVENT);
+
+        yamlDescriptor.setDrones(nDrones);
+        yamlDescriptor.setHorizons(nHorizons);
+        yamlDescriptor.setSubGoals(nSubgoals);
+
+        yaml_event_delete(&event);
+        ROS_DEBUG_STREAM("Done parsing the yaml header information");
+
+    }
+
+    vector<Trajectory> getHorizonTrajetories(int horizonId, YamlDescriptor yamlDescriptor) {
+        vector<DroneTrajectory> droneTrajectories = yamlDescriptor.getdroneTrajectories();
+        vector<Trajectory> trs;
+        for(int i=0;i<droneTrajectories.size();i++) {
+            DroneTrajectory dtr = droneTrajectories[i];
+            for(int h=0;h<dtr.horzTrajList.size();h++) {
+                if(h==horizonId) {
+                    Trajectory tr = dtr.horzTrajList[h];
+                    vector<HorizonTimes> hz_t = yamlDescriptor.getTimesArray(); 
+                    tr.tList = hz_t[horizonId].times;
+                    trs.push_back(tr);
+                }
+            }
+        }
+        return trs;
+    }
+
 
 }

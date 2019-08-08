@@ -1,6 +1,5 @@
 #include <algorithm>
 #include "SimplePlanningPhase.h"
-#include "utils.h"
 
 SimplePlanningPhase::SimplePlanningPhase() = default;
 
@@ -38,14 +37,19 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
 }
 
 vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
-    ROS_DEBUG_STREAM("yaml file path: " << yamlFpath);
+    ROS_DEBUG_STREAM("YAML file path: " << yamlFpath);
     char cstr[yamlFpath.size() + 1];
     copy(yamlFpath.begin(), yamlFpath.end(), cstr);
     cstr[yamlFpath.size()] = '\0';
     vector<Trajectory> planningResults;
     bool initPlan = horizonId == 0;
     try {
-        simutils::processYamlFile(cstr, horizonId, nHorizons, planningResults);
+        simutils::processYamlFile(cstr, yamlDescriptor);
+        ROS_DEBUG_STREAM("getTimesArray: "<<yamlDescriptor.getTimesArray()[1].times.size());
+
+        planningResults = simutils::getHorizonTrajetories(horizonId, yamlDescriptor);
+
+        ROS_DEBUG_STREAM("planningResults: "<<planningResults.size());
     }
     catch (range_error &e) {
         ROS_WARN_STREAM(e.what() << " " << horizonId);

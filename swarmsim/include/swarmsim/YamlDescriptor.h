@@ -1,39 +1,31 @@
-#ifndef YAML_DESCRIPTOR
-#define YAML_DESCRIPTOR
-
 #include <iostream>
 #include "Trajectory.h"
 #include <vector>
+#include "DroneTrajectory.h"
+#include "HorizonTimes.h"
 
 using namespace std;
 
-struct DroneTrajectory {
-    vector<Trajectory> droneTrajectory;
-};
-
 class YamlDescriptor{
+    public:
+        YamlDescriptor();
+        void setHorizons(int nHorizons);
+        void setDrones(int nDrones);
+        void setSubGoals(int nSubgoals);
+        int getSubGoals();
+        void setTimesArray(vector<HorizonTimes> timesArray);
+        vector<HorizonTimes> getTimesArray();
+        void setDronesTrajectories(vector<DroneTrajectory> dronesTr);
+        vector<DroneTrajectory> getdroneTrajectories();
+        int getHorizons();
+        int getDrones();
+
     private:
         int nHorizons;
         int nSubgoals;
         int nDrones;
-        vector<vector<double> > timesArray;
+        vector<HorizonTimes> timesArray;
         double passThresholdMoving;
         double passThresholdHover;
         vector<DroneTrajectory> droneTrajectories; 
-
-    public:
-        YamlDescriptor(int nHorizons, int nDrones, int nSubgoals): nHorizons(nHorizons), nDrones(nDrones), nSubgoals(nSubgoals) {}
-        
-        void setTimesArray(vector<vector<double> > timesArray) {
-            this->timesArray = timesArray;
-        }
-
-        vector<vector<double> > getTimesArray() {
-            return timesArray;
-        }
-
-        
-
 };
-
-#endif

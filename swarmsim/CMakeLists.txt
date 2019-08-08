@@ -130,6 +130,7 @@ add_library(${PROJECT_NAME}
         src/solver.cpp
         src/SimplePlanningPhase.cpp
         src/PlanningPhase.cpp
+        src/YamlDescriptor.cpp
         )
 
 ## Add cmake target dependencies of the library
