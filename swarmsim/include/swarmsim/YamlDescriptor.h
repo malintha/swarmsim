@@ -19,8 +19,14 @@ class YamlDescriptor{
         vector<DroneTrajectory> getdroneTrajectories();
         int getHorizons();
         int getDrones();
+        void setHoveringThreshold(double val);
+        void setMovingThreshold(double val);
+        double getHoveringThreshold();
+        double getMovingThreshold();
 
     private:
+        double movingThreshold;
+        double hoveringThreshold;
         int nHorizons;
         int nSubgoals;
         int nDrones;

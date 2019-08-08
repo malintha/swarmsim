@@ -31,6 +31,8 @@ namespace simutils {
         bool horizons_node = false;
         bool times_node = false;
         bool timeset_node = false;
+        bool movingThresholdNode = false;
+        bool hoveringThresholdNode = false;
 
         vector<double> pos_sequence;
         int nHorizons;
@@ -90,12 +92,22 @@ namespace simutils {
                     } else if (std::regex_match(s, pieces_match, timeset_regex)) {
                         timeset_node = true;
                         continue;
-                    } 
-
+                    } else if(s.compare("movingThreshold") == 0) {
+                        movingThresholdNode = true;
+                        continue;
+                    } else if(s.compare("hoveringThreshold") == 0) {
+                        hoveringThresholdNode = true;
+                        continue;
+                    }
+                    if(movingThresholdNode) {
+                        yamlDescriptor.setMovingThreshold(std::stod(s));
+                    }
+                    if(hoveringThresholdNode) {
+                        yamlDescriptor.setHoveringThreshold(std::stod(s));
+                    }
                     if (timeset_node && times_node) {
                         timeSequence.push_back(std::stod(s));
                     }
-
                     if (horizon_node && subgoal_node) {
                         pos_sequence.push_back(std::stod(s));
                     }
@@ -140,7 +152,6 @@ namespace simutils {
         yamlDescriptor.setDronesTrajectories(dronesTrajList);
         yamlDescriptor.setTimesArray(horizonsTimes);
         ROS_DEBUG_STREAM("Finished parsing the yaml body information");
-
     }
 
     std::vector<double> loadTimesFromFile(ros::NodeHandle &nh) {

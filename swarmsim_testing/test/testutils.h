@@ -32,6 +32,7 @@ class TestUtils : public testing::Test {
         vector<Eigen::Vector3d> initPositions;
         vector<vector<bool> > wptPasses;
         vector<int> gazeboPoseIdList;
+        YamlDescriptor yamlDescriptor;
 
         TestUtils() {
             guided = false;
@@ -85,9 +86,11 @@ class TestUtils : public testing::Test {
         }
 
         bool assertPosition(int horzid, int posId, int droneId) {
-            vector<Eigen::Vector3d> targetPosList = goalset[horzid][droneId].pos;
+            DroneTrajectory drone_tr = yamlDescriptor.getdroneTrajectories()[droneId];
+
+            vector<Eigen::Vector3d> targetPosList = drone_tr.horzTrajList[horzid].pos;
             Eigen::Vector3d targetPos = targetPosList[posId];
-            geometry_msgs::Pose robot_pose = pose_vec[gazeboPoseIdList[droneId]]; //todo
+            geometry_msgs::Pose robot_pose = pose_vec[gazeboPoseIdList[droneId]];
             Eigen::Vector3d currPos;
             currPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
             return withinRadius(currPos, targetPos);
@@ -100,7 +103,7 @@ class TestUtils : public testing::Test {
         }
 
         bool withinRadius(Eigen::Vector3d p1, Eigen::Vector3d p2) {
-            return (p1 - p2).norm() < 2.5;
+            return (p1 - p2).norm() < yamlDescriptor.getMovingThreshold();
         }
 
         vector<double> getCumulativeTime(vector<double> tList) {
@@ -120,19 +123,10 @@ class TestUtils : public testing::Test {
 
         void getAssertionValuesFromFile(string yamlFilePath) {
             ROS_DEBUG_STREAM("file path: "<<yamlFilePath);
-
             char cstr[yamlFilePath.size() + 1];
             copy(yamlFilePath.begin(), yamlFilePath.end(), cstr);
             cstr[yamlFilePath.size()] = '\0';
-            int horizons;
-            vector<Trajectory> goals_temp;
-            simutils::processYamlFile(cstr, 0, horizons, goals_temp);
-            for(int i=0;i<horizons;i++) {
-                vector<Trajectory> goals;
-                simutils::processYamlFile(cstr, i, horizons, goals);
-                this->goalset.push_back(goals);
-            }
-            ROS_DEBUG_STREAM("N_HORIZONS: "<<goalset.size());
+            simutils::processYamlFile(cstr, yamlDescriptor);
+            ROS_DEBUG_STREAM("Loaded the YamlDescriptor");
         }
-
 };

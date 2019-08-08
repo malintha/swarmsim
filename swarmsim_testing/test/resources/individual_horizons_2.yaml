@@ -33,3 +33,7 @@ drone1:
     subgoal: [15, -10, 2.5]
     subgoal: [15, -15, 2.5]
     subgoal: [15, -20, 2.5]
+
+# testing threasholds (meters)
+  movingThreshold: 2
+  hoveringThreshold: 1

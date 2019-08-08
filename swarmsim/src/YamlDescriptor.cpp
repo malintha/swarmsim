@@ -41,3 +41,19 @@ int YamlDescriptor::getHorizons() {
 int YamlDescriptor::getDrones() {
     return nDrones;
 }
+
+void YamlDescriptor::setHoveringThreshold(double val) {
+    this->hoveringThreshold = val;
+}
+
+void YamlDescriptor::setMovingThreshold(double val) {
+    this->movingThreshold = val;
+}
+
+double YamlDescriptor::getHoveringThreshold() {
+    return hoveringThreshold;
+}
+
+double YamlDescriptor::getMovingThreshold() {
+    return movingThreshold;
+}
