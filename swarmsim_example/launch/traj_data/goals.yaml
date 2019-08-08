@@ -1,6 +1,9 @@
+#Header (Meta information)
 horizons: 2
 subgoals: 4
+drones: 2
 
+#Body
 times:
   timeset0: [5,5,5]
   timeset1: [5,5,5]
