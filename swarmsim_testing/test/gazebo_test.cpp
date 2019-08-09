@@ -14,7 +14,7 @@ TEST_F(TestUtils, testTwoRobots) {
     }
 
     getAssertionValuesFromFile(filePath);
-    ROS_ERROR_STREAM("here## "<<yamlDescriptor.getMovingThreshold());
+    // ROS_ERROR_STREAM("here## "<<yamlDescriptor.getMovingThreshold());
     int nHorizons = yamlDescriptor.getHorizons();
     ros::Time time = ros::Time::now();
     for(int i=0;i<nHorizons;i++) {

@@ -76,15 +76,6 @@ class TestUtils : public testing::Test {
             return pose_vec[robotId];
         }
 
-        void getInitPositions() {
-            for(int i=0;i<nDrones;i++) {
-                geometry_msgs::Pose robot_pose = pose_vec[2+i];
-                Eigen::Vector3d currPos;
-                currPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
-                initPositions.push_back(currPos);
-            }
-        }
-
         bool assertPosition(int horzid, int posId, int droneId) {
             DroneTrajectory drone_tr = yamlDescriptor.getdroneTrajectories()[droneId];
 
@@ -103,6 +94,7 @@ class TestUtils : public testing::Test {
         }
 
         bool withinRadius(Eigen::Vector3d p1, Eigen::Vector3d p2) {
+            ROS_DEBUG_STREAM("pos: " <<p1[0]<<" "<<p1[2]<<" , "<<p2[0]<<" "<<p2[1]<<" deviation: "<< (p1 - p2).norm());
             return (p1 - p2).norm() < yamlDescriptor.getMovingThreshold();
         }
 
@@ -122,15 +114,11 @@ class TestUtils : public testing::Test {
         }
 
         void getAssertionValuesFromFile(string yamlFilePath) {
-            ROS_ERROR_STREAM("file path: "<<yamlFilePath);
             char cstr[yamlFilePath.size() + 1];
             copy(yamlFilePath.begin(), yamlFilePath.end(), cstr);
             cstr[yamlFilePath.size()] = '\0';
-            ROS_ERROR_STREAM("###here "<<yamlDescriptor.getHoveringThreshold());
         
             simutils::processYamlFile(cstr, yamlDescriptor);
-            ROS_ERROR_STREAM("here "<<yamlDescriptor.getHoveringThreshold());
-
-            ROS_ERROR_STREAM("Loaded the YamlDescriptor");
+            ROS_DEBUG_STREAM("Loaded the YamlDescriptor");
         }
 };
