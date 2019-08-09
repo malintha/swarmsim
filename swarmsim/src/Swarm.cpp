@@ -2,7 +2,6 @@
 #include <ros/console.h>
 #include "Swarm.h"
 #include "state.h"
-// #include "utils.h"
 #include <thread>
 #include <chrono>
 #include <stdexcept>
@@ -28,6 +27,8 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         ss << trajDir<<yamlFileName;
         string yamlFilePath = ss.str();
         swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
+        executionInitialized = false;
+        
     try {
         if (yamlFilePath.empty()) {
             throw runtime_error("YAML file path is not provided. Exiting.");
@@ -171,7 +172,8 @@ void Swarm::performPhaseTasks() {
     if (phase == Phases::Planning && !planningInitialized) {
         //initialize the external operations such as slam or task assignment
         try {
-            planningPhase->doPlanning(horizonId);
+            if(horizonId < planningPhase->nHorizons)
+                planningPhase->doPlanning(horizonId);
             if (++horizonId > planningPhase->nHorizons) {
                 executionInitialized = true;
             }

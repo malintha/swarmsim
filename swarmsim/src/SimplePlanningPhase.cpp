@@ -49,7 +49,7 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
         }
         ROS_DEBUG_STREAM("getTimesArray: "<<yamlDescriptor.getTimesArray()[1].times.size());
         planningResults = simutils::getHorizonTrajetories(horizonId, yamlDescriptor);
-
+        nHorizons = yamlDescriptor.getHorizons();
         ROS_DEBUG_STREAM("planningResults: "<<planningResults.size());
     }
     catch (range_error &e) {
