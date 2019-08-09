@@ -1,7 +1,7 @@
-#Header
-drones: 2
+#Header (Meta information)
 horizons: 2
 subgoals: 4
+drones: 2
 
 #Body
 times:
@@ -35,5 +35,5 @@ drone1:
     subgoal: [15, -20, 2.5]
 
 # testing threasholds (meters)
-  movingThreshold: 2
+  movingThreshold: 2.5
   hoveringThreshold: 1

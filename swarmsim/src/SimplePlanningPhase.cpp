@@ -44,9 +44,10 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
     vector<Trajectory> planningResults;
     bool initPlan = horizonId == 0;
     try {
-        simutils::processYamlFile(cstr, yamlDescriptor);
+        if(initPlan) {
+            simutils::processYamlFile(cstr, yamlDescriptor);
+        }
         ROS_DEBUG_STREAM("getTimesArray: "<<yamlDescriptor.getTimesArray()[1].times.size());
-
         planningResults = simutils::getHorizonTrajetories(horizonId, yamlDescriptor);
 
         ROS_DEBUG_STREAM("planningResults: "<<planningResults.size());

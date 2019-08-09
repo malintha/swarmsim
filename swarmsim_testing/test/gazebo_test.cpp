@@ -14,7 +14,8 @@ TEST_F(TestUtils, testTwoRobots) {
     }
 
     getAssertionValuesFromFile(filePath);
-    int nHorizons = goalset.size();
+    ROS_ERROR_STREAM("here## "<<yamlDescriptor.getMovingThreshold());
+    int nHorizons = yamlDescriptor.getHorizons();
     ros::Time time = ros::Time::now();
     for(int i=0;i<nHorizons;i++) {
         vector<double> checkpoints = yamlDescriptor.getTimesArray()[i].times;
@@ -31,7 +32,7 @@ TEST_F(TestUtils, testTwoRobots) {
                 if(doubleEqual(curr_sec, cumulativeTimes[pos_id])) {
                     for(int k=0;k<2;k++) {
                         bool inPlace = assertPosition(i, pos_id, k);
-                        ROS_DEBUG_STREAM("Drone: "<<k <<" in place: "<<inPlace);
+                        ROS_ERROR_STREAM("Drone: "<<k <<" in place: "<<inPlace);
                         ASSERT_TRUE(inPlace);
                     }
                     pos_id++;

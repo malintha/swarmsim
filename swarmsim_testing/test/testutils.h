@@ -122,11 +122,15 @@ class TestUtils : public testing::Test {
         }
 
         void getAssertionValuesFromFile(string yamlFilePath) {
-            ROS_DEBUG_STREAM("file path: "<<yamlFilePath);
+            ROS_ERROR_STREAM("file path: "<<yamlFilePath);
             char cstr[yamlFilePath.size() + 1];
             copy(yamlFilePath.begin(), yamlFilePath.end(), cstr);
             cstr[yamlFilePath.size()] = '\0';
+            ROS_ERROR_STREAM("###here "<<yamlDescriptor.getHoveringThreshold());
+        
             simutils::processYamlFile(cstr, yamlDescriptor);
-            ROS_DEBUG_STREAM("Loaded the YamlDescriptor");
+            ROS_ERROR_STREAM("here "<<yamlDescriptor.getHoveringThreshold());
+
+            ROS_ERROR_STREAM("Loaded the YamlDescriptor");
         }
 };

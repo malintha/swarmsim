@@ -101,9 +101,11 @@ namespace simutils {
                     }
                     if(movingThresholdNode) {
                         yamlDescriptor.setMovingThreshold(std::stod(s));
+                        movingThresholdNode = false;
                     }
                     if(hoveringThresholdNode) {
                         yamlDescriptor.setHoveringThreshold(std::stod(s));
+                        hoveringThresholdNode = false;
                     }
                     if (timeset_node && times_node) {
                         timeSequence.push_back(std::stod(s));
@@ -247,14 +249,17 @@ namespace simutils {
                         continue;
                     }
                     if (nSubGoalsNode) {
+                        ROS_DEBUG_STREAM("nSubGoalsNode "<<s);
                         nSubgoals = std::stoi(s);
                         nSubGoalsNode = false;
                     }
                     else if (nHorizonsNode) {
+                        ROS_DEBUG_STREAM("nHorizonsNode "<<s);
                         nHorizons = std::stoi(s);
                         nHorizonsNode = false;
                     }
                     else if(nDronesNode) {
+                        ROS_DEBUG_STREAM("nDronesNode "<<s);
                         nDrones = std::stoi(s);
                         nDronesNode = false;
                     }
@@ -277,16 +282,12 @@ namespace simutils {
     vector<Trajectory> getHorizonTrajetories(int horizonId, YamlDescriptor yamlDescriptor) {
         vector<DroneTrajectory> droneTrajectories = yamlDescriptor.getdroneTrajectories();
         vector<Trajectory> trs;
-        for(int i=0;i<droneTrajectories.size();i++) {
+        for(int i=0;i<yamlDescriptor.getDrones();i++) {
             DroneTrajectory dtr = droneTrajectories[i];
-            for(int h=0;h<dtr.horzTrajList.size();h++) {
-                if(h==horizonId) {
-                    Trajectory tr = dtr.horzTrajList[h];
-                    vector<HorizonTimes> hz_t = yamlDescriptor.getTimesArray(); 
-                    tr.tList = hz_t[horizonId].times;
-                    trs.push_back(tr);
-                }
-            }
+            Trajectory tr = dtr.horzTrajList[horizonId];
+            vector<HorizonTimes> hz_t = yamlDescriptor.getTimesArray(); 
+            tr.tList = hz_t[horizonId].times;
+            trs.push_back(tr);
         }
         return trs;
     }

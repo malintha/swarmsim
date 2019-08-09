@@ -19,7 +19,6 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         dronesList[i]->pushTrajectory(traj);
     }
     swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
-    
 }
 
 Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName) :
@@ -29,7 +28,6 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         ss << trajDir<<yamlFileName;
         string yamlFilePath = ss.str();
         swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
-        // cout<<"#### "<<yamlFilePath<<endl;
     try {
         if (yamlFilePath.empty()) {
             throw runtime_error("YAML file path is not provided. Exiting.");
@@ -55,7 +53,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
 }
 
 void Swarm::initVariables() {
-    planExecutionRatio = 0.6;
+    planExecutionRatio = 0.5;
     state = States::Idle;
     phase = Phases::Planning;
     horizonId = 0;
