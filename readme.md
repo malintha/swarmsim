@@ -1,18 +1,29 @@
 ## Setting up the packages
 
 Clone the following packages to source directory of the catkin workspace.
+```bash
+git clone https://github.com/malintha/drone_demo.git -b xacro_models
 
-https://github.com/Malintha/drone_demo/tree/multi_mavros
+git clone https://github.com/malintha/sitl_gazebo.git -b xacro_merge --recursive
 
-https://github.com/Malintha/sitl_gazebo/tree/xacro_models
+git clone https://github.com/malintha/uav_testing.git -b master
+```
 
-https://github.com/Malintha/swarmsim
+Run following commands from the root of the workspace. Please change the ros distribution name as suitable.
 
-https://github.com/osrf/uav_testing/tree/typhoon_demo
+```bash
+source /opt/ros/melodic/setup.sh && rosdep update && rosdep install --from-path src -iy
 
-https://github.com/catkin/catkin_simple
+source /opt/ros/melodic/setup.sh && catkin config --install
 
-Follow the Installation instructions of https://github.com/Malintha/mav_trajectory_generation. (Make sure you merge the devel and install spaces.) This will clone the following packages.
+catkin build
+
+git clone https://github.com/Malintha/swarmsim -b master
+
+git clone https://github.com/catkin/catkin_simple
+```
+
+Follow the Installation instructions of https://github.com/Malintha/mav_trajectory_generation. (Make sure you merge the devel space.) This will clone the following packages.
 
 1. eigen_catkin
 2. eigen_checks
@@ -25,12 +36,8 @@ Follow the Installation instructions of https://github.com/Malintha/mav_trajecto
 9. nlopt
 10. matlab
 
-
 Use the follwing commands to build the packages
 
 ```bash
-catkin build mav_trajectory_generation_ros
-```
-```bash
-catkin build
+catkin build swarmsim_example
 ```
