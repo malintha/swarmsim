@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <qpOASES.hpp>
+// #include <qpOASES.hpp>
 #include "Trajectory.h"
 #include <mav_trajectory_generation/polynomial_optimization_nonlinear.h>
 #include <mav_trajectory_generation_ros/ros_visualization.h>
