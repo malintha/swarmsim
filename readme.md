@@ -21,9 +21,11 @@ catkin build
 git clone https://github.com/Malintha/swarmsim -b master
 
 git clone https://github.com/catkin/catkin_simple
+
+catkin config --merge-devel
 ```
 
-Follow the Installation instructions of https://github.com/Malintha/mav_trajectory_generation. (Make sure you merge the devel space.) This will clone the following packages.
+Follow the Installation instructions of https://github.com/Malintha/mav_trajectory_generation. This will clone the following packages.
 
 1. eigen_catkin
 2. eigen_checks
