@@ -9,6 +9,7 @@
 #include "Trajectory.h"
 #include "mavros_msgs/State.h"
 #include "gazebo_msgs/ModelStates.h"
+#include "ExternalAPI.h"
 
 using namespace Eigen;
 
@@ -52,6 +53,8 @@ private:
     bool setReady;
     Vector3d initGazeboPos;
     int gazeboElementIdx;
+    ExternalAPI *extAPI;
+    int APIType;
 
     std::vector<Trajectory> TrajectoryList;
     int trajectoryId;

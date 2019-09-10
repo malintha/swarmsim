@@ -3,83 +3,38 @@
 #include "mavros_msgs/CommandTOL.h"
 #include "mavros_msgs/SetMode.h"
 #include "ros/console.h"
+#include "DJIAPI.h"
 
 using namespace std;
 
 Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
     ROS_DEBUG_STREAM("Initializing drone " << id);
     setState(States::Idle);
+
+    if(this->APIType == APIType::DJI) {
+        this->extAPI = new DJIAPI(n);
+    }
+
     setReady = false;
     takeoffHeight = 2.5;
     execPointer = 0;
     trajectoryId = 0;
-    std::string globalPositionTopic = getPositionTopic("global");
-    std::string localPositionTopic = getPositionTopic("local");
-    std::string poseTopic = getPoseTopic();
-    std::stringstream ss;
-    ss << "/" << id << "/mavros/state";
-    std::string mavrosStateTopic = ss.str();
-    localPositionSub =
-            nh.subscribe(localPositionTopic, 10, &Drone::positionLocalCB, this);
-    globalPositionSub =
-            nh.subscribe(globalPositionTopic, 10, &Drone::positionGlobalCB, this);
-    std::string positionSetPointTopic = getLocalSetpointTopic("position");
-    posSetPointPub =
-            nh.advertise<geometry_msgs::PoseStamped>(positionSetPointTopic, 10);
-    mavrosStateSub = nh.subscribe(mavrosStateTopic,10, &Drone::mavrosStateCB, this);
-    gazeboStateSub = nh.subscribe("/gazebo/model_states", 10, &Drone::gazeboStateCB, this);
-    ros::topic::waitForMessage<gazebo_msgs::ModelStates>("/gazebo/model_states", ros::Duration(5));
+
+    
 }
 
-int Drone::getState() { return state; }
-
-void Drone::mavrosStateCB(const mavros_msgs::StateConstPtr& msg) {
-    bool guided = msg->guided;
-    ROS_DEBUG_STREAM("Mavros Guided: "<<guided<<" Drone id: "<<this->id);
-    if(!setReady && guided) {
-        ready(true);
-        setReady = true;
-        this->mavrosStateSub.shutdown();
-        ROS_DEBUG_STREAM("Drone: " << id << " Init position local: "
-                            << curr_pos_local[0] << " " << curr_pos_local[1]
-                            << " " << curr_pos_local[2]);
-        ROS_DEBUG_STREAM("Drone: "
-                            << id << " Init position global: " << curr_pos_global[0]
-                            << " " << curr_pos_global[1] << " " << curr_pos_global[2]);
+int Drone::getState() {
+    if(state == States::Idle && extAPI->getIsReady()) {
+        state = States::Ready;
     }
-}
-
-void Drone::gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg) {
-    if(this->state == States::Armed) {
-        ros::V_string gazeboElementsArray = msg->name;
-        stringstream drone_ss;
-        drone_ss << "iris_"<<this->id;
-        string drone_str = drone_ss.str();
-        for(int i=0;i<gazeboElementsArray.size();i++) {
-            string key = gazeboElementsArray[i];
-            if(drone_str.compare(key) == 0) {
-                this->gazeboElementIdx = i;
-                geometry_msgs::Pose robot_pose = msg->pose[gazeboElementIdx];
-                initGazeboPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
-                ROS_DEBUG_STREAM("Init gazebo pose recorded");
-                gazeboStateSub.shutdown();
-            }
-        }
+    extAPI->setDroneState(state);
+    return state; 
     }
-}
 
-void Drone::positionLocalCB(const nav_msgs::Odometry::ConstPtr &msg) {
-    geometry_msgs::Point pos = msg->pose.pose.position;
-    curr_pos_local << pos.x, pos.y, pos.z;
-    yaw = getRPY(msg->pose.pose.orientation)[2];
-}
 
-void Drone::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {
-    curr_pos_global << msg->latitude, msg->longitude, msg->altitude;
-    if(this->state == States::Armed) {
-        init_pos_global = curr_pos_global;
-    }
-}
+
+
+
 
 // void Drone::poseCB(const geometry_msgs::PoseStampedConstPtr &msg) {}
 
