@@ -1,4 +1,3 @@
-// #include <qpOASES.hpp>
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <vector>
@@ -8,6 +7,7 @@
 #include <future>
 #include <stdexcept>
 #include "YamlDescriptor.h"
+#include "geometry_msgs/Quaternion.h"
 
 using namespace std;
 
@@ -24,5 +24,9 @@ namespace simutils {
     void parseYamlHeader(char *fPath, YamlDescriptor &yamlDescriptor);
 
     vector<Trajectory> getHorizonTrajetories(int horizonId, YamlDescriptor yamlDescriptor);
+
+    Eigen::Vector3d getRPY(geometry_msgs::Quaternion orientation);
+
+    float getEucDistance(Eigen::Vector3d p1, Eigen::Vector3d p2);
 
 }

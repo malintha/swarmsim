@@ -8,7 +8,7 @@ DJIAPI::DJIAPI(const ros::nodeHandle &nh) {
     string authorityServiceName = getAuthorityServiceName();
     authorityService = nh.subscribe(authorityServiceName);
     string refPointServiceName = getSetPointTopic();
-
+    this->initAPI();
 }
 
 //getAuthority
@@ -38,4 +38,8 @@ bool DJIAPI::setInitLocalPosition() {
     dji_sdk::SetLocalPosRef localPosReferenceSetter;
     set_local_pos_reference.call(localPosReferenceSetter);
     return localPosReferenceSetter.response.result;
+}
+
+Vector3d DJIAPI::getLocalWaypoint(Vector3d waypoint) {
+    return waypoint;
 }

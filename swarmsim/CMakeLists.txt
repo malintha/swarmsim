@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
         mavros_msgs
         mav_trajectory_generation
         mav_trajectory_generation_ros
+        dji_sdk
         )
 
 ## System dependencies are found with CMake's conventions
@@ -131,6 +132,9 @@ add_library(${PROJECT_NAME}
         src/SimplePlanningPhase.cpp
         src/PlanningPhase.cpp
         src/YamlDescriptor.cpp
+        src/ExternalAPI.cpp
+        src/MavrosAPI.cpp
+        # src/DJIAPI.cpp
         )
 
 ## Add cmake target dependencies of the library

@@ -4,6 +4,8 @@
 #include <ros/console.h>
 #include <fstream>
 #include <tuple>
+#include "tf/tf.h"
+
 
 using namespace Eigen;
 
@@ -292,5 +294,18 @@ namespace simutils {
         return trs;
     }
 
+    Vector3d getRPY(geometry_msgs::Quaternion orientation) {
+        tfScalar roll, pitch, yaw;
+        Vector3d rpy;
+        tf::Matrix3x3(tf::Quaternion(orientation.x, orientation.y, orientation.z,
+                                    orientation.w))
+                .getRPY(roll, pitch, yaw);
+        rpy << roll, pitch, yaw;
+        return rpy;
+    }
+
+    float getEucDistance(Eigen::Vector3d p1, Eigen::Vector3d p2) {
+        return (p1 - p2).norm();
+    }
 
 }

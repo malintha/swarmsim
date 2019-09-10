@@ -6,10 +6,11 @@ class DJIAPI:public ExternalAPI {
 
     string getAuthorityServiceName();
 
-    bool initAPI() override;
+    bool initAPI();
     bool obtainControl();
     bool setInitLocalPosition();
-    
+    Vector3d getLocalWaypoint(Vector3d waypoint);
+
     private:
     ros::ServiceClient authorityService;
     ros::ServiceClient localPosReference;

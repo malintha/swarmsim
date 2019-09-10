@@ -54,7 +54,7 @@ private:
     Vector3d initGazeboPos;
     int gazeboElementIdx;
     ExternalAPI *extAPI;
-    int APIType;
+    int apiType;
 
     std::vector<Trajectory> TrajectoryList;
     int trajectoryId;
@@ -75,7 +75,6 @@ private:
     void setState(int state);
     void ready(bool ready);
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
-    void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
     void callTOLService(bool takeoff);
     void gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg);
 

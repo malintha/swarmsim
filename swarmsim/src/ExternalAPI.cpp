@@ -1,8 +1,16 @@
 #include "ExternalAPI.h"
 
+ExternalAPI::ExternalAPI() {}
+
+ExternalAPI::ExternalAPI(int APIType, int droneId) {
+    this->droneId = droneId;
+    this->apiType = APIType;
+    this->state = States::Idle;
+}
+
 string ExternalAPI::getLocalPositionTopic() {
     string topic;
-    if(apiType == APITYPE::DJI) {
+    if(apiType == APIType::DJIAPITYPE) {
         topic = "dji_sdk/local_position";
     } 
     else {
@@ -10,13 +18,12 @@ string ExternalAPI::getLocalPositionTopic() {
         ss << this->droneId << "/mavros/global_position/global";
         topic = ss.str();
     }
-    droneState = States::Idle;
     return topic;
 }
 
 string ExternalAPI::getGlobalPositionTopic() {
     string topic;
-    if(apiType == APITYPE::DJI) {
+    if(apiType == APIType::DJIAPITYPE) {
         topic = "dji_sdk/gps_position";
     } 
     else {
@@ -29,21 +36,41 @@ string ExternalAPI::getGlobalPositionTopic() {
 
 string ExternalAPI::getSetPointTopic() {
     string setPointName;
-    if(apiType == APITYPE::DJI) {
+    if(apiType == APIType::DJIAPITYPE) {
         setPointName = "dji_sdk/set_local_pos_ref";
     }
      else {
          stringstream ss;
-         ss << "/" << this->id << "/mavros/setpoint_position/local";
+         ss << "/" << this->droneId << "/mavros/setpoint_position/local";
          setPointName = ss.str();
      }
     return setPointName;
 }
 
-bool ExternalAPI::getIsReady() {
-    return isReady;
+void ExternalAPI::ready(bool ready) {
+    if(ready) {
+        setState(States::Ready);
+        ROS_DEBUG_STREAM("MAVROS READY. Drone: " << droneId);
+    }
 }
 
-void ExternalAPI::setdroneState(int state) {
-    droneState = state;
+int ExternalAPI::getState() {
+    return this->state;
 }
+
+void ExternalAPI::setState(int state) {
+    this->state = state;
+}
+
+Vector3d ExternalAPI::getLocalPosition() {
+    return localPos;
+}
+
+Vector3d ExternalAPI::getGlobalPosition() {
+    return globalPos;
+}
+
+void ExternalAPI::setTakeoffHeight(double takeoffHeight) {
+    this->takeoffHeight = takeoffHeight;
+}
+
