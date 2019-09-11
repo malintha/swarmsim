@@ -22,8 +22,6 @@ DJIAPI::DJIAPI(const ros::NodeHandle &n) : ExternalAPI(APIType::DJIType, 0), nh(
     localPositionSub =
         nh.subscribe(localPositionTopic, 10, &DJIAPI::positionLocalCB, this);
     ros::Subscriber flightStatusSub = nh.subscribe("dji_sdk/flight_status", 10, &DJIAPI::flight_status_callback, this);
-
-
     posSetPointPub = nh.advertise<sensor_msgs::Joy>("dji_sdk/flight_control_setpoint_ENUposition_yaw", 10);
     taskServiceCl = nh.serviceClient<dji_sdk::DroneTaskControl>("dji_sdk/drone_task_control");
 
@@ -38,20 +36,7 @@ DJIAPI::DJIAPI(const ros::NodeHandle &n) : ExternalAPI(APIType::DJIType, 0), nh(
 
 bool DJIAPI::armDrone(bool arm)
 {
-    // ros::ServiceClient arming_cl =
-    //     nh.serviceClient<dji_sdk::DroneArmControl>("dji_sdk/drone_arm_control");
-    // dji_sdk::DroneArmControl droneArmControl;
-    // droneArmControl.request.arm = arm;
-    // ROS_DEBUG_STREAM("Waiting for DJI arm service ");
-    // arming_cl.waitForExistence();
-    // arming_cl.call(droneArmControl);
-    // if(droneArmControl.response.result) {
-    //     ROS_DEBUG_STREAM("Arm request sent");
     arm ? state = States::Armed : state = States::Ready;
-    // }
-    // else {
-    //     ROS_ERROR_STREAM("Arm request failed for DJI");
-    // }
 }
 
 bool DJIAPI::TOL(bool takeoff, double takeoffHeight)
@@ -148,17 +133,6 @@ bool DJIAPI::M100monitoredTakeoff(double toHeight)
     {
         ros::spinOnce();
     }
-
-    // geometry_msgs::PoseStamped setPoint;
-    // setPoint.pose.position.x = localPos[0];
-    // setPoint.pose.position.y = localPos[1];
-    // setPoint.pose.position.z = toHeight;
-    // setPoint.pose.orientation.w = 1;
-    // setPoint.pose.orientation.x = 0;
-    // setPoint.pose.orientation.y = 0;
-    // setPoint.pose.orientation.z = 0;
-    // sendSetPoint(setPoint);
-    // ROS_DEBUG_STREAM("sent takeoff setpoint");
 
     if(flight_status != DJISDK::M100FlightStatus::M100_STATUS_IN_AIR) {
         return false;
