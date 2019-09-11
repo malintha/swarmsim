@@ -4,9 +4,9 @@
 #include "mavros_msgs/CommandBool.h"
 #include "mavros_msgs/CommandTOL.h"
 
-MavROSAPI::MavROSAPI(const ros::NodeHandle &n, int droneId):nh(n)
+MavROSAPI::MavROSAPI(const ros::NodeHandle &n, int droneId):ExternalAPI(APIType::MAVROS, droneId), nh(n)
 {
-    ExternalAPI(APIType::MAVROS, droneId);
+    // ExternalAPI(APIType::MAVROS, droneId);
     this->setInitValues = false;
     this->setReady = false;
     
@@ -98,7 +98,7 @@ bool MavROSAPI::armDrone(bool arm) {
     arm ? state = States::Armed : state = States::Ready;
 }
 
-bool MavROSAPI::TOL(bool takeoff) {
+bool MavROSAPI::TOL(bool takeoff, double takeoffHeight) {
     std::string serviceId;
     takeoff ? serviceId = "takeoff" : serviceId = "land";
     stringstream ss_to;

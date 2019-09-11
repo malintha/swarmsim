@@ -10,7 +10,7 @@ class MavROSAPI : public ExternalAPI {
     string getMavrosStateName();
     
     bool armDrone(bool arm) override;
-    bool TOL(bool takeoff) override;
+    bool TOL(bool takeoff, double takeoffHeight) override;
     bool sendSetPoint(geometry_msgs::PoseStamped pose) override;
     Vector3d getLocalWaypoint(Vector3d waypoint) override;
 

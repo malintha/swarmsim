@@ -21,10 +21,10 @@ class ExternalAPI {
     public:
     ExternalAPI();
     ExternalAPI(int apiType, int droneId);
-    virtual bool armDrone(bool arm);
-    virtual bool TOL(bool takeoff);
-    virtual bool sendSetPoint(geometry_msgs::PoseStamped pose);
-    virtual Vector3d getLocalWaypoint(Vector3d waypoint);
+    virtual bool armDrone(bool arm) = 0;
+    virtual bool TOL(bool takeoff, double takeoffHeight) = 0;
+    virtual bool sendSetPoint(geometry_msgs::PoseStamped pose) = 0;
+    virtual Vector3d getLocalWaypoint(Vector3d waypoint) = 0;
 
     string getLocalPositionTopic();
     string getGlobalPositionTopic();

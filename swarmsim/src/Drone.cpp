@@ -10,7 +10,7 @@ using namespace std;
 
 Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
     ROS_DEBUG_STREAM("Initializing drone " << id);
-    this->apiType = APIType::MAVROS;
+    this->apiType = APIType::DJIType;
     if(this->apiType == APIType::DJIType) {
         this->extAPI = new DJIAPI(n);
     }
@@ -18,7 +18,7 @@ Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
         this->extAPI = new MavROSAPI(n, id);
     }
     setReady = false;
-    takeoffHeight = 2.5;
+    takeoffHeight = 1;
     execPointer = 0;
     trajectoryId = 0;
     extAPI->setTakeoffHeight(takeoffHeight);
@@ -38,17 +38,17 @@ void Drone::arm(bool arm) {
 
 void Drone::TOLService(bool takeoff) {
     if (extAPI->getState() == States::Armed && takeoff) {
-        extAPI->TOL(true);
+        extAPI->TOL(true, takeoffHeight);
         extAPI->setState(States::Takingoff);
     } else if (extAPI->getState() == States::Takingoff) {
-        if (extAPI->getLocalPosition()[2] >= takeoffHeight - 0.2) {
+        if (extAPI->getLocalPosition()[2] >= takeoffHeight - 0.1) {
             extAPI->setState(States::Autonomous);
             if(this->apiType == APIType::MAVROS) {
                 static_cast<MavROSAPI*>(extAPI)->setMode("OFFBOARD");
             }
         }
     } else if (extAPI->getState() == States::Reached && !takeoff) {
-        extAPI->TOL(false);
+        extAPI->TOL(false, 0);
         extAPI->setState(States::Idle);
     }
 }
@@ -86,6 +86,12 @@ int Drone::executeTrajectory() {
         setpoint.pose.position.x = waypoint[0];
         setpoint.pose.position.y = waypoint[1];
         setpoint.pose.position.z = waypoint[2];
+        
+        setpoint.pose.orientation.w = 0.707;
+        setpoint.pose.orientation.x = 0;
+        setpoint.pose.orientation.y = 0;
+        setpoint.pose.orientation.z = 0.707;
+
         extAPI->sendSetPoint(setpoint);
     }
     return execPointer;

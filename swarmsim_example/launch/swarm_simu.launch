@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="nDrones" default="2" />
+
+    <include file="$(find dji_sdk)/launch/sdk.launch" ns="swarmsim_example"/>
+
+
+    <arg name="nDrones" default="1" />
     <arg name="predefined" default="false" />
     <arg name="yamlFileName" default="goals.yaml"/>
     <arg name="traj_dir" default="$(find swarmsim_example)/launch/traj_data/"/>

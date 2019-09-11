@@ -6,12 +6,14 @@
 #include "dji_sdk/DroneTaskControl.h"
 #include "dji_sdk/SDKControlAuthority.h"
 #include "dji_sdk/SetLocalPosRef.h"
+#include <tf2/LinearMath/Quaternion.h>
 
 using namespace Eigen;
 // using namespace DJI::OSDK;
 
-DJIAPI::DJIAPI(const ros::NodeHandle &n):nh(n) {
-    ExternalAPI(APIType::DJIType, droneId);
+DJIAPI::DJIAPI(const ros::NodeHandle &n) : ExternalAPI(APIType::DJIType, 0), nh(n)
+{
+
     string localPositionTopic = getLocalPositionTopic();
     string globalPositionTopic = getGlobalPositionTopic();
 
@@ -19,96 +21,107 @@ DJIAPI::DJIAPI(const ros::NodeHandle &n):nh(n) {
         nh.subscribe(globalPositionTopic, 10, &DJIAPI::positionGlobalCB, this);
     localPositionSub =
         nh.subscribe(localPositionTopic, 10, &DJIAPI::positionLocalCB, this);
-    posSetPointPub = nh.advertise<sensor_msgs::Joy>
-        ("/dji_sdk/flight_control_setpoint_ENUposition_yaw", 10);
-    taskServiceCl = nh.serviceClient<dji_sdk::DroneTaskControl>
-        ("dji_sdk/drone_task_control");
-    
+    ros::Subscriber flightStatusSub = nh.subscribe("dji_sdk/flight_status", 10, &DJIAPI::flight_status_callback, this);
+
+
+    posSetPointPub = nh.advertise<sensor_msgs::Joy>("dji_sdk/flight_control_setpoint_ENUposition_yaw", 10);
+    taskServiceCl = nh.serviceClient<dji_sdk::DroneTaskControl>("dji_sdk/drone_task_control");
+
     string refPointServiceName = getSetPointTopic();
     bool obtainedControl = obtainControl();
-    if (obtainedControl) {
-        if(setLocalOrigin()) {
-            ready(true);
-        }
+    setLocalOrigin();
+    if (obtainedControl)
+    {
+        ready(true);
     }
 }
 
-bool DJIAPI::armDrone(bool arm) {
-    ros::ServiceClient arming_cl =
-        nh.serviceClient<dji_sdk::DroneArmControl>("dji_sdk/drone_arm_control");
-    dji_sdk::DroneArmControl droneArmControl;
-    droneArmControl.request.arm = arm;
-    ROS_DEBUG_STREAM("Waiting for DJI arm service ");
-    arming_cl.waitForExistence();
-    arming_cl.call(droneArmControl);
-    if(droneArmControl.response.result) {
-        ROS_DEBUG_STREAM("Arm request sent");
-        arm ? state = States::Armed : state = States::Ready;
-    }
-    else {
-        ROS_ERROR_STREAM("Arm request failed for DJI");
-    }
+bool DJIAPI::armDrone(bool arm)
+{
+    // ros::ServiceClient arming_cl =
+    //     nh.serviceClient<dji_sdk::DroneArmControl>("dji_sdk/drone_arm_control");
+    // dji_sdk::DroneArmControl droneArmControl;
+    // droneArmControl.request.arm = arm;
+    // ROS_DEBUG_STREAM("Waiting for DJI arm service ");
+    // arming_cl.waitForExistence();
+    // arming_cl.call(droneArmControl);
+    // if(droneArmControl.response.result) {
+    //     ROS_DEBUG_STREAM("Arm request sent");
+    arm ? state = States::Armed : state = States::Ready;
+    // }
+    // else {
+    //     ROS_ERROR_STREAM("Arm request failed for DJI");
+    // }
 }
 
-bool DJIAPI::TOL(bool takeoff) {
+bool DJIAPI::TOL(bool takeoff, double takeoffHeight)
+{
     ROS_DEBUG_STREAM("Waiting for DJI task service ");
     taskServiceCl.waitForExistence();
     dji_sdk::DroneTaskControl taskReq;
-    if(takeoff) {
-        taskReq.request.task = 4;
+    if (takeoff)
+    {
+        ROS_DEBUG_STREAM("Taking off");
+        M100monitoredTakeoff(takeoffHeight);
     }
-    else {
-        taskReq.request.task = 6;
-    }
-    
-    taskServiceCl.call(taskReq);
-
-    if(taskReq.response.result) {
-        ROS_DEBUG_STREAM("TOL request sent to DJI");
-    }
-    else {
-        ROS_ERROR_STREAM("TOL request for DJI failed");
+    else
+    {
+        ROS_DEBUG_STREAM("Landing");
+        takeoff_land(dji_sdk::DroneTaskControl::Request::TASK_LAND);
     }
 }
 
-bool DJIAPI::sendSetPoint(geometry_msgs::PoseStamped setPoint) {
+bool DJIAPI::sendSetPoint(geometry_msgs::PoseStamped setPoint)
+{
     sensor_msgs::Joy setP;
-    setP.axes.push_back(setPoint.pose.position.x);
-    setP.axes.push_back(setPoint.pose.position.y);
+    double targetX = setPoint.pose.position.x;
+    double targetY = setPoint.pose.position.y;
+
+    // ROS_DEBUG_STREAM("curr: "<<localPos[0]<<" , "<<localPos[1]<<" target: "<<targetX<<" , "<<targetY);
+    setP.axes.push_back(targetX - localPos[0]);
+    setP.axes.push_back(targetY - localPos[1]);
     setP.axes.push_back(setPoint.pose.position.z);
+
     Vector3d rpy = simutils::getRPY(setPoint.pose.orientation);
     setP.axes.push_back(rpy[2]);
     posSetPointPub.publish(setP);
-} 
+}
 
-void DJIAPI::positionLocalCB(const geometry_msgs::PointStamped::ConstPtr& msg) {
+void DJIAPI::positionLocalCB(const geometry_msgs::PointStamped::ConstPtr &msg)
+{
     geometry_msgs::Point pos = msg->point;
     localPos << pos.x, pos.y, pos.z;
 }
 
-
-void DJIAPI::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {
+void DJIAPI::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg)
+{
     globalPos << msg->latitude, msg->longitude, msg->altitude;
 }
 
-bool DJIAPI::obtainControl() {
-    ros::ServiceClient authorityService = nh.serviceClient<dji_sdk::SDKControlAuthority>
-      ("dji_sdk/sdk_control_authority");
+void DJIAPI::flight_status_callback(const std_msgs::UInt8::ConstPtr& msg)
+{
+  flight_status = msg->data;
+}
+
+bool DJIAPI::obtainControl()
+{
+    ros::ServiceClient authorityService = nh.serviceClient<dji_sdk::SDKControlAuthority>("dji_sdk/sdk_control_authority");
     dji_sdk::SDKControlAuthority authority;
-    authority.request.control_enable=1;
+    authority.request.control_enable = 1;
     ROS_DEBUG_STREAM("Waiting for DJI arm service ");
     authorityService.waitForExistence();
     authorityService.call(authority);
-    if(!authority.response.result) {
+    if (!authority.response.result)
+    {
         ROS_ERROR("obtain control failed!");
         return false;
     }
     return true;
 }
 
-bool DJIAPI::setLocalOrigin() {
-    ros::ServiceClient setLocalPosRefCl = nh.serviceClient<dji_sdk::SetLocalPosRef> 
-        ("dji_sdk/set_local_pos_ref");
+bool DJIAPI::setLocalOrigin()
+{
+    ros::ServiceClient setLocalPosRefCl = nh.serviceClient<dji_sdk::SetLocalPosRef>("dji_sdk/set_local_pos_ref");
     ROS_DEBUG_STREAM("Waiting for DJI arm service ");
     setLocalPosRefCl.waitForExistence();
     dji_sdk::SetLocalPosRef localPosReferenceSetter;
@@ -116,6 +129,53 @@ bool DJIAPI::setLocalOrigin() {
     return localPosReferenceSetter.response.result;
 }
 
-Vector3d DJIAPI::getLocalWaypoint(Vector3d waypoint) {
+Vector3d DJIAPI::getLocalWaypoint(Vector3d waypoint)
+{
     return waypoint;
+}
+
+bool DJIAPI::M100monitoredTakeoff(double toHeight)
+{
+    ros::Time start_time = ros::Time::now();
+    float home_altitude = globalPos[2];
+    if (!takeoff_land(dji_sdk::DroneTaskControl::Request::TASK_TAKEOFF))
+    {
+        return false;
+    }
+    ros::Duration(0.01).sleep();
+
+    while (ros::Time::now() - start_time < ros::Duration(5))
+    {
+        ros::spinOnce();
+    }
+
+    // geometry_msgs::PoseStamped setPoint;
+    // setPoint.pose.position.x = localPos[0];
+    // setPoint.pose.position.y = localPos[1];
+    // setPoint.pose.position.z = toHeight;
+    // setPoint.pose.orientation.w = 1;
+    // setPoint.pose.orientation.x = 0;
+    // setPoint.pose.orientation.y = 0;
+    // setPoint.pose.orientation.z = 0;
+    // sendSetPoint(setPoint);
+    // ROS_DEBUG_STREAM("sent takeoff setpoint");
+
+    if(flight_status != DJISDK::M100FlightStatus::M100_STATUS_IN_AIR) {
+        return false;
+    }
+
+    return true;
+}
+
+bool DJIAPI::takeoff_land(int task)
+{
+    dji_sdk::DroneTaskControl droneTaskControl;
+    droneTaskControl.request.task = task;
+    taskServiceCl.call(droneTaskControl);
+    if (!droneTaskControl.response.result)
+    {
+        ROS_ERROR("takeoff_land fail");
+        return false;
+    }
+    return true;
 }

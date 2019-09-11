@@ -1,7 +1,7 @@
 #Header (Meta information)
 horizons: 2
 subgoals: 4
-drones: 2
+drones: 1
 
 times:
   timeset0: [5,5,5]
@@ -9,29 +9,29 @@ times:
 
 drone0:
   horizon0: #first time horizon
-    subgoal: [0, 5, 2.5]
-    subgoal: [10, 5, 2.5]
-    subgoal: [20, 5, 2.5]
-    subgoal: [30, 5, 2.5]
+    subgoal: [0, 0, 2.5]
+    subgoal: [5, 5, 2.5]
+    subgoal: [0, 10, 2.5]
+    subgoal: [-5, 5, 2.5]
 
   horizon1: #second time horizon
-    subgoal: [30, 5, 2.5]
-    subgoal: [30, 15, 2.5]
-    subgoal: [30, 20, 2.5]
-    subgoal: [30, 30, 2.5]
-
-drone1:
-  horizon0: #first time horizon
+    subgoal: [-5, 5, 2.5]
+    subgoal: [-5, 0, 2.5]
     subgoal: [0, -5, 2.5]
-    subgoal: [10,-5, 2.5]
-    subgoal: [20, 0, 2.5]
-    subgoal: [30, -5, 2.5]
+    subgoal: [0, 0, 2.5]
 
-  horizon1: #second time horizon
-    subgoal: [30, -5, 2.5]
-    subgoal: [40, 0, 2.5]
-    subgoal: [50, -5, 2.5]
-    subgoal: [60, 0, 2.5]
+# drone1:
+#   horizon0: #first time horizon
+#     subgoal: [0, -5, 2.5]
+#     subgoal: [10,-5, 2.5]
+#     subgoal: [20, 0, 2.5]
+#     subgoal: [30, -5, 2.5]
+
+#   horizon1: #second time horizon
+#     subgoal: [30, -5, 2.5]
+#     subgoal: [40, 0, 2.5]
+#     subgoal: [50, -5, 2.5]
+#     subgoal: [60, 0, 2.5]
 
   # testing threasholds (meters)
   movingThreshold: 2
