@@ -28,6 +28,10 @@ int Drone::getState() {
     return extAPI->getState();
 }
 
+void Drone::setState(int state) {
+    extAPI->setState(state);
+}
+
 void Drone::arm(bool arm) {
     extAPI->armDrone(arm);
 }

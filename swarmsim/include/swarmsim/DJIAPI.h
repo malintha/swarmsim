@@ -2,7 +2,6 @@
 #include "geometry_msgs/PointStamped.h"
 #include "sensor_msgs/NavSatFix.h"
 
-
 class DJIAPI:public ExternalAPI {
     public:
     DJIAPI(const ros::NodeHandle &nh);
@@ -11,10 +10,9 @@ class DJIAPI:public ExternalAPI {
     bool armDrone(bool arm) override;
     bool TOL(bool takeoff) override;
     bool sendSetPoint(geometry_msgs::PoseStamped pose) override;
-
+    Vector3d getLocalWaypoint(Vector3d waypoint) override;
 
     bool setLocalOrigin();
-    Vector3d getLocalWaypoint(Vector3d waypoint);
 
     private:
     ros::ServiceClient authorityService;

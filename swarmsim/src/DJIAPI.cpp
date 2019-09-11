@@ -8,7 +8,7 @@
 #include "dji_sdk/SetLocalPosRef.h"
 
 using namespace Eigen;
-using namespace DJI::OSDK;
+// using namespace DJI::OSDK;
 
 DJIAPI::DJIAPI(const ros::NodeHandle &n):nh(n) {
     ExternalAPI(APIType::DJIType, droneId);

@@ -24,6 +24,7 @@ class ExternalAPI {
     virtual bool armDrone(bool arm);
     virtual bool TOL(bool takeoff);
     virtual bool sendSetPoint(geometry_msgs::PoseStamped pose);
+    virtual Vector3d getLocalWaypoint(Vector3d waypoint);
 
     string getLocalPositionTopic();
     string getGlobalPositionTopic();
@@ -31,7 +32,6 @@ class ExternalAPI {
 
     Vector3d getLocalPosition();
     Vector3d getGlobalPosition();
-    virtual Vector3d getLocalWaypoint(Vector3d waypoint);
 
     // bool getIsReady();
     void ready(bool ready);

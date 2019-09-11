@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
         dji_sdk
         )
 
+find_package(DJIOSDK REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -165,6 +166,7 @@ target_link_libraries(${PROJECT_NAME}
         gtest
         yaml
         pthread
+        ${DJIOSDK_LIBRARIES}
         )
 
 #############

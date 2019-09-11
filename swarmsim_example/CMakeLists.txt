@@ -11,10 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
         mavros_msgs
-        swarmsim
         mav_trajectory_generation
         mav_trajectory_generation_ros
+        dji_sdk
+        swarmsim
         )
+        
+find_package(DJIOSDK REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)

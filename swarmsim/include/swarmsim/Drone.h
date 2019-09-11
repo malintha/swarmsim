@@ -29,6 +29,8 @@ public:
      */
     void TOLService(bool takeoff);
     int getState();
+    void setState(int state);
+
     void setTrajectory(Trajectory trajectory);
     int executeTrajectory();
     void pushTrajectory(Trajectory trajectory);
@@ -67,38 +69,8 @@ private:
     ros::Subscriber mavrosStateSub;
     ros::Subscriber gazeboStateSub;
 
-    void mavrosStateCB(const mavros_msgs::StateConstPtr& msg);
-    void setMode(std::string mode);
-    void positionGlobalCB(const sensor_msgs::NavSatFixConstPtr& msg);
-    void positionLocalCB(const nav_msgs::OdometryConstPtr& msg);
-    void poseCB(const geometry_msgs::PoseStampedConstPtr& msg);
-    void setState(int state);
-    void ready(bool ready);
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
-    void callTOLService(bool takeoff);
-    void gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg);
 
-// todo: move to a util class
-    /**
-     * get rpy from geometry_msgs::Quaternion
-     */
-    static Vector3d getRPY(geometry_msgs::Quaternion orientation);
-    
-    /**
-     * construct the global position cb topic name given the global or local
-     * inertial frame
-     * /<id>/mavros/global_position/local
-     * /<id>/mavros/global_position/global
-     */
-    std::string getPositionTopic(std::string locale);
-    
-    /**
-     * construct the pose topic name
-     * /<id>/mavros/local_position/pose
-     */
-    std::string getPoseTopic();
 
-    std::string getLocalSetpointTopic(std::string order);
 
-    float getEucDistance(Eigen::Vector3d p1, Eigen::Vector3d p2);
 };

@@ -8,12 +8,13 @@ class MavROSAPI : public ExternalAPI {
     MavROSAPI(const ros::NodeHandle &n, int droneId);
     Vector3d initGazeboPos;
     string getMavrosStateName();
+    
     bool armDrone(bool arm) override;
     bool TOL(bool takeoff) override;
     bool sendSetPoint(geometry_msgs::PoseStamped pose) override;
+    Vector3d getLocalWaypoint(Vector3d waypoint) override;
 
     bool setMode(string mode);
-    Vector3d getLocalWaypoint(Vector3d waypoint) override;
 
     private:
 
