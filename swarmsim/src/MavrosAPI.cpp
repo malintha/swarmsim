@@ -4,7 +4,6 @@
 #include "mavros_msgs/CommandBool.h"
 #include "mavros_msgs/CommandTOL.h"
 
-
 MavROSAPI::MavROSAPI(const ros::NodeHandle &n, int droneId):nh(n)
 {
     ExternalAPI(APIType::MAVROS, droneId);

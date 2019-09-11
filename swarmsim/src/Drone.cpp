@@ -2,7 +2,7 @@
 #include "mavros_msgs/CommandBool.h"
 #include "mavros_msgs/CommandTOL.h"
 #include "ros/console.h"
-// #include "DJIAPI.h"
+#include "DJIAPI.h"
 #include "MavrosAPI.h"
 #include "utils.h"
 
@@ -11,8 +11,8 @@ using namespace std;
 Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
     ROS_DEBUG_STREAM("Initializing drone " << id);
     this->apiType = APIType::MAVROS;
-    if(this->apiType == APIType::DJIAPITYPE) {
-        // this->extAPI = new DJIAPI(n);
+    if(this->apiType == APIType::DJIType) {
+        this->extAPI = new DJIAPI(n);
     }
     else if (this->apiType == APIType::MAVROS) {
         this->extAPI = new MavROSAPI(n, id);
@@ -39,7 +39,7 @@ void Drone::TOLService(bool takeoff) {
     } else if (extAPI->getState() == States::Takingoff) {
         if (extAPI->getLocalPosition()[2] >= takeoffHeight - 0.2) {
             extAPI->setState(States::Autonomous);
-            if(this->apiType == APIType::DJIAPITYPE) {
+            if(this->apiType == APIType::MAVROS) {
                 static_cast<MavROSAPI*>(extAPI)->setMode("OFFBOARD");
             }
         }

@@ -10,12 +10,11 @@
 #include <ros/console.h>
 #include "state.h"
 
-
 using namespace std;
 using namespace Eigen;
 
 enum APIType {
-    MAVROS = 0, DJIAPITYPE
+    MAVROS = 0, DJIType
 };
 
 class ExternalAPI {

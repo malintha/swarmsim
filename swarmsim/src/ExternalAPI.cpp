@@ -10,7 +10,7 @@ ExternalAPI::ExternalAPI(int APIType, int droneId) {
 
 string ExternalAPI::getLocalPositionTopic() {
     string topic;
-    if(apiType == APIType::DJIAPITYPE) {
+    if(apiType == APIType::DJIType) {
         topic = "dji_sdk/local_position";
     } 
     else {
@@ -23,7 +23,7 @@ string ExternalAPI::getLocalPositionTopic() {
 
 string ExternalAPI::getGlobalPositionTopic() {
     string topic;
-    if(apiType == APIType::DJIAPITYPE) {
+    if(apiType == APIType::DJIType) {
         topic = "dji_sdk/gps_position";
     } 
     else {
@@ -36,7 +36,7 @@ string ExternalAPI::getGlobalPositionTopic() {
 
 string ExternalAPI::getSetPointTopic() {
     string setPointName;
-    if(apiType == APIType::DJIAPITYPE) {
+    if(apiType == APIType::DJIType) {
         setPointName = "dji_sdk/set_local_pos_ref";
     }
      else {

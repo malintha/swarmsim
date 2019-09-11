@@ -106,9 +106,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-          INCLUDE_DIRS include
-         LIBRARIES swarmsim
-#          CATKIN_DEPENDS roscpp rospy std_msgs
+        INCLUDE_DIRS include
+        LIBRARIES swarmsim
+        # CATKIN_DEPENDS roscpp rospy std_msgs dji_sdk
 #          DEPENDS system_lib
 )
 
@@ -119,7 +119,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-         include/${PROJECT_NAME}
+        include/${PROJECT_NAME}
         ${catkin_INCLUDE_DIRS}
 )
 
@@ -134,7 +134,7 @@ add_library(${PROJECT_NAME}
         src/YamlDescriptor.cpp
         src/ExternalAPI.cpp
         src/MavrosAPI.cpp
-        # src/DJIAPI.cpp
+        src/DJIAPI.cpp
         )
 
 ## Add cmake target dependencies of the library
