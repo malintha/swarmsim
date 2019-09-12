@@ -14,6 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
         mav_trajectory_generation
         mav_trajectory_generation_ros
         dji_sdk
+        # pcl
+        # pcl_ros
+        # pcl_conversions
         )
 
 find_package(DJIOSDK REQUIRED)
@@ -136,6 +139,7 @@ add_library(${PROJECT_NAME}
         src/ExternalAPI.cpp
         src/MavrosAPI.cpp
         src/DJIAPI.cpp
+        src/Visualize.cpp
         )
 
 ## Add cmake target dependencies of the library

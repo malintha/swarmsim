@@ -4,12 +4,12 @@
 PlanningPhase::PlanningPhase() {}
 
 PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), frequency(frequency) {
-    maxVelocity = 7;
-    maxAcceleration = 8;
+    maxVelocity = 1;
+    maxAcceleration = 1;
     doneInitPlanning = false;
 }
 
-vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP, bool lastQP) {
+vector<Trajectory> PlanningPhase::computeSmoothTrajectories() {
     Solver* solver = new Solver(nDrones, maxVelocity, maxAcceleration, frequency);
     vector<Trajectory> results = solver->solve(discreteWpts);
     delete solver;
@@ -21,7 +21,7 @@ vector<Trajectory> PlanningPhase::getPlanningResults() {
     do {
         ROS_DEBUG_ONCE("Waiting for initial planning to finish");
     }
-    while(!doneInitPlanning); 
+    while(!doneInitPlanning);
     planning_t->join();
     vector<Trajectory> results;
     try {

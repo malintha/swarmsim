@@ -27,7 +27,7 @@ public:
     vector<Trajectory> discreteWpts;
     thread *planning_t;
 
-    vector<Trajectory> computeSmoothTrajectories(bool initialQP, bool lastQP);
+    vector<Trajectory> computeSmoothTrajectories();
 
     future<vector<Trajectory> > fut;
 
