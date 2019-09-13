@@ -7,6 +7,7 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
     maxVelocity = 1;
     maxAcceleration = 1;
     doneInitPlanning = false;
+    vs = new Visualize(1);
 }
 
 vector<Trajectory> PlanningPhase::computeSmoothTrajectories() {
@@ -26,6 +27,7 @@ vector<Trajectory> PlanningPhase::getPlanningResults() {
     vector<Trajectory> results;
     try {
         results = fut.get();
+        vs->draw(results);
     }
     catch(future_error& e) {
         ROS_ERROR_STREAM("Caught a future_error while getting the future\"" << e.what());

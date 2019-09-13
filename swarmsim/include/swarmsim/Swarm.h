@@ -9,7 +9,7 @@
 #include "Trajectory.h"
 #include <future>
 #include "SimplePlanningPhase.h"
-#include "Visualize.h"
+// #include "Visualize.h"
 
 class Swarm {
 public:
@@ -46,7 +46,7 @@ private:
     bool executionInitialized;
     int horizonId;
     ros::Publisher swarmStatePub;
-    Visualize *visualizer;
+    // Visualize *visualizer;
 
     /**
      * check the swarm for a given state.

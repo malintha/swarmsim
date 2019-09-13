@@ -3,11 +3,12 @@
 
 SimplePlanningPhase::SimplePlanningPhase() = default;
 
-SimplePlanningPhase::SimplePlanningPhase(int nDrones, double frequency, string yamlFpath) : PlanningPhase(nDrones,
+SimplePlanningPhase::SimplePlanningPhase(ros::NodeHandle nh, int nDrones, double frequency, string yamlFpath) : PlanningPhase(nDrones,
                                                                                                           frequency) {
     this->yamlFpath = move(yamlFpath);
-    ros::NodeHandle nh;
-    localGoalsSub = nh.subscribe("local_way_points", 10, &SimplePlanningPhase::localGoalsCB, this);
+    
+    // localGoalsSub = nh.subscribe("local_way_points", 10, &SimplePlanningPhase::localGoalsCB, this);
+    nHorizons = 0;
 }
 
 void SimplePlanningPhase::doPlanning(int horizonId) {
@@ -40,23 +41,30 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
 */
 vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
     vector<Trajectory> planningResults;
+    // geometry_msgs::PoseArray path;
     try {
+        ROS_DEBUG_STREAM("Waiting for planning data to publish");
+        this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(10)));
+        
+        nHorizons++;
         planningResults = getExecutionTrajectory();
-        ROS_DEBUG_STREAM("Planning results size: "<<planningResults.size() << "Horizon id: "<<horizonId);
-        nHorizons = 1;
+        ROS_DEBUG_STREAM("Execution planning size: "<<planningResults[0].pos.size() << "Horizon id: "<<horizonId);
     }
     catch (range_error &e) {
         ROS_WARN_STREAM(e.what() << " " << horizonId);
         throw range_error(e.what());
     }
+    catch(...){
+        ROS_ERROR_STREAM("Caught unknown error while recieving the planning results");
+    }
     return planningResults;
 }
 
-void SimplePlanningPhase::localGoalsCB(const geometry_msgs::PoseArray& msg) {
-    ROS_DEBUG_STREAM("Retrieved a new path");
-    nHorizons++;
-    this->path = msg;
-}
+// void SimplePlanningPhase::localGoalsCB(const geometry_msgs::PoseArray& msg) {
+//     ROS_DEBUG_STREAM("Retrieved a new path");
+//     nHorizons++;
+//     this->path = msg;
+// }
 
 vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     //limit the # of waypoints from the discreet path to 4

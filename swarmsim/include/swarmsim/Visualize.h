@@ -4,12 +4,13 @@
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include "Trajectory.h"
+#include "ros/console.h"
 
 using namespace std;
 
 class Visualize {
     public:
-    Visualize(ros::NodeHandle nh, int nDrones);
+    Visualize(int nDrones);
     void draw(vector<Trajectory> trs);
 
     private:

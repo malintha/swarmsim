@@ -12,7 +12,7 @@ class SimplePlanningPhase : public PlanningPhase {
         string yamlFpath;
         promise<vector<Trajectory> > p;
         SimplePlanningPhase();
-        SimplePlanningPhase(int nDrones, double frequency, string yamlFpath);
+        SimplePlanningPhase(ros::NodeHandle nh, int nDrones, double frequency, string yamlFpath);
         void doPlanning(int horizonId) override;
         YamlDescriptor yamlDescriptor;
         ros::Subscriber localGoalsSub;
@@ -20,8 +20,9 @@ class SimplePlanningPhase : public PlanningPhase {
          * Returns the discrete waypoints from the yaml file
         */
         vector<Trajectory> getDiscretePlan(int horizonId) override;
-        void localGoalsCB(const geometry_msgs::PoseArray& msg);
+        // void localGoalsCB(const geometry_msgs::PoseArray& msg);
         geometry_msgs::PoseArray path;
         vector<Trajectory> getExecutionTrajectory();
+        
 
 };

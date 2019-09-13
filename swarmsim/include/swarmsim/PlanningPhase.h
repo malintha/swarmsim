@@ -5,6 +5,7 @@
 #include "solver.h"
 #include "DiscretePlanner.h"
 #include <thread>
+#include "Visualize.h"
 
 using namespace std;
 
@@ -14,9 +15,9 @@ public:
     int nHorizons;
 
     PlanningPhase();
-
     PlanningPhase(int nDrones, double frequency);
 
+    Visualize* vs;
     bool doneInitPlanning;
     DiscretePlanner *discretePlanner;
     int nDrones;

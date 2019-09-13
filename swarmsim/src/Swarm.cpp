@@ -28,17 +28,17 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         string yamlFilePath = ss.str();
         swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
         executionInitialized = false;
-        visualizer = new Visualize(n, n_drones);
+        // visualizer = new Visualize(n, n_drones);
 
     try {
         if (yamlFilePath.empty()) {
             throw runtime_error("YAML file path is not provided. Exiting.");
         }
         initVariables();
-        planningPhase = new SimplePlanningPhase(n_drones, frequency, yamlFilePath);
+        planningPhase = new SimplePlanningPhase(n, n_drones, frequency, yamlFilePath);
         planningPhase->doPlanning(horizonId++);
         vector<Trajectory> trl = planningPhase->getPlanningResults();
-        visualizer->draw(trl);
+        // visualizer->draw(trl);
         ROS_DEBUG_STREAM("Retrieved the initial planning results. Size: " << trl[0].pos.size());
         horizonLen = trl[0].pos.size();
         for (int i = 0; i < n_drones; i++) {
@@ -56,7 +56,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
 }
 
 void Swarm::initVariables() {
-    planExecutionRatio = 0.5;
+    planExecutionRatio = 0.8;
     state = States::Idle;
     phase = Phases::Planning;
     horizonId = 0;
@@ -190,7 +190,7 @@ void Swarm::performPhaseTasks() {
     } else if (phase == Phases::Execution && !executionInitialized) {
         //get the optimized trajectories from planningPhase and push them to the drones
         vector<Trajectory> results = planningPhase->getPlanningResults();
-        visualizer->draw(results);
+        // visualizer->draw(results);
         ROS_DEBUG_STREAM("Optimization results retrieved");
         for (int i = 0; i < n_drones; i++) {
             dronesList[i]->pushTrajectory(results[i]);
