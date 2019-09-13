@@ -41,24 +41,20 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
 */
 vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
     vector<Trajectory> planningResults;
+    nHorizons = 50;
+
     // geometry_msgs::PoseArray path;
     try {
-        ROS_DEBUG_STREAM("Waiting for planning data to publish");
-	bool notusable = true;
-	while(notusable) { 
-           this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(100)));
-	   geometry_msgs::Pose p1, p2;
-	   p1 = path.poses[0];
-	   p2 = path.poses[1];
-	   Eigen::Vector3d pv0, pv1;
-	   if(!(p1.position.x == p2.position.x && p1.position.y == p2.position.y)) {
-		notusable == false;
-	   }
-	}
-        
-        nHorizons = 50;
+    ROS_DEBUG_STREAM("Waiting for planning data to publish");
+
+    this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(100)));
+    planningResults = getExecutionTrajectory();
+    while(planningResults.size() == 0) {
+        this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(100)));
         planningResults = getExecutionTrajectory();
-        ROS_DEBUG_STREAM("Execution planning size: "<<planningResults[0].pos.size() << "Horizon id: "<<horizonId);
+    }
+
+    ROS_DEBUG_STREAM("Execution planning size: "<<planningResults[0].pos.size() << "Horizon id: "<<horizonId);
     }
     catch (range_error &e) {
         ROS_WARN_STREAM(e.what() << " " << horizonId);
@@ -79,13 +75,23 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
 vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     //limit the # of waypoints from the discreet path to 4
     int exTrajectoryLength;
-    path.poses.size()>8 ? exTrajectoryLength = 8 : exTrajectoryLength = path.poses.size();
+    path.poses.size()> 5 ? exTrajectoryLength = 5 : exTrajectoryLength = path.poses.size();
     vector<Trajectory> exTrajectory;
+    bool rotationsOnly = true;
+    if(path.poses[0].position.x == path.poses[1].position.x) {
+        ROS_WARN_STREAM("rotation: "<<path.poses[0].position.x <<" "<< path.poses[1].position.x);
+        rotationsOnly = true;
+    } else {
+        rotationsOnly = false;
+    }
+    if(rotationsOnly) {
+        return exTrajectory;
+    }
     Trajectory tr;
     for(int i=0;i<exTrajectoryLength;i++) {
         Eigen::Vector3d pos, rpy;
         geometry_msgs::Pose wp = this->path.poses[i];
-        pos << wp.position.x, wp.position.y, wp.position.z;
+        pos << wp.position.x, wp.position.y, 1.5;
         if(i==0) {
             ROS_DEBUG_STREAM("### Starting WP: "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]);
         }
@@ -96,5 +102,4 @@ vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     exTrajectory.push_back(tr);
     return exTrajectory;
 }
-
 
