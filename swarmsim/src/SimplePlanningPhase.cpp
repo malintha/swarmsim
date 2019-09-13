@@ -46,7 +46,7 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
         ROS_DEBUG_STREAM("Waiting for planning data to publish");
         this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(10)));
         
-        nHorizons++;
+        nHorizons = 50;
         planningResults = getExecutionTrajectory();
         ROS_DEBUG_STREAM("Execution planning size: "<<planningResults[0].pos.size() << "Horizon id: "<<horizonId);
     }
@@ -68,10 +68,10 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
 
 vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     //limit the # of waypoints from the discreet path to 4
-    int exTrajectoryLength = 3;
+    int exTrajectoryLength = 4;
     vector<Trajectory> exTrajectory;
     Trajectory tr;
-    for(int i=0;i<exTrajectoryLength;i++) {
+    for(int i=1;i<exTrajectoryLength;i++) {
         Eigen::Vector3d pos, rpy;
         geometry_msgs::Pose wp = this->path.poses[i];
         pos << wp.position.x, wp.position.y, wp.position.z;
