@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
-    <!-- <include file="$(find dji_sdk)/launch/sdk.launch" ns="swarmsim_example"/> -->
+    <include file="$(find dji_sdk)/launch/sdk.launch" ns="swarmsim_example"/>
+    <!--include file="$(find goal_publisher)/launch/goal_pub.launch"/-->
 
 
     <arg name="nDrones" default="1" />

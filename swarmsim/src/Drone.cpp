@@ -5,6 +5,7 @@
 #include "DJIAPI.h"
 #include "MavrosAPI.h"
 #include "utils.h"
+#include <tf/tf.h>
 
 using namespace std;
 
@@ -61,6 +62,7 @@ void Drone::setTrajectory(Trajectory trajectory) {
 int Drone::executeTrajectory() {
     if (extAPI->getState() == States::Autonomous) {
         Vector3d waypoint_temp, waypoint;
+        Vector3d attitude;
         //notReachedEnd
         if (execPointer < trajectory.pos.size() - 1) {
             waypoint_temp = trajectory.pos[execPointer++];
@@ -72,6 +74,7 @@ int Drone::executeTrajectory() {
             Trajectory nextTraj = TrajectoryList[++trajectoryId];
             setTrajectory(nextTraj);
             waypoint = trajectory.pos[execPointer];
+            attitude = trajectory.rpy[execPointer];
             ROS_DEBUG_STREAM("set next wpts for drone: " << id << " " << waypoint[0] << " " << waypoint[1] << " "
                                                          << waypoint[2]);
         }
@@ -86,11 +89,14 @@ int Drone::executeTrajectory() {
         setpoint.pose.position.x = waypoint[0];
         setpoint.pose.position.y = waypoint[1];
         setpoint.pose.position.z = waypoint[2];
-        
-        setpoint.pose.orientation.w = 0.707;
-        setpoint.pose.orientation.x = 0;
-        setpoint.pose.orientation.y = 0;
-        setpoint.pose.orientation.z = 0.707;
+        tf::Quaternion qt;
+        double yaw = atan2(waypoint[1],waypoint[0]);
+        qt.setRPY(0, 0, atan2(waypoint[1],waypoint[0]));
+        // ROS_DEBUG_STREAM("yaw: "<<yaw);
+        setpoint.pose.orientation.w = qt.w();
+        setpoint.pose.orientation.x = qt.x();
+        setpoint.pose.orientation.y = qt.y();
+        setpoint.pose.orientation.z = qt.z();
 
         extAPI->sendSetPoint(setpoint);
     }
