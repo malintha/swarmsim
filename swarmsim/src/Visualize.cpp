@@ -7,7 +7,7 @@ Visualize::Visualize(int nDrones) {
 
     for(int i=0;i<nDrones;i++) {
         visualization_msgs::Marker m;
-        m.header.frame_id="map";
+        m.header.frame_id="ground";
         m.header.stamp = ros::Time::now();
         m.ns = "path";
         m.id = 100;

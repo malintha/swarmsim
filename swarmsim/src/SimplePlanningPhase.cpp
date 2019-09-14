@@ -41,14 +41,20 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
 */
 vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
     vector<Trajectory> planningResults;
+    nHorizons = 50;
+
     // geometry_msgs::PoseArray path;
     try {
-        ROS_DEBUG_STREAM("Waiting for planning data to publish");
-        this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(10)));
-        
-        nHorizons = 50;
+    ROS_DEBUG_STREAM("Waiting for planning data to publish");
+
+    this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(100)));
+    planningResults = getExecutionTrajectory();
+    while(planningResults.size() == 0) {
+        this->path = *(ros::topic::waitForMessage<geometry_msgs::PoseArray>("local_way_points",ros::Duration(100)));
         planningResults = getExecutionTrajectory();
-        ROS_DEBUG_STREAM("Execution planning size: "<<planningResults[0].pos.size() << "Horizon id: "<<horizonId);
+    }
+
+    ROS_DEBUG_STREAM("Execution planning size: "<<planningResults[0].pos.size() << "Horizon id: "<<horizonId);
     }
     catch (range_error &e) {
         ROS_WARN_STREAM(e.what() << " " << horizonId);
@@ -70,11 +76,21 @@ vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     //limit the # of waypoints from the discreet path to 4
     int exTrajectoryLength = 5;
     vector<Trajectory> exTrajectory;
+    bool rotationsOnly = true;
+    if(path.poses[0].position.x == path.poses[1].position.x) {
+        ROS_WARN_STREAM("rotation: "<<path.poses[0].position.x <<" "<< path.poses[1].position.x);
+        rotationsOnly = true;
+    } else {
+        rotationsOnly = false;
+    }
+    if(rotationsOnly) {
+        return exTrajectory;
+    }
     Trajectory tr;
-    for(int i=1;i<exTrajectoryLength;i++) {
+    for(int i=0;i<exTrajectoryLength;i++) {
         Eigen::Vector3d pos, rpy;
         geometry_msgs::Pose wp = this->path.poses[i];
-        pos << wp.position.x, wp.position.y, wp.position.z;
+        pos << wp.position.x, wp.position.y, 1.5;
         if(i==0) {
             ROS_DEBUG_STREAM("### Starting WP: "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]);
         }
@@ -85,3 +101,4 @@ vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     exTrajectory.push_back(tr);
     return exTrajectory;
 }
+
