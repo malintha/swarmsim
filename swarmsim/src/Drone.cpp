@@ -77,9 +77,9 @@ int Drone::executeTrajectory() {
         }
             //reachedEnd and noMoreTrajectories
         else {
-            ROS_DEBUG_STREAM("No more trajectories. Setting state as Reached");
-            static_cast<MavROSAPI*>(extAPI)->setMode("AUTO.LOITER");
-            extAPI->setState(States::Reached);
+            ROS_DEBUG_STREAM("No more trajectories. Waiting...");
+            // static_cast<MavROSAPI*>(extAPI)->setMode("AUTO.LOITER");
+            // extAPI->setState(States::Reached);
             waypoint = trajectory.pos[execPointer - 1];
         }
         geometry_msgs::PoseStamped setpoint;

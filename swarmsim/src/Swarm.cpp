@@ -157,7 +157,7 @@ void Swarm::sendPositionSetPoints() {
 */
 void Swarm::setSwarmPhase(int execPointer) {
     double progress = (double) execPointer / horizonLen;
-    if (progress < planExecutionRatio) {
+    if (progress > planExecutionRatio) {
         if (progress == 0) {
             ROS_DEBUG_STREAM(
                     "Resetting planning and execution flags. exec: " << execPointer << " progress: " << progress);

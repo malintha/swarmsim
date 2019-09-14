@@ -68,7 +68,7 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
 
 vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     //limit the # of waypoints from the discreet path to 4
-    int exTrajectoryLength = 4;
+    int exTrajectoryLength = 5;
     vector<Trajectory> exTrajectory;
     Trajectory tr;
     for(int i=1;i<exTrajectoryLength;i++) {
