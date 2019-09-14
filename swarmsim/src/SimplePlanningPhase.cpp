@@ -74,7 +74,8 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
 
 vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     //limit the # of waypoints from the discreet path to 4
-    int exTrajectoryLength = 5;
+    int exTrajectoryLength;
+    path.poses.size() > 4 ? exTrajectoryLength = 4 : exTrajectoryLength = path.poses.size();
     vector<Trajectory> exTrajectory;
     bool rotationsOnly = true;
     if(path.poses[0].position.x == path.poses[1].position.x) {
