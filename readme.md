@@ -17,15 +17,20 @@ source /opt/ros/melodic/setup.sh && rosdep update && rosdep install --from-path 
 source /opt/ros/melodic/setup.sh && catkin config --install
 
 catkin build
+```
+Run the following commands to clone the swarmsim packages to the src directory.
+
+```bash
 
 git clone https://github.com/Malintha/swarmsim -b master
 
 git clone https://github.com/catkin/catkin_simple
 
+git clone https://github.com/Malintha/Onboard-SDK-ROS
+
 catkin config --merge-devel
 ```
-
-Follow the Installation instructions of https://github.com/Malintha/mav_trajectory_generation. This will clone the following packages.
+Create a directory called "traj_gen" and follow the instructions from  https://github.com/Malintha/mav_trajectory_generation. This will clone the following packages to "traj_gen".
 
 1. eigen_catkin
 2. eigen_checks

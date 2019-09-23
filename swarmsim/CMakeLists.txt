@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(swarmsim)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
-
+# set(dji_sdk_DIR, "/home/malintha/drone_demo/build/dji_dep")
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
