@@ -23,7 +23,7 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
             return;
         }
        
-        vector<Trajectory> smoothTrajs = computeSmoothTrajectories();
+        vector<Trajectory> smoothTrajs = discreteWpts;
         try {
             sharedP->set_value_at_thread_exit(smoothTrajs);
         }
@@ -75,7 +75,7 @@ vector<Trajectory> SimplePlanningPhase::getDiscretePlan(int horizonId) {
 vector<Trajectory> SimplePlanningPhase::getExecutionTrajectory() {
     //limit the # of waypoints from the discreet path to 4
     int exTrajectoryLength;
-    path.poses.size() > 4 ? exTrajectoryLength = 4 : exTrajectoryLength = path.poses.size();
+    path.poses.size() > 5 ? exTrajectoryLength = 5 : exTrajectoryLength = path.poses.size();
     vector<Trajectory> exTrajectory;
     bool rotationsOnly = true;
     if(path.poses[0].position.x == path.poses[1].position.x) {

@@ -70,7 +70,7 @@ int Drone::executeTrajectory() {
         }
             //reachedEnd and moreTrajectoriesAvailable
         else if ((trajectoryId < TrajectoryList.size() - 1) && (execPointer == trajectory.pos.size() - 1)) {
-            ROS_DEBUG_STREAM("Setting next trajectory for drone: " << id);
+            ROS_DEBUG_STREAM("Setting next trajectory for drone: " << id <<" "<<trajectory.pos.size());
             Trajectory nextTraj = TrajectoryList[++trajectoryId];
             setTrajectory(nextTraj);
             waypoint = trajectory.pos[execPointer];
@@ -80,7 +80,7 @@ int Drone::executeTrajectory() {
         }
             //reachedEnd and noMoreTrajectories
         else {
-            ROS_DEBUG_STREAM("No more trajectories. Waiting...");
+            ROS_DEBUG_STREAM_ONCE("No more trajectories. Waiting...");
             // static_cast<MavROSAPI*>(extAPI)->setMode("AUTO.LOITER");
             // extAPI->setState(States::Reached);
             waypoint = trajectory.pos[execPointer - 1];
@@ -90,8 +90,8 @@ int Drone::executeTrajectory() {
         setpoint.pose.position.y = waypoint[1];
         setpoint.pose.position.z = waypoint[2];
         tf::Quaternion qt;
-        double yaw = atan2(waypoint[1],waypoint[0]);
-        qt.setRPY(0, 0, atan2(waypoint[1],waypoint[0]));
+        double yaw = attitude[2];
+        qt.setRPY(0, 0, yaw);
         // ROS_DEBUG_STREAM("yaw: "<<yaw);
         setpoint.pose.orientation.w = qt.w();
         setpoint.pose.orientation.x = qt.x();
@@ -125,4 +125,10 @@ bool Drone::reachedGoal(geometry_msgs::PoseStamped setPoint) {
     return false;
 }
 
-
+//addWaypoint
+    //push the wapoint to a vector
+//setCurrentGoal
+    //check if its within the reach. else goto the current goal
+    //if within the reach, change the current goal
+//move
+    //send the current goal to the api for execution

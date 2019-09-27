@@ -190,7 +190,6 @@ void Swarm::performPhaseTasks() {
     } else if (phase == Phases::Execution && !executionInitialized) {
         //get the optimized trajectories from planningPhase and push them to the drones
         vector<Trajectory> results = planningPhase->getPlanningResults();
-        // visualizer->draw(results);
         ROS_DEBUG_STREAM("Optimization results retrieved");
         for (int i = 0; i < n_drones; i++) {
             dronesList[i]->pushTrajectory(results[i]);
