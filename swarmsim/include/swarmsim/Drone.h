@@ -10,6 +10,8 @@
 #include "mavros_msgs/State.h"
 #include "gazebo_msgs/ModelStates.h"
 #include "ExternalAPI.h"
+#include "geometry_msgs/Pose.h"
+#include "list"
 
 using namespace Eigen;
 
@@ -41,6 +43,12 @@ public:
      */
     Vector3d getLocalWaypoint(Vector3d waypoint);
 
+    void move();
+    void setCurrentSetPoint();
+    list<geometry_msgs::Pose> wptsList;
+    void addWaypoints(vector<geometry_msgs::Pose> newWpts);
+
+
 private:
     int id;
     Vector3d curr_pos_local;
@@ -71,6 +79,8 @@ private:
 
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
 
+    //for the waypoints following
+    geometry_msgs::Pose currentTarget;
 
 
 };

@@ -118,15 +118,39 @@ bool Drone::reachedGoal(geometry_msgs::PoseStamped setPoint) {
     Eigen::Vector3d setP;
     setP << setPoint.pose.position.x, setPoint.pose.position.y,
             setPoint.pose.position.z;
-    if (simutils::getEucDistance(extAPI->getLocalPosition(), setP) < 0.1) {
+    if (simutils::getEucDistance(extAPI->getLocalPosition(), setP) < 0.2) {
         setState(States::Reached);
         return true;
     }
     return false;
 }
 
-//addWaypoint
-    //push the wapoint to a vector
+//addWaypoints
+    //push the wapoints to a vector
+void Drone::addWaypoints(vector<geometry_msgs::Pose> newWpts) {
+    for(geometry_msgs::Pose p : newWpts) {
+        this->wptsList.push_back(p);
+    }
+}
+
+void Drone::move() {
+    geometry_msgs::PoseStamped sp;
+    sp.pose = currentTarget;
+
+    if(!reachedGoal(sp)) {
+        extAPI->sendSetPoint(sp);
+    }
+    else if(reachedGoal(sp)) {
+        if(wptsList.size() > 0) {
+            currentTarget = wptsList.front();
+            wptsList.pop_front();
+        }
+        else {
+            TOLService(false);
+        }
+    }
+}
+
 //setCurrentGoal
     //check if its within the reach. else goto the current goal
     //if within the reach, change the current goal
