@@ -4,11 +4,13 @@
 #include "geometry_msgs/PoseArray.h"
 #include "WptsNavigate.h"
 #include "swarmsim/state.h"
+#include "ros/console.h"
 
 using namespace std;
 
 void WptsNavigate::run() {
-    if(drone->getState() == States::Armed) {
+    if(drone->getState() == States::Armed || drone->getState() == States::Takingoff) {
+        std::cout<<"#### TAKING OFF"<<std::endl;
         drone->TOLService(true);
     }
     else if(drone->getState() == States::Autonomous) {
@@ -19,19 +21,20 @@ void WptsNavigate::run() {
 WptsNavigate::WptsNavigate(ros::NodeHandle &nh):nh(nh) {
     drone = new Drone(0, nh);
     drone->setState(States::Armed);
-    nh.subscribe("local_way_points", 10, &WptsNavigate::localGoalCB, this);
+    this->wptSub = this->nh.subscribe("/local_way_points", 10, &WptsNavigate::localGoalCB, this);
     takenOff = false;
 
 }
 
 void WptsNavigate::localGoalCB(const geometry_msgs::PoseArrayConstPtr &msg) {
+    std::cout<<"recieved"<<std::endl;
     geometry_msgs::PoseArray pArr = *msg;
     if(drone->wptsList.size() == 0) {
         vector<geometry_msgs::Pose> selectedP = preProcessWpts(pArr);
         drone->addWaypoints(selectedP);
     }
     else {
-        ROS_DEBUG_STREAM("Recieved, but not adding as queue is not empty");
+        std::cout<<("Recieved, but not adding as queue is not empty")<<std::endl;
     }
 }
 
@@ -47,10 +50,16 @@ vector<geometry_msgs::Pose> WptsNavigate::preProcessWpts(geometry_msgs::PoseArra
 
 
 int main(int argc, char** argv) {
+
     ros::init(argc, argv, "wpts_node");
     ros::NodeHandle nh;
     WptsNavigate navigate(nh);
+
+    ros::Rate loop_rate(50);
+
     while(ros::ok()) {
         navigate.run();
+        ros::spinOnce();
+        loop_rate.sleep();
     }
 }

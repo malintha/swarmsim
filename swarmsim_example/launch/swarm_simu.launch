@@ -1,24 +1,26 @@
 <?xml version="1.0"?>
 <launch>
 
-    <include file="$(find dji_sdk)/launch/sdk.launch" ns="swarmsim_example"/>
+    <include file="$(find dji_sdk)/launch/sdk.launch"/>
+    <node name="wpts_node" pkg="swarmsim_example" type="swarmsim_example" output="screen"/>
+    
     <!--include file="$(find goal_publisher)/launch/goal_pub.launch"/-->
 
 
-    <arg name="nDrones" default="1" />
+    <!-- <arg name="nDrones" default="1" />
     <arg name="predefined" default="false" />
     <arg name="yamlFileName" default="goals.yaml"/>
-    <arg name="traj_dir" default="$(find swarmsim_example)/launch/traj_data/"/>
+    <arg name="traj_dir" default="$(find swarmsim_example)/launch/traj_data/"/> -->
 
     <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find swarmsim_example)/launch/custom_rosconsole.conf"/>
 
-    <node name="swarmsim_example" pkg="swarmsim_example" type="swarmsim_example" output="screen">
+    <!--node name="swarmsim_example" pkg="swarmsim_example" type="wpts_node" output="screen">
         <param name="trajDir" value="$(arg traj_dir)"/>
         <param name="nDrones" value="$(arg nDrones)"/>
         <param name="predefined" value="$(arg predefined)"/>
         <param name="yamlFileName" value="$(arg yamlFileName)"/>
-    </node>
+    </node> -->
 
 
 </launch>

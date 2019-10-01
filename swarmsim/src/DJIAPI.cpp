@@ -66,6 +66,7 @@ bool DJIAPI::sendSetPoint(geometry_msgs::PoseStamped setPoint)
     setP.axes.push_back(targetX - localPos[0]);
     setP.axes.push_back(targetY - localPos[1]);
     setP.axes.push_back(setPoint.pose.position.z);
+    std::cout<<setPoint.pose.orientation.w<<std::endl;
 
     Vector3d rpy = simutils::getRPY(setPoint.pose.orientation);
     setP.axes.push_back(rpy[2]);

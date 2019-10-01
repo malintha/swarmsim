@@ -10,7 +10,7 @@ class WptsNavigate {
     ros::NodeHandle nh;
     WptsNavigate(ros::NodeHandle &nh);
     void run();
-
+    ros::Subscriber wptSub;
     private:
     void localGoalCB(const geometry_msgs::PoseArrayConstPtr &msg);
     vector<geometry_msgs::Pose> preProcessWpts(geometry_msgs::PoseArray p_arr);
