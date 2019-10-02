@@ -62,7 +62,7 @@ void Swarm::initVariables() {
     horizonId = 0;
     planningInitialized = false;
     for (int i = 0; i < n_drones; i++) {
-        Drone *drone = new Drone(i, nh);
+        Drone *drone = new Drone(i, nh, 0);
         dronesList.push_back(drone);
     }
 }

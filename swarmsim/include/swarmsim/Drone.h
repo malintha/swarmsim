@@ -17,7 +17,7 @@ using namespace Eigen;
 
 class Drone {
 public:
-  Drone(int id, const ros::NodeHandle &n);
+  Drone(int id, const ros::NodeHandle &n, int droneType);
 
     /**
      * function for arming or disarming a drone. Uses the service:

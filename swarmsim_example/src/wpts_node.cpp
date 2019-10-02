@@ -19,7 +19,8 @@ void WptsNavigate::run() {
 }
 
 WptsNavigate::WptsNavigate(ros::NodeHandle &nh):nh(nh) {
-    drone = new Drone(0, nh);
+    nh.param("/swarmsim_example/droneType", droneType, 0);
+    drone = new Drone(0, nh, droneType);
     drone->setState(States::Armed);
     this->wptSub = this->nh.subscribe("/local_way_points", 10, &WptsNavigate::localGoalCB, this);
     takenOff = false;
@@ -50,7 +51,6 @@ vector<geometry_msgs::Pose> WptsNavigate::preProcessWpts(geometry_msgs::PoseArra
 
 
 int main(int argc, char** argv) {
-
     ros::init(argc, argv, "wpts_node");
     ros::NodeHandle nh;
     WptsNavigate navigate(nh);

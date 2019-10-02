@@ -9,9 +9,9 @@
 
 using namespace std;
 
-Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
+Drone::Drone(int id, const ros::NodeHandle &n, int droneType) : id(id), nh(n) {
     ROS_DEBUG_STREAM("Initializing drone " << id);
-    this->apiType = APIType::DJIType;
+    this->apiType = droneType;
     if(this->apiType == APIType::DJIType) {
         this->extAPI = new DJIAPI(n);
     }

@@ -7,6 +7,7 @@ using namespace std;
 
 class WptsNavigate {
     public:
+    int droneType;
     ros::NodeHandle nh;
     WptsNavigate(ros::NodeHandle &nh);
     void run();
