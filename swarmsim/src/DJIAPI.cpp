@@ -13,7 +13,7 @@ using namespace Eigen;
 
 DJIAPI::DJIAPI(const ros::NodeHandle &n) : ExternalAPI(APIType::DJIType, 0), nh(n)
 {
-
+    setInitValues = false;
     string localPositionTopic = getLocalPositionTopic();
     string globalPositionTopic = getGlobalPositionTopic();
 
@@ -29,7 +29,8 @@ DJIAPI::DJIAPI(const ros::NodeHandle &n) : ExternalAPI(APIType::DJIType, 0), nh(
     bool obtainedControl = obtainControl();
     setLocalOrigin();
     if (obtainedControl)
-    {
+    {   
+        setInitValues = true;
         ready(true);
     }
 }

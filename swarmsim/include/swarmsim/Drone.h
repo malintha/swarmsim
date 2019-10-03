@@ -43,7 +43,7 @@ public:
      */
     Vector3d getLocalWaypoint(Vector3d waypoint);
 
-    void move();
+    void executeMission();
     void setCurrentSetPoint();
     list<geometry_msgs::Pose> wptsList;
     void addWaypoints(vector<geometry_msgs::Pose> newWpts);
@@ -81,6 +81,5 @@ private:
 
     //for the waypoints following
     geometry_msgs::Pose currentTarget;
-
-
+    bool wptsFollowing;
 };

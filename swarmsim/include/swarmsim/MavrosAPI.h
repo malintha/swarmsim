@@ -2,6 +2,7 @@
 #include "gazebo_msgs/ModelStates.h"
 #include "sensor_msgs/NavSatFix.h"
 #include "mavros_msgs/State.h"
+#include "geometry_msgs/Pose.h"
 
 class MavROSAPI : public ExternalAPI {
     public:
@@ -20,18 +21,19 @@ class MavROSAPI : public ExternalAPI {
 
     bool setReady;
     int droneId;
-    bool setInitValues;
+    // bool setInitValues;
     bool guided;
     ros::NodeHandle nh;
     ros::Subscriber mavrosStateSub;
     ros::Subscriber gazeboStateSub;
     ros::Publisher posSetPointPub;
     int gazeboElementIdx;
-
+    
 
     void gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg);
     void positionGlobalCB(const sensor_msgs::NavSatFixConstPtr& msg);
     void positionLocalCB(const nav_msgs::OdometryConstPtr& msg); 
     void mavrosStateCB(const mavros_msgs::StateConstPtr& msg);
+    
 
 };

@@ -50,7 +50,7 @@ class ExternalAPI {
     Vector3d initGlobalPos;
     float yaw;
     double takeoffHeight;
-
+    bool setInitValues;
 
 };
 

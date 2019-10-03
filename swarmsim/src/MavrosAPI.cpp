@@ -3,16 +3,20 @@
 #include "utils.h"
 #include "mavros_msgs/CommandBool.h"
 #include "mavros_msgs/CommandTOL.h"
+#include "mavros_msgs/WaypointPush.h"
+#include "mavros_msgs/Waypoint.h"
 
 MavROSAPI::MavROSAPI(const ros::NodeHandle &n, int droneId):ExternalAPI(APIType::MAVROS, droneId), nh(n)
 {
     // ExternalAPI(APIType::MAVROS, droneId);
-    this->setInitValues = false;
+    setInitValues = false;
     this->setReady = false;
     
     //register the subscribers/publishers
     string localPositionTopic = getLocalPositionTopic();
     string globalPositionTopic = getGlobalPositionTopic();
+    // ros::topic::waitForMessage<sensor_msgs::NavSatFix>(globalPositionTopic, ros::Duration(5));
+
     string mavrosStateTopic = "";
     localPositionSub =
         nh.subscribe(localPositionTopic, 10, &MavROSAPI::positionLocalCB, this);
@@ -22,10 +26,12 @@ MavROSAPI::MavROSAPI(const ros::NodeHandle &n, int droneId):ExternalAPI(APIType:
     gazeboStateSub = nh.subscribe("/gazebo/model_states", 10, &MavROSAPI::gazeboStateCB, this);
     posSetPointPub =
         nh.advertise<geometry_msgs::PoseStamped>(getSetPointTopic(), 10);
+
     ros::topic::waitForMessage<gazebo_msgs::ModelStates>("/gazebo/model_states", ros::Duration(5));
 }
 
 void MavROSAPI::positionLocalCB(const nav_msgs::Odometry::ConstPtr &msg) {
+
     geometry_msgs::Point pos = msg->pose.pose.position;
     localPos << pos.x, pos.y, pos.z;
     yaw = simutils::getRPY(msg->pose.pose.orientation)[2];
@@ -33,8 +39,12 @@ void MavROSAPI::positionLocalCB(const nav_msgs::Odometry::ConstPtr &msg) {
 
 void MavROSAPI::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {
     globalPos << msg->latitude, msg->longitude, msg->altitude;
+    // std::cout<<"### got global pos: "<<globalPos[0]<<std::endl;
+
     if(!setInitValues) {
+    std::cout<<"### set init values: "<<globalPos[0]<<std::endl;
         initGlobalPos = globalPos;
+        setInitValues = true;
     }
 }
 
@@ -112,25 +122,25 @@ bool MavROSAPI::TOL(bool takeoff, double takeoffHeight) {
         srv_takeoff.request.latitude = initGlobalPos[0];
         srv_takeoff.request.longitude = initGlobalPos[1];
         srv_takeoff.request.altitude = initGlobalPos[2] + takeoffHeight;
-        ROS_DEBUG_STREAM("Drone: " << droneId << " taking off at " << initGlobalPos[0]
+        std::cout<<"Drone: " << droneId << " taking off at " << initGlobalPos[0]
                                    << " " << initGlobalPos[1] << " "
-                                   << initGlobalPos[2]);
+                                   << initGlobalPos[2]<<std::endl;;
 
     } else {
         srv_takeoff.request.latitude = globalPos[0];
         srv_takeoff.request.longitude = globalPos[1];
         srv_takeoff.request.altitude = initGlobalPos[2] - localPos[2];
-        ROS_DEBUG_STREAM("Drone is landing");
+        std::cout<<"Drone is landing"<<std::endl;
     }
 
     srv_takeoff.request.min_pitch = 0;
     srv_takeoff.request.yaw = M_PI / 2;
-    ROS_DEBUG_STREAM("Waiting for TOL service " << to_service);
+    std::cout<<"Waiting for TOL service " << to_service<<std::endl;
     to_cl.waitForExistence();
     if (to_cl.call(srv_takeoff)) {
-        ROS_DEBUG_STREAM("TOL request sent" << to_service);
+        std::cout<<"TOL request sent" << to_service<<std::endl;
     } else {
-        ROS_ERROR_STREAM("TOL request failed " << to_service);
+        std::cout<<"TOL request failed " << to_service<<std::endl;
     }
 }
 
@@ -158,7 +168,7 @@ bool MavROSAPI::setMode(string mode) {
     }
 
     if (smClient.call(setMode)) {
-        ROS_DEBUG_STREAM("Set mode request sent " << mode << " " << smService);
+        std::cout<<"Set mode request sent " << mode << " " << smService;
     } else {
         ROS_DEBUG_STREAM("Set mode failed " << smService);
     }

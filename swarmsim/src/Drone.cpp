@@ -11,6 +11,7 @@ using namespace std;
 
 Drone::Drone(int id, const ros::NodeHandle &n, int droneType) : id(id), nh(n) {
     ROS_DEBUG_STREAM("Initializing drone " << id);
+    this->wptsFollowing = true;
     this->apiType = droneType;
     if(this->apiType == APIType::DJIType) {
         this->extAPI = new DJIAPI(n);
@@ -38,22 +39,27 @@ void Drone::arm(bool arm) {
 }
 
 void Drone::TOLService(bool takeoff) {
-    if (extAPI->getState() == States::Armed && takeoff) {
+    // std::cout<<"setinitvalues: "<<extAPI->setInitValues<<std::endl;
+    if (extAPI->getState() == States::Armed && takeoff && extAPI->setInitValues) {
         extAPI->TOL(true, takeoffHeight);
         extAPI->setState(States::Takingoff);
-        std::cout<<"state: "<<extAPI->getState()<<std::endl;
     } else if (extAPI->getState() == States::Takingoff) {
-        std::cout<<"local pos: "<<extAPI->getLocalPosition()[2]<<std::endl;
         if (extAPI->getLocalPosition()[2] >= takeoffHeight - 0.1) {
             extAPI->setState(States::Autonomous);
             if(this->apiType == APIType::MAVROS) {
-                static_cast<MavROSAPI*>(extAPI)->setMode("OFFBOARD");
+                if(wptsFollowing) {
+                    static_cast<MavROSAPI*>(extAPI)->setMode("OFFBOARD");
+                    // std::cout<<"STABILIZED"<<std::endl;
+                } else {
+                    static_cast<MavROSAPI*>(extAPI)->setMode("OFFBOARD");
+                }
             }
         }
     } else if (extAPI->getState() == States::Reached && !takeoff) {
         extAPI->TOL(false, 0);
         extAPI->setState(States::Idle);
     }
+
 }
 
 void Drone::setTrajectory(Trajectory trajectory) {
@@ -122,29 +128,26 @@ bool Drone::reachedGoal(geometry_msgs::PoseStamped setPoint) {
             setPoint.pose.position.z;
     if (simutils::getEucDistance(extAPI->getLocalPosition(), setP) < 0.2) {
         // setState(States::Reached);
-        std::cout<<"reached goal"<<std::endl;
         return true;
     }
     return false;
 }
 
-//addWaypoints
-    //push the wapoints to a vector
 void Drone::addWaypoints(vector<geometry_msgs::Pose> newWpts) {
     for(geometry_msgs::Pose p : newWpts) {
         this->wptsList.push_back(p);
     }
 }
 
-void Drone::move() {
+void Drone::executeMission() {
     currentTarget = wptsList.front();
-
     geometry_msgs::PoseStamped sp;
     sp.pose = currentTarget;
     if(!reachedGoal(sp)) {
         extAPI->sendSetPoint(sp);
     }
     else if(reachedGoal(sp)) {
+        std::cout<<"reached goal "<<sp.pose.position.x<<" "<<sp.pose.position.y<<std::endl;
         if(wptsList.size() > 0) {
             wptsList.pop_front();
         }
@@ -153,9 +156,3 @@ void Drone::move() {
         }
     }
 }
-
-//setCurrentGoal
-    //check if its within the reach. else goto the current goal
-    //if within the reach, change the current goal
-//move
-    //send the current goal to the api for execution

@@ -8,19 +8,6 @@ ExternalAPI::ExternalAPI(int APIType, int droneId) {
     this->state = States::Idle;
 }
 
-string ExternalAPI::getLocalPositionTopic() {
-    string topic;
-    if(apiType == APIType::DJIType) {
-        topic = "dji_sdk/local_position";
-    } 
-    else {
-        stringstream ss;
-        ss << this->droneId << "/mavros/global_position/global";
-        topic = ss.str();
-    }
-    return topic;
-}
-
 string ExternalAPI::getGlobalPositionTopic() {
     string topic;
     if(apiType == APIType::DJIType) {
@@ -28,7 +15,20 @@ string ExternalAPI::getGlobalPositionTopic() {
     } 
     else {
         stringstream ss;
-        ss << this->droneId << "/mavros/global_position/local";
+        ss << "/" << this->droneId << "/mavros/global_position/global";
+        topic = ss.str();
+    }
+    return topic;
+}
+
+string ExternalAPI::getLocalPositionTopic() {
+    string topic;
+    if(apiType == APIType::DJIType) {
+        topic = "dji_sdk/local_position";
+    }
+    else {
+        stringstream ss;
+        ss << "/" << this->droneId << "/mavros/global_position/local";
         topic = ss.str();
     }
     return topic;
