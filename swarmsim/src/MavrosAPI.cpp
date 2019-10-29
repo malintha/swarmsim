@@ -11,7 +11,7 @@ MavROSAPI::MavROSAPI(const ros::NodeHandle &n, int droneId):ExternalAPI(APIType:
     // ExternalAPI(APIType::MAVROS, droneId);
     setInitValues = false;
     this->setReady = false;
-    
+    this->droneId = droneId;
     //register the subscribers/publishers
     string localPositionTopic = getLocalPositionTopic();
     string globalPositionTopic = getGlobalPositionTopic();
