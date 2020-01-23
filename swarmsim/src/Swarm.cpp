@@ -28,7 +28,7 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         string yamlFilePath = ss.str();
         swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
         executionInitialized = false;
-        
+
     try {
         if (yamlFilePath.empty()) {
             throw runtime_error("YAML file path is not provided. Exiting.");
@@ -66,6 +66,8 @@ void Swarm::initVariables() {
 }
 
 void Swarm::iteration(const ros::TimerEvent &e) {
+        // cout<<"here1"<<endl;
+
     switch (state) {
         case States::Idle:
             checkSwarmForStates(States::Ready);
@@ -204,3 +206,4 @@ void Swarm::setWaypoints(vector<Trajectory> wpts_, vector<double> tList_) {
         ROS_WARN_STREAM("Swarm is not in the planning phase. Waypoints rejected");
     }
 }
+

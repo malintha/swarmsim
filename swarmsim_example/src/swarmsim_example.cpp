@@ -28,7 +28,6 @@ int main(int argc, char **argv) {
     ROS_DEBUG_STREAM("Trajectory dir: " << trajDir);
 
     Swarm* sim;
-
     if(!predefinedTrajectories) {
         ROS_DEBUG_STREAM("YAML file name: " << yamlFileName);
         sim = new Swarm(n, frequency, nDrones, trajDir, yamlFileName);
