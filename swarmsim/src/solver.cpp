@@ -31,22 +31,28 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool initial, boo
                     v.makeStartOrEnd(pos, derivative_to_optimize);
                     v.addConstraint(mtg::derivative_order::VELOCITY, zeroVec);
                 }
+                else if(i==0 && !initial) {
+                    Trajectory prevTr = prevPlan[k];
+                    Vector3d initPos = prevTr.pos[prevTr.pos.size() - 1];
+                    Vector3d initVel = prevTr.vel[prevTr.vel.size() - 1];
+                    Vector3d initAcc = prevTr.acc[prevTr.acc.size() - 1];
+                    v.addConstraint(mtg::derivative_order::POSITION, initPos);
+                    // v.addConstraint(mtg::derivative_order::VELOCITY, initVel);
+                    // v.addConstraint(mtg::derivative_order::JERK, initAcc);
+                }
                 else if(i== t_k.pos.size() - 1 && last) {
                     v.makeStartOrEnd(pos, derivative_to_optimize);
                     v.addConstraint(mtg::derivative_order::VELOCITY, zeroVec);
                     v.addConstraint(mtg::derivative_order::ACCELERATION, zeroVec);
                 }
-                if(i==0 && !initial) {
-                    Trajectory prevTr = prevPlan[k];
-                    Vector3d initVel = prevTr.vel[prevTr.vel.size() - 1];
-                    Vector3d initAcc = prevTr.vel[prevTr.acc.size() - 1];
-                    ROS_ERROR_STREAM("###here! "<<initVel[0]<<" "<<initVel[1]<<" "<<initVel[2]);
-                    v.addConstraint(mtg::derivative_order::VELOCITY, initVel);
-                    v.addConstraint(mtg::derivative_order::ACCELERATION, initAcc);
+                else if(i== t_k.pos.size() - 1 && !last) {
+                    v.addConstraint(mtg::derivative_order::POSITION, pos);
                 }
             }
+            else {
+                v.addConstraint(mtg::derivative_order::POSITION, pos);
+            }
 
-            v.addConstraint(mtg::derivative_order::POSITION, pos);
             vertices.push_back(v);
         }
 
@@ -70,7 +76,7 @@ Trajectory Solver::calculateTrajectoryWpts(mtg::Trajectory& traj) {
     for (auto & flat_state : flat_states) {
         tr.pos.push_back(flat_state.position_W);
         tr.vel.push_back(flat_state.velocity_W);
-        tr.acc.push_back(flat_state.acceleration_W);
+        tr.acc.push_back(flat_state.jerk_W);
 
     }
     return tr;

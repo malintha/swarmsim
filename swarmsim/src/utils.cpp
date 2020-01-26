@@ -237,7 +237,7 @@ namespace simutils {
                     string s = std::string(c);
 
                     if(s.compare("drones") == 0) {
-                        nDronesNode = true;
+                        nDronesNode = false;
                         continue;
                     }
                     else if(s.compare("horizons") == 0) {
@@ -270,7 +270,7 @@ namespace simutils {
             }
         } while (event.type != YAML_STREAM_END_EVENT);
 
-        yamlDescriptor.setDrones(nDrones);
+        yamlDescriptor.setDrones(5);
         yamlDescriptor.setHorizons(nHorizons);
         yamlDescriptor.setSubGoals(nSubgoals);
 

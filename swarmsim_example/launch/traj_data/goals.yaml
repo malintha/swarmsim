@@ -4,7 +4,7 @@ subgoals: 5
 drones: 5
 
 times:
-  timeset0: [4,3,3,3]
+  timeset0: [3,3,3,3]
   timeset1: [3,3,3,3]
   timeset2: [3,3,3,3]
   timeset3: [3,3,3,3]
