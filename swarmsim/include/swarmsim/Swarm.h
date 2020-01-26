@@ -38,6 +38,8 @@ private:
     std::vector<Drone *> dronesList;
     //stores the incoming wpts
     std::vector<Trajectory> wpts;
+    std::vector<Trajectory> prevTrl;
+    
     std::vector<double> tList;
     int horizonLen;
     PlanningPhase *planningPhase;

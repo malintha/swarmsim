@@ -27,12 +27,12 @@ public:
     vector<Trajectory> discreteWpts;
     thread *planning_t;
 
-    vector<Trajectory> computeSmoothTrajectories(bool initialQP, bool lastQP);
+    vector<Trajectory> computeSmoothTrajectories(bool initialQP, bool lastQP, std::vector<Trajectory> prevPlan);
 
     future<vector<Trajectory> > fut;
 
     // override in derived classes
-    virtual void doPlanning(int horizonId);
+    virtual void doPlanning(int horizonId, std::vector<Trajectory> prevPlan);
 
     virtual vector<Trajectory> getDiscretePlan(int horizonId);
 

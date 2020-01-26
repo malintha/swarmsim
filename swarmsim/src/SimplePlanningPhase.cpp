@@ -8,10 +8,10 @@ SimplePlanningPhase::SimplePlanningPhase(int nDrones, double frequency, string y
     this->yamlFpath = move(yamlFpath);
 }
 
-void SimplePlanningPhase::doPlanning(int horizonId) {
+void SimplePlanningPhase::doPlanning(int horizonId, std::vector<Trajectory> prevPlan) {
     auto sharedP = make_shared<promise<vector<Trajectory> > >();
     fut = sharedP->get_future();
-    auto doPlanningExpr = [horizonId, this, sharedP]() {
+    auto doPlanningExpr = [horizonId, this, sharedP, prevPlan]() {
         try {
             discreteWpts = this->getDiscretePlan(horizonId);
         }
@@ -23,8 +23,7 @@ void SimplePlanningPhase::doPlanning(int horizonId) {
         bool lastQP;
         horizonId == 0 ? initialQP = true : initialQP = false;
         horizonId == nHorizons ? lastQP = true : lastQP = false;
-        
-        vector<Trajectory> smoothTrajs = computeSmoothTrajectories(initialQP, lastQP);
+        vector<Trajectory> smoothTrajs = computeSmoothTrajectories(initialQP, lastQP, prevPlan);
         try {
             sharedP->set_value_at_thread_exit(smoothTrajs);
         }

@@ -14,27 +14,42 @@ Solver::Solver(int nDrones, double maxVel, double maxAcc,
     dt = (double) 1 / frequency;
 }
 
-vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts) {
+vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool initial, bool last, std::vector<Trajectory> prevPlan) {
     vector<Trajectory> trajList;
     for (int k = 0; k < K; k++) {
         Trajectory t_k = droneWpts[k];
         vector<double> tList = droneWpts[k].tList;
-
+        Eigen::Vector3d zeroVec;
+        zeroVec << 0,0,0;
         mav_trajectory_generation::Vertex::Vector vertices;
         const int derivative_to_optimize = mav_trajectory_generation::derivative_order::SNAP;
         for (int i = 0; i < t_k.pos.size(); i++) {
             Eigen::Vector3d pos = t_k.pos[i];
             mav_trajectory_generation::Vertex v(3);
             if (i == 0 || i == t_k.pos.size() - 1) {
-                Eigen::Vector3d vel;
-                vel << 0,0,0;
-                v.makeStartOrEnd(pos, derivative_to_optimize);
-                v.addConstraint(mtg::derivative_order::VELOCITY, vel);
-            } else {
-                v.addConstraint(mtg::derivative_order::POSITION, pos);
+                if(i == 0 && initial) {
+                    v.makeStartOrEnd(pos, derivative_to_optimize);
+                    v.addConstraint(mtg::derivative_order::VELOCITY, zeroVec);
+                }
+                else if(i== t_k.pos.size() - 1 && last) {
+                    v.makeStartOrEnd(pos, derivative_to_optimize);
+                    v.addConstraint(mtg::derivative_order::VELOCITY, zeroVec);
+                    v.addConstraint(mtg::derivative_order::ACCELERATION, zeroVec);
+                }
+                if(i==0 && !initial) {
+                    Trajectory prevTr = prevPlan[k];
+                    Vector3d initVel = prevTr.vel[prevTr.vel.size() - 1];
+                    Vector3d initAcc = prevTr.vel[prevTr.acc.size() - 1];
+                    ROS_ERROR_STREAM("###here! "<<initVel[0]<<" "<<initVel[1]<<" "<<initVel[2]);
+                    v.addConstraint(mtg::derivative_order::VELOCITY, initVel);
+                    v.addConstraint(mtg::derivative_order::ACCELERATION, initAcc);
+                }
             }
+
+            v.addConstraint(mtg::derivative_order::POSITION, pos);
             vertices.push_back(v);
         }
+
         mtg::NonlinearOptimizationParameters parameters;
         mav_trajectory_generation::PolynomialOptimizationNonLinear<10> opt(3, parameters);
         opt.setupFromVertices(vertices, tList, derivative_to_optimize);
@@ -54,6 +69,9 @@ Trajectory Solver::calculateTrajectoryWpts(mtg::Trajectory& traj) {
     Trajectory tr;
     for (auto & flat_state : flat_states) {
         tr.pos.push_back(flat_state.position_W);
+        tr.vel.push_back(flat_state.velocity_W);
+        tr.acc.push_back(flat_state.acceleration_W);
+
     }
     return tr;
 }

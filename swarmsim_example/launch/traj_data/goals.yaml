@@ -1,37 +1,201 @@
 #Header (Meta information)
-horizons: 2
-subgoals: 4
-drones: 2
+horizons: 6
+subgoals: 5
+drones: 5
 
 times:
-  timeset0: [5,5,5]
-  timeset1: [5,5,5]
+  timeset0: [4,3,3,3]
+  timeset1: [3,3,3,3]
+  timeset2: [3,3,3,3]
+  timeset3: [3,3,3,3]
+  timeset4: [3,3,3,3]
+  timeset5: [3,3,3,3]
 
-drone0:
-  horizon0: #first time horizon
-    subgoal: [0, 5, 2.5]
-    subgoal: [10, 5, 2.5]
-    subgoal: [20, 5, 2.5]
-    subgoal: [30, 5, 2.5]
-
-  horizon1: #second time horizon
-    subgoal: [30, 5, 2.5]
-    subgoal: [30, 15, 2.5]
-    subgoal: [30, 20, 2.5]
-    subgoal: [30, 30, 2.5]
-
-drone1:
-  horizon0: #first time horizon
-    subgoal: [0, -5, 2.5]
-    subgoal: [10,-5, 2.5]
-    subgoal: [20, 0, 2.5]
-    subgoal: [30, -5, 2.5]
-
-  horizon1: #second time horizon
-    subgoal: [30, -5, 2.5]
-    subgoal: [40, 0, 2.5]
-    subgoal: [50, -5, 2.5]
-    subgoal: [60, 0, 2.5]
+drone0: 
+  horizon0: 
+    subgoal: [9.00, 3.00, 2.50]
+    subgoal: [13.00, 5.00, 2.50]
+    subgoal: [17.00, 5.00, 2.50]
+    subgoal: [21.00, 5.00, 2.50]
+    subgoal: [21.00, 4.00, 2.50]
+  horizon1: 
+    subgoal: [21.00, 4.00, 2.50]
+    subgoal: [21.00, 5.00, 2.50]
+    subgoal: [21.00, 7.00, 2.50]
+    subgoal: [22.00, 11.00, 2.50]
+    subgoal: [26.00, 14.00, 2.50]
+  horizon2: 
+    subgoal: [26.00, 14.00, 2.50]
+    subgoal: [30.00, 15.00, 2.50]
+    subgoal: [34.00, 15.00, 2.50]
+    subgoal: [38.00, 12.00, 2.50]
+    subgoal: [42.00, 10.00, 2.50]
+  horizon3: 
+    subgoal: [42.00, 10.00, 2.50]
+    subgoal: [45.00, 10.00, 2.50]
+    subgoal: [49.00, 11.00, 2.50]
+    subgoal: [52.00, 10.00, 2.50]
+    subgoal: [56.00, 8.00, 2.50]
+  horizon4: 
+    subgoal: [56.00, 8.00, 2.50]
+    subgoal: [60.00, 9.00, 2.50]
+    subgoal: [63.00, 11.00, 2.50]
+    subgoal: [64.00, 11.00, 2.50]
+    subgoal: [67.00, 10.00, 2.50]
+  horizon5: 
+    subgoal: [67.00, 10.00, 2.50]
+    subgoal: [69.00, 10.00, 2.50]
+    subgoal: [70.00, 10.00, 2.50]
+    subgoal: [71.00, 10.00, 2.50]
+    subgoal: [72.00, 10.00, 2.50]
+drone1: 
+  horizon0: 
+    subgoal: [11.00, 14.00, 2.50]
+    subgoal: [15.00, 15.00, 2.50]
+    subgoal: [19.00, 15.00, 2.50]
+    subgoal: [23.00, 15.00, 2.50]
+    subgoal: [27.00, 15.00, 2.50]
+  horizon1: 
+    subgoal: [27.00, 15.00, 2.50]
+    subgoal: [31.00, 15.00, 2.50]
+    subgoal: [35.00, 15.00, 2.50]
+    subgoal: [39.00, 11.00, 2.50]
+    subgoal: [43.00, 10.00, 2.50]
+  horizon2: 
+    subgoal: [43.00, 10.00, 2.50]
+    subgoal: [47.00, 11.00, 2.50]
+    subgoal: [50.00, 15.00, 2.50]
+    subgoal: [50.00, 17.00, 2.50]
+    subgoal: [51.00, 18.00, 2.50]
+  horizon3: 
+    subgoal: [51.00, 18.00, 2.50]
+    subgoal: [51.00, 18.00, 2.50]
+    subgoal: [54.00, 19.00, 2.50]
+    subgoal: [58.00, 19.00, 2.50]
+    subgoal: [62.00, 18.00, 2.50]
+  horizon4: 
+    subgoal: [62.00, 18.00, 2.50]
+    subgoal: [62.00, 18.00, 2.50]
+    subgoal: [64.00, 19.00, 2.50]
+    subgoal: [66.00, 19.00, 2.50]
+    subgoal: [67.00, 20.00, 2.50]
+  horizon5: 
+    subgoal: [67.00, 20.00, 2.50]
+    subgoal: [68.00, 20.00, 2.50]
+    subgoal: [69.00, 19.00, 2.50]
+    subgoal: [70.00, 19.00, 2.50]
+    subgoal: [70.00, 19.00, 2.50]
+drone2: 
+  horizon0: 
+    subgoal: [9.00, 13.00, 2.50]
+    subgoal: [13.00, 9.00, 2.50]
+    subgoal: [17.00, 10.00, 2.50]
+    subgoal: [21.00, 10.00, 2.50]
+    subgoal: [24.00, 14.00, 2.50]
+  horizon1: 
+    subgoal: [24.00, 14.00, 2.50]
+    subgoal: [27.00, 15.00, 2.50]
+    subgoal: [31.00, 19.00, 2.50]
+    subgoal: [35.00, 18.00, 2.50]
+    subgoal: [36.00, 20.00, 2.50]
+  horizon2: 
+    subgoal: [36.00, 20.00, 2.50]
+    subgoal: [36.00, 21.00, 2.50]
+    subgoal: [36.00, 20.00, 2.50]
+    subgoal: [36.00, 18.00, 2.50]
+    subgoal: [36.00, 15.00, 2.50]
+  horizon3: 
+    subgoal: [36.00, 15.00, 2.50]
+    subgoal: [40.00, 11.00, 2.50]
+    subgoal: [44.00, 10.00, 2.50]
+    subgoal: [48.00, 13.00, 2.50]
+    subgoal: [52.00, 17.00, 2.50]
+  horizon4: 
+    subgoal: [52.00, 17.00, 2.50]
+    subgoal: [56.00, 20.00, 2.50]
+    subgoal: [58.00, 20.00, 2.50]
+    subgoal: [60.00, 18.00, 2.50]
+    subgoal: [62.00, 16.00, 2.50]
+  horizon5: 
+    subgoal: [62.00, 16.00, 2.50]
+    subgoal: [63.00, 16.00, 2.50]
+    subgoal: [64.00, 16.00, 2.50]
+    subgoal: [65.00, 16.00, 2.50]
+    subgoal: [65.00, 16.00, 2.50]
+drone3: 
+  horizon0: 
+    subgoal: [4.00, 15.00, 2.50]
+    subgoal: [8.00, 19.00, 2.50]
+    subgoal: [11.00, 21.00, 2.50]
+    subgoal: [12.00, 18.00, 2.50]
+    subgoal: [15.00, 14.00, 2.50]
+  horizon1: 
+    subgoal: [15.00, 14.00, 2.50]
+    subgoal: [19.00, 15.00, 2.50]
+    subgoal: [23.00, 16.00, 2.50]
+    subgoal: [27.00, 18.00, 2.50]
+    subgoal: [31.00, 22.00, 2.50]
+  horizon2: 
+    subgoal: [31.00, 22.00, 2.50]
+    subgoal: [35.00, 26.00, 2.50]
+    subgoal: [36.00, 25.00, 2.50]
+    subgoal: [36.00, 24.00, 2.50]
+    subgoal: [36.00, 21.00, 2.50]
+  horizon3: 
+    subgoal: [36.00, 21.00, 2.50]
+    subgoal: [36.00, 17.00, 2.50]
+    subgoal: [38.00, 13.00, 2.50]
+    subgoal: [42.00, 10.00, 2.50]
+    subgoal: [46.00, 10.00, 2.50]
+  horizon4: 
+    subgoal: [46.00, 10.00, 2.50]
+    subgoal: [50.00, 13.00, 2.50]
+    subgoal: [54.00, 9.00, 2.50]
+    subgoal: [58.00, 9.00, 2.50]
+    subgoal: [61.00, 9.00, 2.50]
+  horizon5: 
+    subgoal: [61.00, 9.00, 2.50]
+    subgoal: [63.00, 9.00, 2.50]
+    subgoal: [64.00, 9.00, 2.50]
+    subgoal: [65.00, 10.00, 2.50]
+    subgoal: [66.00, 10.00, 2.50]
+drone4: 
+  horizon0: 
+    subgoal: [7.00, 11.00, 2.50]
+    subgoal: [11.00, 15.00, 2.50]
+    subgoal: [15.00, 15.00, 2.50]
+    subgoal: [19.00, 15.00, 2.50]
+    subgoal: [21.00, 11.00, 2.50]
+  horizon1: 
+    subgoal: [21.00, 11.00, 2.50]
+    subgoal: [24.00, 14.00, 2.50]
+    subgoal: [28.00, 15.00, 2.50]
+    subgoal: [32.00, 14.00, 2.50]
+    subgoal: [36.00, 14.00, 2.50]
+  horizon2: 
+    subgoal: [36.00, 14.00, 2.50]
+    subgoal: [40.00, 10.00, 2.50]
+    subgoal: [44.00, 10.00, 2.50]
+    subgoal: [48.00, 10.00, 2.50]
+    subgoal: [51.00, 10.00, 2.50]
+  horizon3: 
+    subgoal: [51.00, 10.00, 2.50]
+    subgoal: [55.00, 8.00, 2.50]
+    subgoal: [59.00, 9.00, 2.50]
+    subgoal: [62.00, 12.00, 2.50]
+    subgoal: [66.00, 12.00, 2.50]
+  horizon4: 
+    subgoal: [66.00, 12.00, 2.50]
+    subgoal: [70.00, 15.00, 2.50]
+    subgoal: [70.00, 15.00, 2.50]
+    subgoal: [70.00, 15.00, 2.50]
+    subgoal: [71.00, 15.00, 2.50]
+  horizon5: 
+    subgoal: [71.00, 15.00, 2.50]
+    subgoal: [73.00, 15.00, 2.50]
+    subgoal: [74.00, 15.00, 2.50]
+    subgoal: [75.00, 15.00, 2.50]
+    subgoal: [75.00, 16.00, 2.50]
 
   # testing threasholds (meters)
   movingThreshold: 2

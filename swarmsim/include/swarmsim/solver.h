@@ -14,7 +14,7 @@ using namespace Eigen;
 class Solver {
     public:
         Solver(int nDrones, double maxVel, double maxAcc, double frequency);
-        vector<Trajectory> solve(vector<Trajectory> droneWpts);
+        vector<Trajectory> solve(vector<Trajectory> droneWpts, bool initial, bool last, std::vector<Trajectory> prevPlan);
         
     private:
         int n = 7;

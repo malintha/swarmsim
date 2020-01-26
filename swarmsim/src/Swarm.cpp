@@ -28,20 +28,21 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         string yamlFilePath = ss.str();
         swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
         executionInitialized = false;
-        
+
     try {
         if (yamlFilePath.empty()) {
             throw runtime_error("YAML file path is not provided. Exiting.");
         }
         initVariables();
         planningPhase = new SimplePlanningPhase(n_drones, frequency, yamlFilePath);
-        planningPhase->doPlanning(horizonId++);
+        planningPhase->doPlanning(horizonId++, prevTrl);
         vector<Trajectory> trl = planningPhase->getPlanningResults();
         ROS_DEBUG_STREAM("Retrieved the initial planning results. Size: " << trl[0].pos.size());
         horizonLen = trl[0].pos.size();
         for (int i = 0; i < n_drones; i++) {
             dronesList[i]->pushTrajectory(trl[i]);
         }
+        this->prevTrl = trl;
     }
     catch (const length_error &le) {
         ROS_ERROR_STREAM("Error in retrieving the results from the future");
@@ -172,8 +173,9 @@ void Swarm::performPhaseTasks() {
     if (phase == Phases::Planning && !planningInitialized) {
         //initialize the external operations such as slam or task assignment
         try {
-            if(horizonId < planningPhase->nHorizons)
-                planningPhase->doPlanning(horizonId);
+            if(horizonId < planningPhase->nHorizons) {
+                planningPhase->doPlanning(horizonId, prevTrl);
+            }
             if (++horizonId > planningPhase->nHorizons) {
                 executionInitialized = true;
             }
@@ -192,6 +194,8 @@ void Swarm::performPhaseTasks() {
         for (int i = 0; i < n_drones; i++) {
             dronesList[i]->pushTrajectory(results[i]);
         }
+        this->prevTrl = results;
+
         executionInitialized = true;
     }
 }

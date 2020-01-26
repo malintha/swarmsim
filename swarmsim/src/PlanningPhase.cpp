@@ -9,9 +9,9 @@ PlanningPhase::PlanningPhase(int nDrones, double frequency) : nDrones(nDrones), 
     doneInitPlanning = false;
 }
 
-vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP, bool lastQP) {
+vector<Trajectory> PlanningPhase::computeSmoothTrajectories(bool initialQP, bool lastQP, std::vector<Trajectory> prevPlan) {
     Solver* solver = new Solver(nDrones, maxVelocity, maxAcceleration, frequency);
-    vector<Trajectory> results = solver->solve(discreteWpts);
+    vector<Trajectory> results = solver->solve(discreteWpts, initialQP, lastQP, prevPlan);
     delete solver;
     return results;
 }
@@ -33,5 +33,5 @@ vector<Trajectory> PlanningPhase::getPlanningResults() {
     return results;
 }
 
-void PlanningPhase::doPlanning(int horizonId) {}
+void PlanningPhase::doPlanning(int horizonId, std::vector<Trajectory> prevPlan) {}
 vector<Trajectory> PlanningPhase::getDiscretePlan(int horizonId) {}

@@ -11,7 +11,7 @@ class SimplePlanningPhase : public PlanningPhase {
         promise<vector<Trajectory> > p;
         SimplePlanningPhase();
         SimplePlanningPhase(int nDrones, double frequency, string yamlFpath);
-        void doPlanning(int horizonId) override;
+        void doPlanning(int horizonId,std::vector<Trajectory> prevPlan) override;
         YamlDescriptor yamlDescriptor;
         /**
          * Returns the discrete waypoints from the yaml file
