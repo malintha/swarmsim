@@ -67,6 +67,8 @@ void Swarm::initVariables() {
 }
 
 void Swarm::iteration(const ros::TimerEvent &e) {
+        // cout<<"here1"<<endl;
+
     switch (state) {
         case States::Idle:
             checkSwarmForStates(States::Ready);
@@ -208,3 +210,4 @@ void Swarm::setWaypoints(vector<Trajectory> wpts_, vector<double> tList_) {
         ROS_WARN_STREAM("Swarm is not in the planning phase. Waypoints rejected");
     }
 }
+

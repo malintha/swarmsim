@@ -10,6 +10,7 @@
 #include <future>
 #include "SimplePlanningPhase.h"
 
+
 class Swarm {
 public:
     Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir);
@@ -70,5 +71,7 @@ private:
     void performPhaseTasks();
 
     void initVariables();
+
+
 
 };

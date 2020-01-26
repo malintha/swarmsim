@@ -18,9 +18,7 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool initial, boo
     vector<Trajectory> trajList;
     for (int k = 0; k < K; k++) {
         Trajectory t_k = droneWpts[k];
-        vector<double> tList = droneWpts[k].tList;
-        Eigen::Vector3d zeroVec;
-        zeroVec << 0,0,0;
+
         mav_trajectory_generation::Vertex::Vector vertices;
         const int derivative_to_optimize = mav_trajectory_generation::derivative_order::SNAP;
         for (int i = 0; i < t_k.pos.size(); i++) {
@@ -52,6 +50,7 @@ vector<Trajectory> Solver::solve(vector<Trajectory> droneWpts, bool initial, boo
 
         mtg::NonlinearOptimizationParameters parameters;
         mav_trajectory_generation::PolynomialOptimizationNonLinear<10> opt(3, parameters);
+        vector<double> tList = estimateSegmentTimes(vertices, maxVel, maxAcc);
         opt.setupFromVertices(vertices, tList, derivative_to_optimize);
         opt.addMaximumMagnitudeConstraint(mav_trajectory_generation::derivative_order::VELOCITY, maxVel);
         opt.addMaximumMagnitudeConstraint(mav_trajectory_generation::derivative_order::ACCELERATION, maxAcc);
