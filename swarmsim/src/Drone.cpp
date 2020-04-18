@@ -16,9 +16,9 @@ Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
     std::string globalPositionTopic = getPositionTopic("global");
     std::string localPositionTopic = getPositionTopic("local");
     std::string poseTopic = getPoseTopic();
-    std::stringstream ss;
-    ss << "/" << id << "/mavros/state";
-    std::string mavrosStateTopic = ss.str();
+    std::stringstream ss_prefix;
+    ss_prefix << "/" << id << "/mavros/state";
+    std::string mavrosStateTopic = ss_prefix.str();
     localPositionSub =
             nh.subscribe(localPositionTopic, 10, &Drone::positionLocalCB, this);
     globalPositionSub =
@@ -28,7 +28,16 @@ Drone::Drone(int id, const ros::NodeHandle &n) : id(id), nh(n) {
             nh.advertise<geometry_msgs::PoseStamped>(positionSetPointTopic, 10);
     mavrosStateSub = nh.subscribe(mavrosStateTopic,10, &Drone::mavrosStateCB, this);
     gazeboStateSub = nh.subscribe("/gazebo/model_states", 10, &Drone::gazeboStateCB, this);
+    // poseSub = nh.subscribe(this->getPoseTopic(), 10, &Drone::poseCB, this);
     ros::topic::waitForMessage<gazebo_msgs::ModelStates>("/gazebo/model_states", ros::Duration(5));
+    std::stringstream ss_global;
+    ss_global << "global_pose/" << id;
+    std::string globalPoseTopic = ss_global.str();
+    globalPosePub = nh.advertise<geometry_msgs::PoseStamped>(globalPoseTopic, 10);
+}
+
+void Drone::publishGlobalPose() {
+    globalPosePub.publish(this->pose_global);
 }
 
 int Drone::getState() { return state; }
@@ -72,6 +81,16 @@ void Drone::positionLocalCB(const nav_msgs::Odometry::ConstPtr &msg) {
     geometry_msgs::Point pos = msg->pose.pose.position;
     curr_pos_local << pos.x, pos.y, pos.z;
     yaw = getRPY(msg->pose.pose.orientation)[2];
+
+    // Eigen::Vector3d currentPos_global;  
+    // currentPos_global = curr_pos_local - initGazeboPos;
+    // geometry_msgs::Point globalPt;
+    // globalPt.x = curr_pos_global[0];
+    // globalPt.y = curr_pos_global[1];
+    // globalPt.z = curr_pos_global[2];
+
+    // this->pose_global.pose.position = globalPt;
+    // this->pose_global.pose.orientation = msg->pose.pose.orientation;
 }
 
 void Drone::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {
@@ -81,7 +100,11 @@ void Drone::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {
     }
 }
 
-// void Drone::poseCB(const geometry_msgs::PoseStampedConstPtr &msg) {}
+// void Drone::poseCB(const geometry_msgs::PoseStampedConstPtr &msg) {
+//     this->pose_local = msg->pose;
+//     geometry_msgs::Point position = msg->pose.position;
+//     geometry_msgs::Point position_global = position - initGazeboPos;
+// }
 
 void Drone::arm(bool arm) {
     stringstream ss_arm;
@@ -153,9 +176,9 @@ void Drone::callTOLService(bool takeoff) {
 }
 
 void Drone::setMode(std::string mode) {
-    stringstream ss;
-    ss << "/" << id << "/mavros/set_mode";
-    string smService = ss.str();
+    stringstream ss_prefix;
+    ss_prefix << "/" << id << "/mavros/set_mode";
+    string smService = ss_prefix.str();
     ros::ServiceClient smClient =
             nh.serviceClient<mavros_msgs::SetMode>(smService);
     mavros_msgs::SetMode setMode;
@@ -239,15 +262,15 @@ void Drone::pushTrajectory(Trajectory trajectory) {
 }
 
 std::string Drone::getPositionTopic(std::string locale) {
-    std::stringstream ss;
-    ss << "/" << this->id << "/mavros/global_position/" << locale;
-    return ss.str();
+    std::stringstream ss_prefix;
+    ss_prefix << "/" << this->id << "/mavros/global_position/" << locale;
+    return ss_prefix.str();
 }
 
 std::string Drone::getPoseTopic() {
-    std::stringstream ss;
-    ss << "/" << this->id << "/mavros/local_position/pose";
-    return ss.str();
+    std::stringstream ss_prefix;
+    ss_prefix << "/" << this->id << "/mavros/local_position/pose";
+    return ss_prefix.str();
 }
 
 Vector3d Drone::getRPY(geometry_msgs::Quaternion orientation) {
@@ -287,7 +310,7 @@ bool Drone::reachedGoal(geometry_msgs::PoseStamped setPoint) {
 }
 
 std::string Drone::getLocalSetpointTopic(std::string order) {
-    std::stringstream ss;
+    std::stringstream ss_prefix;
     std::string postfix;
     if (order.compare("position") == 0) {
         postfix = "local";
@@ -296,8 +319,8 @@ std::string Drone::getLocalSetpointTopic(std::string order) {
     } else if (order.compare("accel") == 0) {
         postfix = "accel";
     }
-    ss << "/" << this->id << "/mavros/setpoint_" << order << "/" << postfix;
-    return ss.str();
+    ss_prefix << "/" << this->id << "/mavros/setpoint_" << order << "/" << postfix;
+    return ss_prefix.str();
 }
 
 float Drone::getEucDistance(Eigen::Vector3d p1, Eigen::Vector3d p2) {

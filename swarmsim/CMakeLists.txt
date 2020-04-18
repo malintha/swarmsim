@@ -131,6 +131,7 @@ add_library(${PROJECT_NAME}
         src/SimplePlanningPhase.cpp
         src/PlanningPhase.cpp
         src/YamlDescriptor.cpp
+        src/Visualize.cpp
         )
 
 ## Add cmake target dependencies of the library

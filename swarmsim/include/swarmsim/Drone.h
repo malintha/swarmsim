@@ -41,7 +41,7 @@ public:
 private:
     int id;
     Vector3d curr_pos_local;
-    Vector3d curr_pos_global; 
+    Vector3d curr_pos_global;
     Vector3d init_pos_global;
     Vector3d init_pos_local;
     float yaw;
@@ -52,6 +52,7 @@ private:
     bool setReady;
     Vector3d initGazeboPos;
     int gazeboElementIdx;
+    geometry_msgs::PoseStamped pose_global;
 
     std::vector<Trajectory> TrajectoryList;
     int trajectoryId;
@@ -63,18 +64,20 @@ private:
     ros::Publisher posSetPointPub;
     ros::Subscriber mavrosStateSub;
     ros::Subscriber gazeboStateSub;
+    ros::Publisher globalPosePub;
 
     void mavrosStateCB(const mavros_msgs::StateConstPtr& msg);
     void setMode(std::string mode);
     void positionGlobalCB(const sensor_msgs::NavSatFixConstPtr& msg);
     void positionLocalCB(const nav_msgs::OdometryConstPtr& msg);
-    void poseCB(const geometry_msgs::PoseStampedConstPtr& msg);
+    // void poseCB(const geometry_msgs::PoseStampedConstPtr& msg);
     void setState(int state);
     void ready(bool ready);
     bool reachedGoal(geometry_msgs::PoseStamped setPoint);
     void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
     void callTOLService(bool takeoff);
     void gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg);
+    void publishGlobalPose();
 
 // todo: move to a util class
     /**

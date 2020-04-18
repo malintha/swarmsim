@@ -177,7 +177,7 @@ namespace simutils {
     std::vector<Trajectory> loadTrajectoriesFromFile(int n_drones, ros::NodeHandle &nh, const string filePath) {
         std::vector<Trajectory> trajList;
         std::string prefix;
-
+        prefix = "pos_";
         for (int i = 0; i < n_drones; i++) {
             std::stringstream ss;
             ss << filePath << prefix << i << ".txt";
