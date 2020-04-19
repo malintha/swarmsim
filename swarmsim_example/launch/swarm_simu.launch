@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="nDrones" default="2" />
+    <arg name="nDrones" default="3" />
     <arg name="predefined" default="true" />
     <arg name="yamlFileName" default="goals.yaml"/>
     <arg name="visualize" default="true"/>

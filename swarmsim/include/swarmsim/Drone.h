@@ -37,6 +37,7 @@ public:
      * the waypoints in the gazebo frame.
      */
     Vector3d getLocalWaypoint(Vector3d waypoint);
+    void publishGlobalPose();
 
 private:
     int id;
@@ -77,7 +78,6 @@ private:
     void sendPositionSetPoint(geometry_msgs::PoseStamped setPoint);
     void callTOLService(bool takeoff);
     void gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg);
-    void publishGlobalPose();
 
 // todo: move to a util class
     /**

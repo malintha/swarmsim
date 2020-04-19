@@ -12,6 +12,7 @@ using namespace std;
 Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, bool visualizeTraj)
         : frequency(frequency), n_drones(n_drones), nh(n), visualizeTraj(visualizeTraj) {
     initVariables();
+    predefined = true;
     vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, trajDir);
     if(visualizeTraj) {
         ROS_DEBUG_STREAM("Visualizing the trajectories");
@@ -75,6 +76,9 @@ void Swarm::initVariables() {
 void Swarm::iteration(const ros::TimerEvent &e) {
     if(this->visualizeTraj) {
         vis->draw();
+        for(int i=0; i<n_drones;i++) {
+            dronesList[i]->publishGlobalPose();
+        }
     }
     switch (state) {
         case States::Idle:
@@ -134,7 +138,6 @@ void Swarm::checkSwarmForStates(int state_) {
     std_msgs::Int8 msg;
     msg.data = this->state;
     swarmStatePub.publish(msg);
-
 }
 
 void Swarm::armDrones(bool arm) {

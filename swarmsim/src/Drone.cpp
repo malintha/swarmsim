@@ -70,7 +70,8 @@ void Drone::gazeboStateCB(const gazebo_msgs::ModelStatesConstPtr& msg) {
                 this->gazeboElementIdx = i;
                 geometry_msgs::Pose robot_pose = msg->pose[gazeboElementIdx];
                 initGazeboPos << robot_pose.position.x, robot_pose.position.y, robot_pose.position.z;
-                ROS_DEBUG_STREAM("Init gazebo pose recorded");
+                ROS_DEBUG_STREAM("Init gazebo pose recorded: "<<initGazeboPos[0]<<" "
+                <<initGazeboPos[1]<<" "<<initGazeboPos[2]);
                 gazeboStateSub.shutdown();
             }
         }
@@ -82,15 +83,16 @@ void Drone::positionLocalCB(const nav_msgs::Odometry::ConstPtr &msg) {
     curr_pos_local << pos.x, pos.y, pos.z;
     yaw = getRPY(msg->pose.pose.orientation)[2];
 
-    // Eigen::Vector3d currentPos_global;  
-    // currentPos_global = curr_pos_local - initGazeboPos;
-    // geometry_msgs::Point globalPt;
-    // globalPt.x = curr_pos_global[0];
-    // globalPt.y = curr_pos_global[1];
-    // globalPt.z = curr_pos_global[2];
+    Eigen::Vector3d currentPos_global;  
+    currentPos_global = curr_pos_local + initGazeboPos;
+    geometry_msgs::Point globalPt;
+    globalPt.x = currentPos_global[0];
+    globalPt.y = currentPos_global[1];
+    globalPt.z = currentPos_global[2];
 
-    // this->pose_global.pose.position = globalPt;
-    // this->pose_global.pose.orientation = msg->pose.pose.orientation;
+    this->pose_global.pose.position = globalPt;
+    this->pose_global.pose.orientation = msg->pose.pose.orientation;
+    this->pose_global.header.frame_id = "map";
 }
 
 void Drone::positionGlobalCB(const sensor_msgs::NavSatFixConstPtr &msg) {

@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Marker1
+        - /Pose3
       Splitter Ratio: 0.5
     Tree Height: 545
   - Class: rviz/Selection
@@ -58,7 +58,7 @@ Visualization Manager:
       Marker Topic: /swarmsim_example/visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        "": true
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -73,7 +73,7 @@ Visualization Manager:
       Shaft Length: 1
       Shaft Radius: 0.05000000074505806
       Shape: Axes
-      Topic: /0/mavros/local_position/pose
+      Topic: /swarmsim_example/global_pose/0
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -88,7 +88,52 @@ Visualization Manager:
       Shaft Length: 1
       Shaft Radius: 0.05000000074505806
       Shape: Axes
-      Topic: /1/mavros/local_position/pose
+      Topic: /swarmsim_example/global_pose/1
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Axes
+      Topic: /swarmsim_example/global_pose/2
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Axes
+      Topic: /swarmsim_example/global_pose/3
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Axes
+      Topic: /swarmsim_example/global_pose/4
       Unreliable: false
       Value: true
   Enabled: true
@@ -119,7 +164,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 39.928157806396484
+      Distance: 55.138832092285156
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -134,10 +179,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5447972416877747
+      Pitch: 1.3197965621948242
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.070433616638184
+      Yaw: 6.075435161590576
     Saved: ~
 Window Geometry:
   Displays:
