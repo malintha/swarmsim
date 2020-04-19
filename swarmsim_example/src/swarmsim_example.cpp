@@ -17,13 +17,16 @@ int main(int argc, char **argv) {
     bool predefinedTrajectories;
     string yamlFileName;
     string trajDir;
+    bool visualizeTraj;
 
     n.param("/swarmsim_example/nDrones", nDrones, 1);
     n.param("/swarmsim_example/predefined", predefinedTrajectories, false);
     n.getParam("/swarmsim_example/trajDir", trajDir);
     n.getParam("/swarmsim_example/yamlFileName", yamlFileName);
+    n.getParam("/swarmsim_example/visualize", visualizeTraj);
 
     ROS_DEBUG_STREAM("Number of drones: " << nDrones);
+    ROS_DEBUG_STREAM("Visualize trajectories: "<< visualizeTraj);
     ROS_DEBUG_STREAM("Use predefined trajectories: " << predefinedTrajectories);
     ROS_DEBUG_STREAM("Trajectory dir: " << trajDir);
 
@@ -31,10 +34,10 @@ int main(int argc, char **argv) {
 
     if(!predefinedTrajectories) {
         ROS_DEBUG_STREAM("YAML file name: " << yamlFileName);
-        sim = new Swarm(n, frequency, nDrones, trajDir, yamlFileName);
+        sim = new Swarm(n, frequency, nDrones, trajDir, yamlFileName, visualizeTraj);
     }
     else {
-        sim = new Swarm(n, frequency, nDrones, trajDir);
+        sim = new Swarm(n, frequency, nDrones, trajDir, visualizeTraj);
     }
     sim->run(frequency);
     return 0;

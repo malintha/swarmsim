@@ -9,6 +9,8 @@ enum TrajContinuity {Continued = 0, Start, End};
 
 struct Trajectory {
   std::vector<Eigen::Vector3d> pos; 
+  std::vector<Eigen::Vector3d> vel;
+  std::vector<Eigen::Vector3d> acc;
   std::vector<double> tList;
 };
 

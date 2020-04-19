@@ -9,39 +9,47 @@
 
 using namespace std;
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir)
-        : frequency(frequency), n_drones(n_drones), nh(n) {
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, bool visualizeTraj)
+        : frequency(frequency), n_drones(n_drones), nh(n), visualizeTraj(visualizeTraj) {
     initVariables();
+    predefined = true;
     vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, trajDir);
+    if(visualizeTraj) {
+        ROS_DEBUG_STREAM("Visualizing the trajectories");
+        vis = new Visualize(n, "map", this->n_drones);
+        vis->addToPaths(trajectories);
+    }
     for (int i = 0; i < n_drones; i++) {
         Trajectory traj = trajectories[i];
         dronesList[i]->pushTrajectory(traj);
     }
     swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
+    
 }
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName) :
-        frequency(frequency), n_drones(n_drones), nh(n) {
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName, bool visualizeTraj) :
+        frequency(frequency), n_drones(n_drones), nh(n), visualizeTraj(visualizeTraj) {
         predefined = false;
         stringstream ss;
         ss << trajDir<<yamlFileName;
         string yamlFilePath = ss.str();
         swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
         executionInitialized = false;
-        
+
     try {
         if (yamlFilePath.empty()) {
             throw runtime_error("YAML file path is not provided. Exiting.");
         }
         initVariables();
         planningPhase = new SimplePlanningPhase(n_drones, frequency, yamlFilePath);
-        planningPhase->doPlanning(horizonId++);
+        planningPhase->doPlanning(horizonId++, prevTrl);
         vector<Trajectory> trl = planningPhase->getPlanningResults();
         ROS_DEBUG_STREAM("Retrieved the initial planning results. Size: " << trl[0].pos.size());
         horizonLen = trl[0].pos.size();
         for (int i = 0; i < n_drones; i++) {
             dronesList[i]->pushTrajectory(trl[i]);
         }
+        this->prevTrl = trl;
     }
     catch (const length_error &le) {
         ROS_ERROR_STREAM("Error in retrieving the results from the future");
@@ -66,6 +74,12 @@ void Swarm::initVariables() {
 }
 
 void Swarm::iteration(const ros::TimerEvent &e) {
+    if(this->visualizeTraj) {
+        vis->draw();
+        for(int i=0; i<n_drones;i++) {
+            dronesList[i]->publishGlobalPose();
+        }
+    }
     switch (state) {
         case States::Idle:
             checkSwarmForStates(States::Ready);
@@ -124,7 +138,6 @@ void Swarm::checkSwarmForStates(int state_) {
     std_msgs::Int8 msg;
     msg.data = this->state;
     swarmStatePub.publish(msg);
-
 }
 
 void Swarm::armDrones(bool arm) {
@@ -172,8 +185,9 @@ void Swarm::performPhaseTasks() {
     if (phase == Phases::Planning && !planningInitialized) {
         //initialize the external operations such as slam or task assignment
         try {
-            if(horizonId < planningPhase->nHorizons)
-                planningPhase->doPlanning(horizonId);
+            if(horizonId < planningPhase->nHorizons) {
+                planningPhase->doPlanning(horizonId, prevTrl);
+            }
             if (++horizonId > planningPhase->nHorizons) {
                 executionInitialized = true;
             }
@@ -192,6 +206,8 @@ void Swarm::performPhaseTasks() {
         for (int i = 0; i < n_drones; i++) {
             dronesList[i]->pushTrajectory(results[i]);
         }
+        this->prevTrl = results;
+
         executionInitialized = true;
     }
 }

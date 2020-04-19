@@ -9,12 +9,13 @@
 #include "Trajectory.h"
 #include <future>
 #include "SimplePlanningPhase.h"
+#include "Visualize.h"
 
 class Swarm {
 public:
-    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir);
+    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, bool visualizaTraj);
 
-    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string &yamlFilePath, string &yamlFileName);
+    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string &yamlFilePath, string &yamlFileName, bool visualizaTraj);
 
     void iteration(const ros::TimerEvent &e);
 
@@ -38,6 +39,8 @@ private:
     std::vector<Drone *> dronesList;
     //stores the incoming wpts
     std::vector<Trajectory> wpts;
+    std::vector<Trajectory> prevTrl;
+    
     std::vector<double> tList;
     int horizonLen;
     PlanningPhase *planningPhase;
@@ -45,6 +48,8 @@ private:
     bool executionInitialized;
     int horizonId;
     ros::Publisher swarmStatePub;
+    bool visualizeTraj;
+    Visualize *vis;
 
     /**
      * check the swarm for a given state.
