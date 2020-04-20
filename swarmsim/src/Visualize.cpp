@@ -7,11 +7,13 @@ Visualize::Visualize(ros::NodeHandle nh, string worldframe, int ndrones, string 
             : nh(nh), worldframe(worldframe), ndrones(ndrones), 
             obstacleConfigFilePath(obstacleConfigFilePath) {
     obstacles = this->readObstacleConfig();
-    this->initPaths();
-    this->markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+    this->initMarkers();
+    this->markerPub_traj = nh.advertise<visualization_msgs::Marker>("visualization_marker/traj", 10);
+    this->markerPub_obs = nh.advertise<visualization_msgs::Marker>("visualization_marker/obs", 10);
+
 }
 
-void Visualize::initPaths() {
+void Visualize::initMarkers() {
     //marker for the robot trajectories
     for(int i=0;i<this->ndrones;i++)  {
         visualization_msgs::Marker m;
@@ -26,7 +28,33 @@ void Visualize::initPaths() {
         m.color.a = 1;
         m.scale.x = 0.05;
         m.pose.orientation.w = 1;
-        this->markerVec.push_back(m);
+        this->marker_traj.push_back(m);
+    }
+
+    //makers for the obstacles
+    for(int i=0;i<obstacles.size();i++) {
+        visualization_msgs::Marker m;
+        m.header.stamp = ros::Time::now();
+        m.type = visualization_msgs::Marker::CUBE;
+        m.action = visualization_msgs::Marker::ADD;
+        m.header.frame_id=this->worldframe;
+        m.id = i;
+        m.color.r=0.7; 
+        m.color.g=0.7; 
+        m.color.b=0.7;
+        m.color.a = 1;
+
+        m.pose.position.x = obstacles[i].center[0];
+        m.pose.position.y = obstacles[i].center[1];
+        m.pose.position.z = obstacles[i].center[2];
+        ROS_ERROR_STREAM("obs: "<<obstacles[i].center[0] <<" "<<obstacles[i].center[1]<<" "<<obstacles[i].center[2]);
+
+        m.scale.x = obstacles[i].length;
+        m.scale.y = obstacles[i].width;
+        m.scale.z = obstacles[i].height;
+        
+        m.pose.orientation.w = 1;
+        this->marker_obs.push_back(m);
     }
 }
 
@@ -40,14 +68,17 @@ void Visualize::addToPaths(vector<Trajectory> trajs) {
             pt.x = traj.pos[p][0];
             pt.y = traj.pos[p][1];
             pt.z = traj.pos[p][2];
-            this->markerVec[i].points.push_back(pt);
+            this->marker_traj[i].points.push_back(pt);
         }
     }
 }
 
 void Visualize::draw() {
     for(int i=0;i<this->ndrones;i++) {
-        markerPub.publish(this->markerVec[i]);
+        markerPub_traj.publish(this->marker_traj[i]);
+    }
+    for(int i = 0; i<obstacles.size(); i++) {
+        markerPub_obs.publish(marker_obs[i]);
     }
 }
 
@@ -63,7 +94,6 @@ std::vector<Obstacle> Visualize::readObstacleConfig() {
     try {
         FILE *fh = fopen(cstr, "r");
         yaml_parser_t parser;
-        // yaml_event_t event;
         yaml_token_t token;
 
         if (!yaml_parser_initialize(&parser)) {

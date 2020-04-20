@@ -6,6 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Grid1
+        - /Marker1
         - /Pose3
       Splitter Ratio: 0.5
     Tree Height: 545
@@ -46,16 +48,16 @@ Visualization Manager:
       Name: Grid
       Normal Cell Count: 0
       Offset:
-        X: 0
-        Y: 0
+        X: 20
+        Y: 20
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 40
       Reference Frame: <Fixed Frame>
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /swarmsim_example/visualization_marker
+      Marker Topic: /swarmsim_example/visualization_marker/obs
       Name: Marker
       Namespaces:
         "": true
@@ -136,6 +138,21 @@ Visualization Manager:
       Topic: /swarmsim_example/global_pose/4
       Unreliable: false
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /swarmsim_example/visualization_marker/traj
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Axes
+      Enabled: true
+      Length: 1
+      Name: Axes
+      Radius: 0.10000000149011612
+      Reference Frame: <Fixed Frame>
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 238; 238; 236
@@ -164,25 +181,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 55.138832092285156
+      Distance: 55.49164581298828
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 3.518808126449585
-        Y: -2.747220754623413
-        Z: -0.22164994478225708
+        X: 14.621085166931152
+        Y: 19.4457950592041
+        Z: -0.21314860880374908
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.3197965621948242
+      Pitch: 1.2897965908050537
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.075435161590576
+      Yaw: 4.715419292449951
     Saved: ~
 Window Geometry:
   Displays:

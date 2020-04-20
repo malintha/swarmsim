@@ -18,11 +18,13 @@ class Visualize {
         int ndrones;
         ros::NodeHandle nh;
         string worldframe;
-        ros::Publisher markerPub;
-        vector<visualization_msgs::Marker> markerVec;
+        ros::Publisher markerPub_traj;
+        ros::Publisher markerPub_obs;
+        vector<visualization_msgs::Marker> marker_traj;
+        vector<visualization_msgs::Marker> marker_obs;
         string obstacleConfigFilePath;
         std::vector<Obstacle> obstacles;
-        void initPaths();
+        void initMarkers();
         std::vector<Obstacle> readObstacleConfig();
         void populateObstacles();
 };
