@@ -13,9 +13,9 @@
 
 class Swarm {
 public:
-    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, bool visualizaTraj);
+    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, bool visualizaTraj, string& obstacleFileName);
 
-    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string &yamlFilePath, string &yamlFileName, bool visualizaTraj);
+    Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string &yamlFilePath, string &yamlFileName, bool visualizaTraj, string& obstacleFileName);
 
     void iteration(const ros::TimerEvent &e);
 

@@ -1,6 +1,12 @@
 #include "Visualize.h"
+#include <ros/console.h>
+#include <yaml.h>
+#include <regex>
 
-Visualize::Visualize(ros::NodeHandle nh, string worldframe, int ndrones):nh(nh), worldframe(worldframe), ndrones(ndrones) {
+Visualize::Visualize(ros::NodeHandle nh, string worldframe, int ndrones, string obstacleConfigFilePath)
+            : nh(nh), worldframe(worldframe), ndrones(ndrones), 
+            obstacleConfigFilePath(obstacleConfigFilePath) {
+    obstacles = this->readObstacleConfig();
     this->initPaths();
     this->markerPub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
 }
@@ -19,8 +25,6 @@ void Visualize::initPaths() {
         m.color.b=1;
         m.color.a = 1;
         m.scale.x = 0.05;
-        // m.scale.y = 0.01;
-        // m.scale.z = 0.01;
         m.pose.orientation.w = 1;
         this->markerVec.push_back(m);
     }
@@ -45,4 +49,101 @@ void Visualize::draw() {
     for(int i=0;i<this->ndrones;i++) {
         markerPub.publish(this->markerVec[i]);
     }
+}
+
+std::vector<Obstacle> Visualize::readObstacleConfig() {
+    ROS_DEBUG_STREAM("YAML file path: " << obstacleConfigFilePath);
+    char cstr[obstacleConfigFilePath.size() + 1];
+    copy(obstacleConfigFilePath.begin(), obstacleConfigFilePath.end(), cstr);
+    cstr[obstacleConfigFilePath.size()] = '\0';
+    const std::regex obs_regex("obstacle(\\d)");
+    std::smatch pieces_match;
+    std::vector<Obstacle> obsList;
+
+    try {
+        FILE *fh = fopen(cstr, "r");
+        yaml_parser_t parser;
+        // yaml_event_t event;
+        yaml_token_t token;
+
+        if (!yaml_parser_initialize(&parser)) {
+            ROS_ERROR_STREAM("Failed to initialize parser!");
+        }
+        if (fh == NULL) {
+            ROS_ERROR_STREAM("Failed to open file!\n" );
+        }
+        yaml_parser_set_input_file(&parser, fh);
+        bool blockMapping, keyToken, valueToken;
+        string currentKey;
+        Obstacle ob;
+        int valueLength;
+        do {
+            yaml_parser_scan(&parser, &token);
+            switch (token.type)
+            {
+            case YAML_STREAM_START_TOKEN:
+                puts("YAMLObstacle: STREAM START");
+                break;
+            case YAML_STREAM_END_TOKEN:
+                puts("YAMLObstacle: STREAM END");
+                break;
+            case YAML_KEY_TOKEN:
+                keyToken = true;
+                valueToken = false;
+                valueLength = 0;
+                break;
+            case YAML_VALUE_TOKEN:
+                keyToken = false;
+                valueToken = true;
+                break;
+            case YAML_BLOCK_SEQUENCE_START_TOKEN:
+                break;
+            case YAML_BLOCK_ENTRY_TOKEN:
+                break;
+            case YAML_BLOCK_END_TOKEN:
+                blockMapping = false;
+                break;
+            case YAML_BLOCK_MAPPING_START_TOKEN:
+                blockMapping = true;
+                break;
+            case YAML_SCALAR_TOKEN:
+                char *c = (char *) token.data.scalar.value;
+                string s = std::string(c);
+
+                if (keyToken) {
+                    currentKey = s;
+                }
+                if (valueToken) {
+                    if(currentKey.compare("center") == 0) {
+                        ob.center[valueLength] = std::stod(s);
+                    }
+                    else if(currentKey.compare("height") == 0) {
+                        ob.height = std::stod(s);
+                    }
+                    else if(currentKey.compare("width") == 0) {
+                        ob.width = std::stod(s);
+                    }
+                    else if(currentKey.compare("length") == 0) {
+                        ob.length = std::stod(s);
+                        obsList.push_back(ob);
+                        printf("YAMLObstacle: Obstacle pushed \n");
+                    }
+                valueLength++;
+                }
+                break;
+
+                
+            }
+            if(token.type != YAML_STREAM_END_TOKEN)
+            yaml_token_delete(&token);
+        }
+        while (token.type != YAML_STREAM_END_TOKEN);
+        yaml_token_delete(&token);
+    }
+    
+    catch(range_error &e) {
+        ROS_ERROR_STREAM(e.what());
+    }
+    ROS_DEBUG_STREAM("YAMLObstacle: Length: "<< obsList.size());
+    return obsList;
 }

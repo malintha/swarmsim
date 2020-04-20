@@ -3,8 +3,11 @@
     <arg name="nDrones" default="3" />
     <arg name="predefined" default="true" />
     <arg name="yamlFileName" default="goals.yaml"/>
+    <arg name="obstacleConfig" default="obstacles.yaml"/>
+
     <arg name="visualize" default="true"/>
     <arg name="traj_dir" default="$(find swarmsim_example)/launch/traj_data/"/>
+
 
     <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find swarmsim_example)/launch/custom_rosconsole.conf"/>
@@ -15,6 +18,8 @@
         <param name="predefined" value="$(arg predefined)"/>
         <param name="yamlFileName" value="$(arg yamlFileName)"/>
         <param name="visualize" value="$(arg visualize)"/>
+        <param name="obstacleFileName" value="$(arg obstacleConfig)"/>
+
     </node>
 
       <node name="rviz"
