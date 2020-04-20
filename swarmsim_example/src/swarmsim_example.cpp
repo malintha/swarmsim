@@ -10,7 +10,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-    float frequency = 10;
+    float frequency = 100;
     ros::init(argc, argv, "swarmsim_example");
     static ros::NodeHandle n("~");
     int nDrones;
