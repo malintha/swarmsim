@@ -1,0 +1,11 @@
+obstacle:
+  center : [20, 30, 2.5]
+  height: 5
+  width: 12
+  length: 20
+
+obstacle:
+  center: [20, 10, 2.5]
+  height: 5
+  width: 12
+  length: 20

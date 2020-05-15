@@ -9,14 +9,18 @@
 
 using namespace std;
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, bool visualizeTraj)
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, 
+        bool visualizeTraj, string& obstacleFileName)
         : frequency(frequency), n_drones(n_drones), nh(n), visualizeTraj(visualizeTraj) {
     initVariables();
     predefined = true;
     vector<Trajectory> trajectories = simutils::loadTrajectoriesFromFile(n_drones, nh, trajDir);
     if(visualizeTraj) {
         ROS_DEBUG_STREAM("Visualizing the trajectories");
-        vis = new Visualize(n, "map", this->n_drones);
+        stringstream ss;
+        ss << trajDir << obstacleFileName;
+        string obstacleConfigPath = ss.str();
+        vis = new Visualize(n, "map", this->n_drones, obstacleConfigPath);
         vis->addToPaths(trajectories);
     }
     for (int i = 0; i < n_drones; i++) {
@@ -24,15 +28,17 @@ Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& t
         dronesList[i]->pushTrajectory(traj);
     }
     swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
-    
 }
 
-Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName, bool visualizeTraj) :
+Swarm::Swarm(const ros::NodeHandle &n, double frequency, int n_drones, string& trajDir, string& yamlFileName, 
+        bool visualizeTraj, string& obstacleFileName) :
         frequency(frequency), n_drones(n_drones), nh(n), visualizeTraj(visualizeTraj) {
         predefined = false;
-        stringstream ss;
-        ss << trajDir<<yamlFileName;
-        string yamlFilePath = ss.str();
+        stringstream s1, s2;
+        s1 << trajDir<<yamlFileName;
+        string yamlFilePath = s1.str();
+        s2 << trajDir << obstacleFileName;
+        string obstacleConfigPath = s2.str();
         swarmStatePub = nh.advertise<std_msgs::Int8>("swarm/state", 100, false);
         executionInitialized = false;
 
