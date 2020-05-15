@@ -1,3 +1,7 @@
+
+## SwarmSim : Autonomous Multi-Drone Navigation
+![enter image description here](https://raw.githubusercontent.com/Malintha/swarmsim/master/cover.png)
+
 ## Setting up the packages
 
 Clone the following packages to source directory of the catkin workspace.
