@@ -4,6 +4,7 @@
 #include <eigen3/Eigen/Dense>
 #include "Trajectory.h"
 #include "Obstacle.h"
+#include <geometry_msgs/Point.h>
 
 using namespace std;
 using namespace Eigen;
@@ -27,4 +28,10 @@ class Visualize {
         void initMarkers();
         std::vector<Obstacle> readObstacleConfig();
         void populateObstacles();
+
+        void drawGrid(std::vector<geometry_msgs::Point>);
+        void drawPaths(std::vector<Trajectory>);
+        void drawAssignments();
+        void drawSampling(std::vector<geometry_msgs::Point>);
+
 };

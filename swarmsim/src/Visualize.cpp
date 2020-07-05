@@ -47,7 +47,7 @@ void Visualize::initMarkers() {
         m.pose.position.x = obstacles[i].center[0];
         m.pose.position.y = obstacles[i].center[1];
         m.pose.position.z = obstacles[i].center[2];
-        ROS_ERROR_STREAM("obs: "<<obstacles[i].center[0] <<" "<<obstacles[i].center[1]<<" "<<obstacles[i].center[2]);
+        ROS_DEBUG_STREAM("obs: "<<obstacles[i].center[0] <<" "<<obstacles[i].center[1]<<" "<<obstacles[i].center[2]);
 
         m.scale.x = obstacles[i].length;
         m.scale.y = obstacles[i].width;
@@ -81,6 +81,8 @@ void Visualize::draw() {
         markerPub_obs.publish(marker_obs[i]);
     }
 }
+
+
 
 std::vector<Obstacle> Visualize::readObstacleConfig() {
     ROS_DEBUG_STREAM("YAML file path: " << obstacleConfigFilePath);

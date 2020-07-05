@@ -27,7 +27,6 @@ int main(int argc, char **argv) {
     n.getParam("/swarmsim_example/visualize", visualizeTraj);
     n.getParam("/swarmsim_example/obstacleFileName", obstacleConfigFileName);
 
-
     ROS_DEBUG_STREAM("Number of drones: " << nDrones);
     ROS_DEBUG_STREAM("Visualize trajectories: "<< visualizeTraj);
     ROS_DEBUG_STREAM("Use predefined trajectories: " << predefinedTrajectories);
