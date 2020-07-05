@@ -10,7 +10,7 @@ Visualize::Visualize(ros::NodeHandle nh, string worldframe, int ndrones, string 
     this->initMarkers();
     this->markerPub_traj = nh.advertise<visualization_msgs::Marker>("visualization_marker/traj", 10);
     this->markerPub_obs = nh.advertise<visualization_msgs::Marker>("visualization_marker/obs", 10);
-
+    this->markerPub_samples = nh.advertise<visualization_msgs::Marker>("visualization_marker/samples", 10);
 }
 
 void Visualize::initMarkers() {
@@ -56,6 +56,22 @@ void Visualize::initMarkers() {
         m.pose.orientation.w = 1;
         this->marker_obs.push_back(m);
     }
+
+    //markers for grid samples
+        gridMarker.header.stamp = ros::Time::now();
+        gridMarker.type = visualization_msgs::Marker::CUBE_LIST;
+        gridMarker.action = visualization_msgs::Marker::ADD;
+        gridMarker.header.frame_id=this->worldframe;
+        gridMarker.id = 1;
+        gridMarker.color.r=0; 
+        gridMarker.color.g=1; 
+        gridMarker.color.b=1;
+        gridMarker.color.a = 1;
+        gridMarker.scale.x = 0.1;
+        gridMarker.scale.y = 0.1;
+        gridMarker.scale.z = 0.1;
+
+        gridMarker.pose.orientation.w = 1;
 }
 
 void Visualize::addToPaths(vector<Trajectory> trajs) {
@@ -80,9 +96,15 @@ void Visualize::draw() {
     for(int i = 0; i<obstacles.size(); i++) {
         markerPub_obs.publish(marker_obs[i]);
     }
+    markerPub_samples.publish(gridMarker);
 }
 
-
+void Visualize::addToGrid(std::vector<geometry_msgs::Point> ptsArray) {
+    for(int i=0;i<ptsArray.size();i++) {
+        geometry_msgs::Point pt = ptsArray[i];
+        this->gridMarker.points.push_back(pt);
+    }
+}
 
 std::vector<Obstacle> Visualize::readObstacleConfig() {
     ROS_DEBUG_STREAM("YAML file path: " << obstacleConfigFilePath);

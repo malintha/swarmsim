@@ -14,6 +14,7 @@ class Visualize {
         Visualize(ros::NodeHandle nh, string worldframe, int ndrones, string obstacleConfigFilePath);
         void addToPaths(vector<Trajectory> trajs);
         void draw();
+        void addToGrid(std::vector<geometry_msgs::Point>);
 
     private:
         int ndrones;
@@ -21,17 +22,18 @@ class Visualize {
         string worldframe;
         ros::Publisher markerPub_traj;
         ros::Publisher markerPub_obs;
+        ros::Publisher markerPub_samples;
+
         vector<visualization_msgs::Marker> marker_traj;
         vector<visualization_msgs::Marker> marker_obs;
+        visualization_msgs::Marker gridMarker;
         string obstacleConfigFilePath;
         std::vector<Obstacle> obstacles;
         void initMarkers();
         std::vector<Obstacle> readObstacleConfig();
         void populateObstacles();
 
-        void drawGrid(std::vector<geometry_msgs::Point>);
-        void drawPaths(std::vector<Trajectory>);
+        // void addToPaths(std::vector<Trajectory>);
         void drawAssignments();
-        void drawSampling(std::vector<geometry_msgs::Point>);
 
 };
